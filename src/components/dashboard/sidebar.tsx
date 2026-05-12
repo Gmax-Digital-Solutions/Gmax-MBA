@@ -16,7 +16,7 @@ const links = [
 export function DashboardSidebar() {
   const path = usePathname()
   return (
-    <aside className="fixed inset-y-0 left-0 w-[220px] bg-[#1e191b] border-r border-white/[0.06] flex flex-col z-40">
+    <aside className="fixed inset-y-0 left-0 w-[220px] bg-[#0a0a0f] border-r border-white/[0.06] flex flex-col z-40">
       {/* LOGO */}
       <div className="p-4 border-b border-white/[0.06]">
         <Link href="/dashboard" className="flex items-center gap-3">

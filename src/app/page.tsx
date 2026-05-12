@@ -46,10 +46,10 @@ const phaseColorMap: Record<string, { border: string; bg: string; text: string; 
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#241e20] overflow-x-hidden">
+    <div className="min-h-screen bg-[#08080c] overflow-x-hidden">
 
       {/* NAV */}
-      <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-[#241e20]/85 backdrop-blur-xl">
+      <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-[#08080c]/85 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg overflow-hidden bg-white border border-white/10 flex-shrink-0">

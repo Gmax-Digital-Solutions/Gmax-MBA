@@ -87,6 +87,7 @@ export const CURRICULUM: Phase[] = [
           { id: 'b-04-1', title: 'Building a StoryBrand', author: 'Donald Miller', why: 'Most practically useful marketing book — immediately apply to your own messaging.' },
           { id: 'b-04-2', title: 'Positioning: The Battle for Your Mind', author: 'Al Ries & Jack Trout', why: 'Foundational positioning theory. Changes how you see every brand decision.' },
           { id: 'b-04-3', title: 'Contagious: Why Things Catch On', author: 'Jonah Berger', why: 'Science-backed framework for what makes content and ideas spread.' },
+          { id: 'b-04-4', title: 'The One Page Marketing Plan', author: 'Allan Dib', why: 'The simplest and most actionable marketing framework for small businesses and founders — build your entire marketing strategy on a single page.' },
         ],
         youtube: [
           { name: 'Seth Godin (talks + interviews)', desc: 'The clearest thinker on modern marketing — permission, tribes, remarkable work.' },
@@ -296,6 +297,7 @@ export const ALL_MODULES = CURRICULUM.flatMap(p => p.modules)
 export const ALL_BOOKS = ALL_MODULES.flatMap(m => m.books)
 export const ALL_TASKS = ALL_MODULES.flatMap(m => m.tasks)
 export const TOTAL_TASKS = ALL_TASKS.length
+// Total books in the curriculum should now equal 30 after adding the new marketing book.
 export const TOTAL_BOOKS = ALL_BOOKS.length
 
 export function getModuleById(id: string) { return ALL_MODULES.find(m => m.id === id) }

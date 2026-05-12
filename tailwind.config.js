@@ -10,10 +10,10 @@ module.exports = {
       },
       colors: {
         bg: {
-          DEFAULT: '#241e20',
-          2: '#2c2528',
-          3: '#342c2f',
-          4: '#3d3336',
+          DEFAULT: '#08080c',
+          2: '#0f0f14',
+          3: '#15151c',
+          4: '#1c1c26',
         },
         brand: {
           teal: '#2ed8c3',

@@ -22,7 +22,7 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#241e20] flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-[#08080c] flex flex-col items-center justify-center px-4">
       <div className="absolute inset-0 bg-grid-pattern pointer-events-none" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#2ed8c3]/5 rounded-full blur-3xl pointer-events-none" />
 

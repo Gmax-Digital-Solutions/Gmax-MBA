@@ -5,7 +5,7 @@ import { getInitials } from '@/lib/utils'
 
 export function DashboardTopbar({ user }: { user: any }) {
   return (
-    <header className="sticky top-0 z-30 bg-[#241e20]/90 backdrop-blur-xl border-b border-white/[0.06] px-8 h-14 flex items-center justify-between flex-shrink-0">
+    <header className="sticky top-0 z-30 bg-[#08080c]/90 backdrop-blur-xl border-b border-white/[0.06] px-8 h-14 flex items-center justify-between flex-shrink-0">
       <div className="text-sm text-[#706870]">
         {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
       </div>

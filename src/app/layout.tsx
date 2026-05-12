@@ -22,13 +22,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className="bg-[#241e20] text-[#f0f0f0] antialiased">
+      <body className="bg-[#08080c] text-[#f0f0f0] antialiased">
         <Providers>
           {children}
           <Toaster
             position="bottom-right"
             toastOptions={{
-              style: { background: '#2c2528', color: '#f0f0f0', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', fontSize: '13px' },
+              style: { background: '#08080c', color: '#f0f0f0', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', fontSize: '13px' },
               success: { iconTheme: { primary: '#2ed8c3', secondary: '#241e20' } },
               error:   { iconTheme: { primary: '#ef4444', secondary: '#241e20' } },
             }}

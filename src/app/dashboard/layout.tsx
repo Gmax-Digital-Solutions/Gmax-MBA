@@ -8,7 +8,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const session = await getServerSession(authOptions)
   if (!session) redirect('/auth/signin')
   return (
-    <div className="min-h-screen bg-[#241e20] flex">
+    <div className="min-h-screen bg-[#08080c] flex">
       <DashboardSidebar />
       <div className="flex-1 flex flex-col min-w-0 ml-[220px]">
         <DashboardTopbar user={session.user} />

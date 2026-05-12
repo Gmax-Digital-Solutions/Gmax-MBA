@@ -79,7 +79,7 @@ export default function ProfilePage() {
         <div>
           <label className="block text-xs font-medium text-[#a0a0b0] mb-2">I am a</label>
           <select value={form.role} onChange={e => set('role', e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-[#2ed8c3]/50 rounded-xl px-4 py-3 text-sm text-white outline-none transition-colors">
-            {roles.map(r => <option key={r.value} value={r.value} className="bg-[#2c2528]">{r.label}</option>)}
+            {roles.map(r => <option key={r.value} value={r.value} className="bg-[#15151c]">{r.label}</option>)}
           </select>
         </div>
         <div>

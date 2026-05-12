@@ -10,7 +10,7 @@
   --font-cal: 'Playfair Display', Georgia, serif;
 
   /* Gmax Brand */
-  --color-dark:   #241e20;
+
   --color-teal:   #2ed8c3;
   --color-blue:   #585de1;
 }
@@ -19,7 +19,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--color-dark);
+  background: #08080c;
   color: #f0f0f0;
   font-family: var(--font-geist-sans);
   -webkit-font-smoothing: antialiased;
