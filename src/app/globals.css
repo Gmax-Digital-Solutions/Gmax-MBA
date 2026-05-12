@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --font-geist-sans: 'Outfit', system-ui, sans-serif;
+  --font-geist-mono: 'DM Mono', ui-monospace, monospace;
+  --font-cal: 'Playfair Display', Georgia, serif;
+
+  /* Gmax Brand */
+  --color-dark:   #241e20;
+  --color-teal:   #2ed8c3;
+  --color-blue:   #585de1;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--color-dark);
+  color: #f0f0f0;
+  font-family: var(--font-geist-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+.font-display { font-family: var(--font-cal); }
+.font-mono { font-family: var(--font-geist-mono); }
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-400 { animation-delay: 400ms; }
+
+  /* Primary brand gradient — teal */
+  .gradient-text {
+    background: linear-gradient(135deg, #2ed8c3 0%, #5ee3d2 50%, #9aeee6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Secondary brand gradient — blue */
+  .gradient-blue {
+    background: linear-gradient(135deg, #585de1 0%, #7b7fe8 50%, #a5a8f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Combined teal → blue */
+  .gradient-brand {
+    background: linear-gradient(135deg, #2ed8c3 0%, #585de1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
