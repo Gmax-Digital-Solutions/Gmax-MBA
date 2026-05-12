@@ -25,7 +25,7 @@ export const authOptions: NextAuthOptions = {
         const valid = await bcrypt.compare(credentials.password, user.password)
         if (!valid) return null
         await db.user.update({ where: { id: user.id }, data: { lastSeen: new Date() } })
-        return { id: user.id, email: user.email, name: user.name, image: user.image, role: user.role, company: user.company }
+        return { id: user.id, email: user.email, name: user.name, image: user.image, role: user.role, company: user.company ?? undefined }
       },
     }),
   ],
