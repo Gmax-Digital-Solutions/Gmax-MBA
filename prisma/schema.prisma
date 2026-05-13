@@ -23,10 +23,12 @@ model User {
   enrolledAt  DateTime   @default(now())
   lastSeen    DateTime   @default(now())
   isAdmin     Boolean    @default(false)
-  progress    Progress[]
-  notes       Note[]
-  sessions    Session[]
-  accounts    Account[]
+  progress     Progress[]
+  notes        Note[]
+  sessions     Session[]
+  accounts     Account[]
+  dailyTasks   DailyTask[]
+  journalEntries JournalEntry[]
 }
 
 model Progress {
@@ -91,4 +93,33 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model DailyTask {
+  id        String   @id @default(cuid())
+  userId    String
+  day       Int
+  taskId    String
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, day, taskId])
+  @@index([userId, day])
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  date      String   // ISO date string YYYY-MM-DD
+  day       Int      // program day number
+  content   String
+  mood      String?  // "great" | "good" | "okay" | "tough"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
 }
