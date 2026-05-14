@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 import { CURRICULUM, TOTAL_TASKS, TOTAL_BOOKS } from '@/lib/data/curriculum'
 import { getTodayPlan } from '@/lib/data/daily-plan'
 import Link from 'next/link'
-import { ArrowRight, BookOpen, CheckCircle2, Target, Flame, TrendingUp, Clock, CalendarDays, BookMarked, CheckSquare2, Youtube } from 'lucide-react'
+import { ArrowRight, BookOpen, Target, Flame, TrendingUp, Clock, CalendarDays, BookMarked, CheckSquare2, Youtube } from 'lucide-react'
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
@@ -16,9 +16,9 @@ export default async function DashboardPage() {
     db.user.findUnique({ where: { id: userId }, select: { enrolledAt: true, name: true } }),
   ])
 
-  const enrolledAt   = new Date(userRow!.enrolledAt)
-  const daysActive   = Math.max(1, Math.floor((Date.now() - enrolledAt.getTime()) / 86400000))
-  const todayPlan    = getTodayPlan(enrolledAt)
+  const enrolledAt = new Date(userRow!.enrolledAt)
+  const daysActive = Math.max(1, Math.floor((Date.now() - enrolledAt.getTime()) / 86400000))
+  const todayPlan  = getTodayPlan(enrolledAt)
 
   const completedTasks = progressRecords.filter(r => r.type === 'task' && r.completed).length
   const completedBooks = progressRecords.filter(r => r.type === 'book' && r.completed).length
@@ -33,77 +33,78 @@ export default async function DashboardPage() {
     return { ...phase, done, total: tasks.length, pct: tasks.length ? Math.round((done / tasks.length) * 100) : 0 }
   })
 
-  const phaseBarColors: Record<string, string> = {
-    blue: 'bg-[#585de1]', teal: 'bg-[#2ed8c3]', purple: 'bg-purple-500', gold: 'bg-amber-500',
-  }
-  const phaseTextColors: Record<string, string> = {
-    blue: 'text-[#7b7fe8]', teal: 'text-[#2ed8c3]', purple: 'text-purple-400', gold: 'text-amber-400',
-  }
-
+  const phaseBarColors:  Record<string, string> = { blue: 'bg-[#585de1]', teal: 'bg-[#2ed8c3]', purple: 'bg-purple-500', gold: 'bg-amber-500' }
+  const phaseTextColors: Record<string, string> = { blue: 'text-[#7b7fe8]', teal: 'text-[#2ed8c3]', purple: 'text-purple-400', gold: 'text-amber-400' }
   const typeIcons: Record<string, any> = { read: BookOpen, watch: Youtube, task: CheckSquare2, reflect: BookMarked }
   const typeColors: Record<string, string> = {
-    read: 'text-[#2ed8c3] bg-[#2ed8c3]/10 border-[#2ed8c3]/20',
-    watch: 'text-red-400 bg-red-500/10 border-red-500/20',
-    task: 'text-[#585de1] bg-[#585de1]/10 border-[#585de1]/20',
+    read:    'text-[#2ed8c3] bg-[#2ed8c3]/10 border-[#2ed8c3]/20',
+    watch:   'text-red-400 bg-red-500/10 border-red-500/20',
+    task:    'text-[#585de1] bg-[#585de1]/10 border-[#585de1]/20',
     reflect: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-6">
 
       {/* HEADER */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[#706870] text-sm mb-1">{greeting},</p>
-          <h1 className="font-display text-3xl font-bold text-white">{userRow?.name?.split(' ')[0]} 👋</h1>
-          <p className="text-[#a0a0b0] text-sm mt-1">Day {daysActive} of your MBA journey. Keep building.</p>
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-white">{userRow?.name?.split(' ')[0]} 👋</h1>
+          <p className="text-[#a0a0b0] text-sm mt-1">Day {daysActive} of your MBA journey.</p>
         </div>
         <Link href="/dashboard/daily"
-          className="flex items-center gap-2 text-sm bg-[#2ed8c3] hover:bg-[#5ee3d2] text-[#241e20] font-bold px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-[#2ed8c3]/15">
-          Today's Plan <ArrowRight className="w-3.5 h-3.5" />
+          className="flex-shrink-0 flex items-center gap-2 text-sm bg-[#2ed8c3] hover:bg-[#5ee3d2] text-[#241e20] font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-[#2ed8c3]/15">
+          <span className="hidden sm:inline">Today's Plan</span>
+          <span className="sm:hidden">Today</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
 
-      {/* STATS */}
-      <div className="grid grid-cols-4 gap-4">
+      {/* STATS — 2 cols on mobile, 4 on desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {[
-          { icon: Target,     label: 'Overall Progress', value: `${overallPct}%`, sub: `${completedTasks}/${TOTAL_TASKS} tasks`, iconBg: 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20', iconColor: 'text-[#2ed8c3]'  },
-          { icon: BookOpen,   label: 'Books Completed',  value: completedBooks,   sub: `of ${TOTAL_BOOKS} total`,                iconBg: 'bg-[#585de1]/10 border-[#585de1]/20', iconColor: 'text-[#7b7fe8]'  },
-          { icon: Flame,      label: 'Days Active',      value: daysActive,       sub: 'since enrollment',                       iconBg: 'bg-amber-500/10 border-amber-500/20',  iconColor: 'text-amber-400'  },
-          { icon: TrendingUp, label: 'Community',        value: totalUsers,       sub: 'founders enrolled',                      iconBg: 'bg-purple-500/10 border-purple-500/20',iconColor: 'text-purple-400' },
+          { icon: Target,     label: 'Progress',   value: `${overallPct}%`, sub: `${completedTasks}/${TOTAL_TASKS} tasks`, iconBg: 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20', iconColor: 'text-[#2ed8c3]'  },
+          { icon: BookOpen,   label: 'Books Read',  value: completedBooks,   sub: `of ${TOTAL_BOOKS}`,                      iconBg: 'bg-[#585de1]/10 border-[#585de1]/20', iconColor: 'text-[#7b7fe8]'  },
+          { icon: Flame,      label: 'Days Active', value: daysActive,       sub: 'since day 1',                            iconBg: 'bg-amber-500/10 border-amber-500/20',  iconColor: 'text-amber-400'  },
+          { icon: TrendingUp, label: 'Community',   value: totalUsers,       sub: 'founders',                               iconBg: 'bg-purple-500/10 border-purple-500/20',iconColor: 'text-purple-400' },
         ].map(stat => (
-          <div key={stat.label} className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 relative overflow-hidden">
+          <div key={stat.label} className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4 md:p-5 relative overflow-hidden">
             <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-            <div className={`w-9 h-9 rounded-xl border flex items-center justify-center mb-3 ${stat.iconBg}`}>
-              <stat.icon className={`w-4 h-4 ${stat.iconColor}`} />
+            <div className={`w-8 h-8 md:w-9 md:h-9 rounded-xl border flex items-center justify-center mb-3 ${stat.iconBg}`}>
+              <stat.icon className={`w-3.5 h-3.5 md:w-4 md:h-4 ${stat.iconColor}`} />
             </div>
-            <div className="font-display text-3xl font-bold text-white mb-0.5">{stat.value}</div>
-            <div className="text-[10px] text-[#706870] uppercase tracking-wider font-semibold">{stat.label}</div>
-            <div className="text-xs text-[#504850] mt-0.5">{stat.sub}</div>
+            <div className="font-display text-2xl md:text-3xl font-bold text-white mb-0.5">{stat.value}</div>
+            <div className="text-[10px] text-[#706870] uppercase tracking-wider font-semibold leading-tight">{stat.label}</div>
+            <div className="text-xs text-[#504850] mt-0.5 hidden sm:block">{stat.sub}</div>
           </div>
         ))}
       </div>
 
-      {/* TODAY'S PLAN PREVIEW + PHASE PROGRESS */}
-      <div className="grid grid-cols-3 gap-6">
+      {/* TODAY PLAN + QUICK LINKS — stack on mobile, side by side on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* TODAY PREVIEW */}
-        <div className="col-span-2 bg-white/[0.02] border border-white/[0.07] rounded-2xl p-6">
+        {/* TODAY PREVIEW — full width mobile, 2/3 desktop */}
+        <div className="lg:col-span-2 bg-white/[0.02] border border-white/[0.07] rounded-2xl p-5 md:p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <CheckSquare2 className="w-4 h-4 text-[#2ed8c3]" />
-              <h2 className="font-display text-lg font-bold text-white">Today's Plan</h2>
-              {todayPlan && <span className="text-xs font-mono text-[#2ed8c3] bg-[#2ed8c3]/10 border border-[#2ed8c3]/20 px-2 py-0.5 rounded-full">Day {todayPlan.day}</span>}
+              <h2 className="font-display text-base md:text-lg font-bold text-white">Today's Plan</h2>
+              {todayPlan && (
+                <span className="text-xs font-mono text-[#2ed8c3] bg-[#2ed8c3]/10 border border-[#2ed8c3]/20 px-2 py-0.5 rounded-full">
+                  Day {todayPlan.day}
+                </span>
+              )}
             </div>
             <Link href="/dashboard/daily" className="text-xs text-[#2ed8c3] hover:text-[#5ee3d2] flex items-center gap-1 transition-colors">
-              Open full plan <ArrowRight className="w-3 h-3" />
+              Full plan <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
           {todayPlan ? (
             <>
               <div className="mb-3">
-                <div className="text-white font-semibold mb-0.5">{todayPlan.title}</div>
+                <div className="text-white font-semibold text-sm md:text-base mb-0.5">{todayPlan.title}</div>
                 <div className="text-xs text-[#a0a0b0]">{todayPlan.focus}</div>
               </div>
               <div className="space-y-2">
@@ -111,13 +112,13 @@ export default async function DashboardPage() {
                   const Icon = typeIcons[task.type] || CheckSquare2
                   return (
                     <div key={task.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
-                      <div className={`flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-lg border text-xs ${typeColors[task.type]}`}>
+                      <div className={`flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-lg border ${typeColors[task.type]}`}>
                         <Icon className="w-3.5 h-3.5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-semibold text-white">{task.label}</div>
                         <div className="text-[11px] text-[#706870] truncate">
-                          {task.chapter || task.searchQuery || task.detail.slice(0, 60)}
+                          {task.chapter || task.searchQuery || task.detail.slice(0, 55)}
                         </div>
                       </div>
                       <div className="flex items-center gap-1 text-[10px] text-[#706870] flex-shrink-0">
@@ -129,20 +130,20 @@ export default async function DashboardPage() {
               </div>
             </>
           ) : (
-            <div className="text-center py-6 text-[#706870] text-sm">Program complete — keep going with the curriculum!</div>
+            <div className="text-center py-6 text-[#706870] text-sm">Program complete — keep going!</div>
           )}
         </div>
 
-        {/* QUICK LINKS + PHASE */}
+        {/* QUICK LINKS + PHASE PROGRESS */}
         <div className="space-y-4">
-          {/* Quick links */}
-          <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-5">
+          {/* Quick links — horizontal scroll on mobile */}
+          <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-4 md:p-5">
             <h2 className="font-display text-sm font-bold text-white mb-3">Quick Access</h2>
             <div className="space-y-2">
               {[
-                { href: '/dashboard/daily',    icon: CheckSquare2,  label: "Today's Tasks",  color: 'text-[#2ed8c3]', sub: `Day ${daysActive}` },
-                { href: '/dashboard/calendar', icon: CalendarDays,  label: 'Calendar',       color: 'text-[#585de1]', sub: 'Study schedule'    },
-                { href: '/dashboard/journal',  icon: BookMarked,    label: 'Journal',        color: 'text-amber-400', sub: 'Write & reflect'   },
+                { href: '/dashboard/daily',    icon: CheckSquare2, label: "Today's Tasks", color: 'text-[#2ed8c3]', sub: `Day ${daysActive}` },
+                { href: '/dashboard/calendar', icon: CalendarDays, label: 'Calendar',      color: 'text-[#585de1]', sub: 'Study schedule'   },
+                { href: '/dashboard/journal',  icon: BookMarked,   label: 'Journal',       color: 'text-amber-400', sub: 'Write & reflect'  },
               ].map(item => (
                 <Link key={item.href} href={item.href}
                   className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] hover:border-white/10 transition-all group">
@@ -157,8 +158,8 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          {/* Phase mini-progress */}
-          <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-5">
+          {/* Phase progress */}
+          <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-4 md:p-5">
             <h2 className="font-display text-sm font-bold text-white mb-3">Phase Progress</h2>
             <div className="space-y-3">
               {phaseProgress.map(phase => {
@@ -179,7 +180,6 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   )

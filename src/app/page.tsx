@@ -4,7 +4,7 @@ import { ArrowRight, BookOpen, Users, Trophy, Zap, BarChart3, Globe, CheckCircle
 
 const stats = [
   { label: 'Modules',  value: '12', sub: 'across 4 phases' },
-  { label: 'Books',    value: '29', sub: 'curated reads'   },
+  { label: 'Books',    value: '30', sub: 'curated reads'   },
   { label: 'Duration', value: '36', sub: 'months structured' },
   { label: 'Cost',     value: '$0', sub: 'completely free' },
 ]
@@ -50,7 +50,7 @@ export default function LandingPage() {
 
       {/* NAV */}
       <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-[#08080c]/85 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg overflow-hidden bg-white border border-white/10 flex-shrink-0">
               <Image src="/logo.png" alt="Gmax MBA" width={32} height={32} className="w-full h-full object-cover" />
@@ -74,7 +74,7 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO */}
-      <section className="pt-32 pb-24 px-6 relative">
+      <section className="pt-28 pb-16 md:pt-32 md:pb-24 px-4 md:px-6 relative">
         <div className="absolute inset-0 bg-grid-pattern pointer-events-none" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#2ed8c3]/6 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-0 right-1/4 w-[400px] h-[300px] bg-[#585de1]/6 rounded-full blur-3xl pointer-events-none" />
@@ -83,7 +83,7 @@ export default function LandingPage() {
             <span className="w-1.5 h-1.5 rounded-full bg-[#2ed8c3] animate-pulse" />
             100% FREE — NO CREDIT CARD REQUIRED
           </div>
-          <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
             The MBA Built for
             <br />
             <span className="gradient-text">Founders & Builders</span>
@@ -114,13 +114,13 @@ export default function LandingPage() {
       </section>
 
       {/* WHO IT'S FOR */}
-      <section id="audience" className="py-20 px-6 border-t border-white/[0.06]">
+      <section id="audience" className="py-14 md:py-20 px-4 md:px-6 border-t border-white/[0.06]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <div className="text-xs font-semibold text-[#2ed8c3] tracking-widest mb-3">WHO THIS IS FOR</div>
             <h2 className="font-display text-3xl md:text-4xl font-bold text-white">You build products. Now build the business.</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {audience.map((a) => (
               <div key={a.title} className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-8 hover:border-white/10 transition-colors">
                 <div className="w-12 h-12 rounded-xl bg-[#585de1]/10 border border-[#585de1]/20 flex items-center justify-center mb-5">
@@ -135,7 +135,7 @@ export default function LandingPage() {
       </section>
 
       {/* CURRICULUM */}
-      <section id="curriculum" className="py-20 px-6 border-t border-white/[0.06]">
+      <section id="curriculum" className="py-14 md:py-20 px-4 md:px-6 border-t border-white/[0.06]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <div className="text-xs font-semibold text-[#2ed8c3] tracking-widest mb-3">4 PHASES · 12 MODULES · 36 MONTHS</div>
@@ -170,13 +170,13 @@ export default function LandingPage() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="py-20 px-6 border-t border-white/[0.06]">
+      <section id="features" className="py-14 md:py-20 px-4 md:px-6 border-t border-white/[0.06]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <div className="text-xs font-semibold text-[#2ed8c3] tracking-widest mb-3">WHAT YOU GET</div>
             <h2 className="font-display text-3xl md:text-4xl font-bold text-white">Everything built-in. Nothing held back.</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {features.map((f) => (
               <div key={f.title} className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 hover:border-white/10 transition-colors">
                 <div className="w-10 h-10 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center mb-4">
@@ -191,12 +191,12 @@ export default function LandingPage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="py-20 px-6 border-t border-white/[0.06]">
+      <section className="py-14 md:py-20 px-4 md:px-6 border-t border-white/[0.06]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-display text-3xl font-bold text-white">From the community</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
             {testimonials.map((t) => (
               <div key={t.name} className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6">
                 <div className="flex gap-0.5 mb-4">
@@ -214,7 +214,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 px-6 border-t border-white/[0.06]">
+      <section className="py-16 md:py-24 px-4 md:px-6 border-t border-white/[0.06]">
         <div className="max-w-3xl mx-auto text-center">
           <div className="bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08] rounded-3xl p-12 relative overflow-hidden">
             <div className="absolute inset-0 bg-[#2ed8c3]/4 pointer-events-none" />
@@ -250,7 +250,7 @@ export default function LandingPage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/[0.06] py-10 px-6">
+      <footer className="border-t border-white/[0.06] py-10 px-4 md:px-6">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg overflow-hidden bg-white border border-white/10 flex-shrink-0">

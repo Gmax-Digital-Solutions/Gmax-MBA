@@ -10,10 +10,10 @@ module.exports = {
       },
       colors: {
         bg: {
-          DEFAULT: '#08080c',
-          2: '#0f0f14',
-          3: '#15151c',
-          4: '#1c1c26',
+          DEFAULT: '#241e20',
+          2: '#2c2528',
+          3: '#342c2f',
+          4: '#3d3336',
         },
         brand: {
           teal: '#2ed8c3',
@@ -74,5 +74,16 @@ module.exports = {
       borderRadius: { xl: '12px', '2xl': '16px', '3xl': '24px' },
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities }) {
+      addUtilities({
+        '.pb-safe': {
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        },
+        '.pt-safe': {
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+        },
+      })
+    }
+  ],
 }

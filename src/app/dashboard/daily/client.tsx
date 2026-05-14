@@ -27,16 +27,16 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
   dayNumber: number
   userName: string
 }) {
-  const [tasks, setTasks]           = useState(initialDailyTasks)
-  const [journal, setJournal]       = useState(initialJournalEntry?.content || '')
-  const [mood, setMood]             = useState(initialJournalEntry?.mood || '')
-  const [saving, setSaving]         = useState<string | null>(null)
+  const [tasks, setTasks]             = useState(initialDailyTasks)
+  const [journal, setJournal]         = useState(initialJournalEntry?.content || '')
+  const [mood, setMood]               = useState(initialJournalEntry?.mood || '')
+  const [saving, setSaving]           = useState<string | null>(null)
   const [savingJournal, setSavingJournal] = useState(false)
   const [expandedTask, setExpandedTask]   = useState<string | null>(null)
 
   if (!plan) {
     return (
-      <div className="max-w-3xl mx-auto flex flex-col items-center justify-center py-24 text-center">
+      <div className="max-w-3xl mx-auto flex flex-col items-center justify-center py-24 text-center px-4">
         <div className="text-5xl mb-4">🎓</div>
         <h2 className="font-display text-2xl font-bold text-white mb-2">You've completed the structured program!</h2>
         <p className="text-[#a0a0b0]">Keep going with the curriculum at your own pace.</p>
@@ -57,10 +57,7 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
         body: JSON.stringify({ day: plan!.day, taskId: task.id, done }),
       })
       const data = await res.json()
-      setTasks(prev => {
-        const filtered = prev.filter(t => t.taskId !== task.id)
-        return [...filtered, data]
-      })
+      setTasks(prev => [...prev.filter(t => t.taskId !== task.id), data])
       if (done) toast.success(task.type === 'reflect' ? '✍️ Journal task done!' : '✅ Nicely done!')
     } catch { toast.error('Failed to save') }
     finally { setSaving(null) }
@@ -83,27 +80,27 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
   const greeting = greetHour < 12 ? 'Good morning' : greetHour < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-4 md:space-y-6">
 
       {/* HEADER */}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6">
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <p className="text-[#706870] text-xs mb-1">{greeting}, {userName.split(' ')[0]} · {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-            <h1 className="font-display text-2xl font-bold text-white">{plan.title}</h1>
-            <p className="text-[#a0a0b0] text-sm mt-1">{plan.focus}</p>
+      <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4 md:p-6">
+        <div className="flex items-start justify-between mb-3 gap-3">
+          <div className="min-w-0">
+            <p className="text-[#706870] text-xs mb-1">{greeting}, {userName.split(' ')[0]} · {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+            <h1 className="font-display text-xl md:text-2xl font-bold text-white leading-tight">{plan.title}</h1>
+            <p className="text-[#a0a0b0] text-xs md:text-sm mt-1 line-clamp-1">{plan.focus}</p>
           </div>
-          <div className="text-right flex-shrink-0 ml-4">
-            <div className="flex items-center gap-1.5 justify-end mb-1">
-              <Flame className="w-3.5 h-3.5 text-[#2ed8c3]" />
+          <div className="text-right flex-shrink-0">
+            <div className="flex items-center gap-1 justify-end mb-0.5">
+              <Flame className="w-3 h-3 text-[#2ed8c3]" />
               <span className="text-xs font-mono font-bold text-[#2ed8c3]">Day {plan.day}</span>
             </div>
-            <div className="text-xs text-[#706870]">Week {plan.week} · Phase {plan.phase}</div>
+            <div className="text-[10px] text-[#706870]">Week {plan.week} · Phase {plan.phase}</div>
           </div>
         </div>
 
-        {/* PROGRESS BAR */}
-        <div className="mt-4">
+        {/* Progress */}
+        <div>
           <div className="flex justify-between text-xs text-[#706870] mb-1.5">
             <span>Today's progress</span>
             <span className="text-[#2ed8c3] font-semibold">{completedCount}/{plan.tasks.length} done</span>
@@ -115,7 +112,7 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
         </div>
 
         {allDone && (
-          <div className="mt-4 bg-[#2ed8c3]/10 border border-[#2ed8c3]/20 rounded-xl px-4 py-3 text-center">
+          <div className="mt-3 bg-[#2ed8c3]/10 border border-[#2ed8c3]/20 rounded-xl px-4 py-2.5 text-center">
             <span className="text-[#2ed8c3] font-semibold text-sm">🎉 Day {plan.day} complete! Come back tomorrow for Day {plan.day + 1}.</span>
           </div>
         )}
@@ -124,61 +121,68 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
       {/* DAILY TASKS */}
       <div className="space-y-3">
         {plan.tasks.map((task, idx) => {
-          const cfg = typeConfig[task.type]
-          const done = !!isTaskDone(task.id)
+          const cfg     = typeConfig[task.type]
+          const done    = !!isTaskDone(task.id)
           const expanded = expandedTask === task.id
-          const Icon = cfg.icon
+          const Icon    = cfg.icon
 
           return (
-            <div key={task.id} className={cn('border rounded-2xl overflow-hidden transition-all', done ? 'border-[#2ed8c3]/20 bg-[#2ed8c3]/4' : 'border-white/[0.07] bg-white/[0.02]')}>
-              {/* HEADER ROW */}
-              <div className="flex items-center gap-4 p-5">
+            <div key={task.id} className={cn('border rounded-2xl overflow-hidden transition-all',
+              done ? 'border-[#2ed8c3]/20 bg-[#2ed8c3]/4' : 'border-white/[0.07] bg-white/[0.02]')}>
+
+              {/* Header row */}
+              <div className="flex items-center gap-2 md:gap-4 p-3 md:p-5">
                 {/* Step number */}
-                <div className={cn('flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border',
+                <div className={cn('flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs font-bold border',
                   done ? 'bg-[#2ed8c3] border-[#2ed8c3] text-[#241e20]' : 'border-white/10 text-[#706870]')}>
                   {done ? '✓' : idx + 1}
                 </div>
 
-                {/* Type badge */}
-                <div className={cn('flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold', cfg.bg, cfg.color)}>
+                {/* Type badge — hidden on tiny screens */}
+                <div className={cn('hidden sm:flex flex-shrink-0 items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold', cfg.bg, cfg.color)}>
                   <Icon className="w-3 h-3" />
                   {cfg.label}
                 </div>
 
                 {/* Label + detail */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className={cn('text-sm font-semibold', done ? 'text-[#706870] line-through' : 'text-white')}>{task.label}</span>
+                    {/* Show type on mobile */}
+                    <span className={cn('sm:hidden text-[10px] px-1.5 py-0.5 rounded border font-semibold', cfg.bg, cfg.color)}>{cfg.label}</span>
                     {task.duration && (
-                      <span className="flex items-center gap-1 text-[10px] text-[#706870] bg-white/[0.04] px-2 py-0.5 rounded-full">
+                      <span className="hidden md:flex items-center gap-1 text-[10px] text-[#706870] bg-white/[0.04] px-2 py-0.5 rounded-full">
                         <Clock className="w-2.5 h-2.5" />{task.duration}
                       </span>
                     )}
                   </div>
                   <p className={cn('text-xs mt-0.5 truncate', done ? 'text-[#504850]' : 'text-[#a0a0b0]')}>
-                    {task.chapter || task.searchQuery || task.detail.slice(0, 70) + '...'}
+                    {task.chapter || task.searchQuery || task.detail.slice(0, 55) + '...'}
                   </p>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1.5 flex-shrink-0">
                   <button onClick={() => setExpandedTask(expanded ? null : task.id)}
                     className="w-7 h-7 rounded-lg border border-white/[0.07] hover:border-white/15 flex items-center justify-center text-[#706870] hover:text-white transition-all">
                     {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                   </button>
                   <button onClick={() => toggleTask(task)} disabled={saving === task.id}
-                    className={cn('px-3 py-1.5 rounded-lg text-xs font-bold transition-all border',
-                      done ? 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20 text-[#2ed8c3]'
-                           : 'bg-white/[0.04] border-white/[0.08] text-[#a0a0b0] hover:border-[#2ed8c3]/30 hover:text-[#2ed8c3]')}>
-                    {saving === task.id ? <Loader2 className="w-3 h-3 animate-spin" /> : done ? 'Done ✓' : 'Mark Done'}
+                    className={cn('px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-bold transition-all border whitespace-nowrap',
+                      done
+                        ? 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20 text-[#2ed8c3]'
+                        : 'bg-white/[0.04] border-white/[0.08] text-[#a0a0b0] hover:border-[#2ed8c3]/30 hover:text-[#2ed8c3]')}>
+                    {saving === task.id
+                      ? <Loader2 className="w-3 h-3 animate-spin" />
+                      : done ? '✓ Done' : 'Done'}
                   </button>
                 </div>
               </div>
 
-              {/* EXPANDED DETAIL */}
+              {/* Expanded detail */}
               {expanded && (
-                <div className="px-5 pb-5 pt-0 border-t border-white/[0.06]">
-                  <div className="pt-4 space-y-3">
+                <div className="px-4 md:px-5 pb-4 md:pb-5 pt-0 border-t border-white/[0.06]">
+                  <div className="pt-3 space-y-3">
                     {task.chapter && (
                       <div className="flex items-start gap-2">
                         <BookOpen className="w-3.5 h-3.5 text-[#2ed8c3] mt-0.5 flex-shrink-0" />
@@ -192,14 +196,14 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
                     {task.searchQuery && (
                       <div className="flex items-start gap-2">
                         <Youtube className="w-3.5 h-3.5 text-red-400 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <div className="text-[10px] text-[#706870] uppercase tracking-wider mb-0.5">YouTube Search</div>
                           <div className="text-sm text-white mb-2">{task.detail}</div>
                           <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(task.searchQuery)}`}
                             target="_blank" rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 text-xs bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition-all">
                             <ExternalLink className="w-3 h-3" />
-                            Search on YouTube: "{task.searchQuery}"
+                            Open YouTube Search
                           </a>
                         </div>
                       </div>
@@ -230,15 +234,15 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
         })}
       </div>
 
-      {/* JOURNAL SECTION */}
-      <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
+      {/* JOURNAL */}
+      <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-4 md:p-6">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <PenLine className="w-4 h-4 text-amber-400" />
             <h2 className="font-display text-base font-bold text-white">Today's Journal</h2>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[#706870]">How was today?</span>
+            <span className="text-xs text-[#706870] hidden sm:inline">How was today?</span>
             {moodOptions.map(m => (
               <button key={m.value} onClick={() => setMood(m.value)}
                 className={cn('text-lg transition-all hover:scale-110', mood === m.value ? 'opacity-100 scale-110' : 'opacity-40')}
@@ -252,19 +256,18 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
         <textarea
           value={journal}
           onChange={e => setJournal(e.target.value)}
-          placeholder={`Day ${plan.day} — ${plan.title}\n\nWhat did I learn today? How does it apply to my business? What will I do differently?`}
-          className="w-full bg-white/[0.03] border border-white/[0.06] focus:border-amber-500/30 rounded-xl px-4 py-3 text-sm text-white placeholder-[#504850] outline-none resize-none min-h-[140px] leading-relaxed transition-colors font-sans"
+          placeholder={`Day ${plan.day} — ${plan.title}\n\nWhat did I learn today? How does it apply to my business?`}
+          className="w-full bg-white/[0.03] border border-white/[0.06] focus:border-amber-500/30 rounded-xl px-4 py-3 text-sm text-white placeholder-[#504850] outline-none resize-none min-h-[120px] md:min-h-[140px] leading-relaxed transition-colors"
         />
 
         <div className="flex items-center justify-between mt-3">
-          <span className="text-xs text-[#706870]">{journal.length} characters</span>
+          <span className="text-xs text-[#706870]">{journal.length} chars</span>
           <button onClick={saveJournal} disabled={savingJournal || !journal.trim()}
             className="flex items-center gap-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-xs font-semibold px-4 py-2 rounded-xl transition-all disabled:opacity-40">
-            {savingJournal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '✍️'} Save Journal
+            {savingJournal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '✍️'} Save
           </button>
         </div>
       </div>
-
     </div>
   )
 }

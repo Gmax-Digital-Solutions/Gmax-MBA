@@ -10,7 +10,7 @@
   --font-cal: 'Playfair Display', Georgia, serif;
 
   /* Gmax Brand */
-
+  --color-dark:   #241e20;
   --color-teal:   #2ed8c3;
   --color-blue:   #585de1;
 }
@@ -19,7 +19,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: #08080c;
+  background: var(--color-dark);
   color: #f0f0f0;
   font-family: var(--font-geist-sans);
   -webkit-font-smoothing: antialiased;
@@ -64,4 +64,24 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+}
+
+/* ── MOBILE IMPROVEMENTS ──────────────────────────────────────────────── */
+
+/* Prevent double-tap zoom on buttons */
+button, a { touch-action: manipulation; }
+
+/* Smooth scrolling on iOS */
+* { -webkit-overflow-scrolling: touch; }
+
+/* Prevent text size adjustment on orientation change */
+html { -webkit-text-size-adjust: 100%; }
+
+/* Hide scrollbar on horizontal scroll containers */
+.overflow-x-auto::-webkit-scrollbar { display: none; }
+.overflow-x-auto { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Bottom nav safe area for iOS */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }

@@ -22,26 +22,27 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#08080c] flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-[#241e20] flex flex-col items-center justify-center px-4 py-8">
       <div className="absolute inset-0 bg-grid-pattern pointer-events-none" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#2ed8c3]/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative w-full max-w-sm">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex flex-col items-center gap-3 mb-2">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white border border-white/10 shadow-xl shadow-black/30">
+        <div className="text-center mb-6 md:mb-8">
+          <Link href="/" className="inline-flex flex-col items-center gap-2 mb-2">
+            <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl overflow-hidden bg-white border border-white/10 shadow-xl shadow-black/30">
               <Image src="/logo.png" alt="Gmax MBA" width={64} height={64} className="w-full h-full object-cover" priority />
             </div>
-            <span className="font-display font-bold text-white text-xl">Gmax MBA</span>
+            <span className="font-display font-bold text-white text-lg md:text-xl">Gmax MBA</span>
           </Link>
-          <h1 className="font-display text-2xl font-bold text-white mb-2 mt-4">Welcome back</h1>
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-1 mt-3">Welcome back</h1>
           <p className="text-[#a0a0b0] text-sm">Continue your learning journey.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-8 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 md:p-8 space-y-4 md:space-y-5">
           <div>
             <label className="block text-xs font-medium text-[#a0a0b0] mb-2">Email Address</label>
-            <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+            <input type="email" value={form.email}
+              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
               placeholder="you@example.com"
               className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-[#2ed8c3]/50 rounded-xl px-4 py-3 text-sm text-white placeholder-[#504850] outline-none transition-colors" required />
           </div>
@@ -52,7 +53,8 @@ export default function SignInPage() {
                 onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                 placeholder="Your password"
                 className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-[#2ed8c3]/50 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-[#504850] outline-none transition-colors" required />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#706870] hover:text-[#a0a0b0]">
+              <button type="button" onClick={() => setShowPw(!showPw)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#706870] hover:text-[#a0a0b0] transition-colors">
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>

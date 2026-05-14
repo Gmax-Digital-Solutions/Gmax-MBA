@@ -70,15 +70,15 @@ export default function JournalPage() {
   const filtered = entries.filter(e => e.content?.toLowerCase().includes(search.toLowerCase()) || e.date?.includes(search))
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-bold text-white mb-1">Learning Journal</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-1">Learning Journal</h1>
         <p className="text-[#a0a0b0] text-sm">Capture insights, reflections, and ideas from every study session.</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* LEFT — today's entry + list */}
-        <div className="col-span-2 space-y-5">
+        <div className="lg:col-span-2 space-y-4 md:space-y-5">
 
           {/* TODAY */}
           <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-6">
@@ -178,7 +178,7 @@ export default function JournalPage() {
         {/* RIGHT — selected entry detail */}
         <div className="space-y-4">
           {selected ? (
-            <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-5 sticky top-4">
+            <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-4 md:p-5 lg:sticky lg:top-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-mono text-[#a0a0b0]">{selected.date}</span>
                 <div className="flex items-center gap-2">

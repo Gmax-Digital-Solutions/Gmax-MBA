@@ -50,15 +50,15 @@ export default function CalendarPage() {
   const selectedPlan = selectedDay ? DAILY_PLAN.find(p => p.day === selectedDay) : null
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-bold text-white mb-1">Calendar</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-1">Calendar</h1>
         <p className="text-[#a0a0b0] text-sm">Your daily study schedule mapped to the calendar.</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* CALENDAR */}
-        <div className="col-span-2 bg-white/[0.02] border border-white/[0.07] rounded-2xl p-6">
+        <div className="lg:col-span-2 bg-white/[0.02] border border-white/[0.07] rounded-2xl p-6">
           {/* Nav */}
           <div className="flex items-center justify-between mb-5">
             <button onClick={prevMonth} className="w-8 h-8 rounded-lg border border-white/[0.07] hover:border-white/15 flex items-center justify-center text-[#a0a0b0] hover:text-white transition-all">
