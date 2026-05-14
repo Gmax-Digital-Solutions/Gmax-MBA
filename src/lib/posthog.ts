@@ -5,9 +5,13 @@ const POSTHOG_API_KEY = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_API_KEY
 const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST
 
 export const initPostHog = () => {
-  if (!isBrowser || !POSTHOG_API_KEY || !POSTHOG_HOST) return
+  if (!isBrowser || !POSTHOG_API_KEY || !POSTHOG_HOST) {
+    console.warn('PostHog: Missing API key or host, skipping init')
+    return
+  }
   if ((window as any).posthog?.__loaded) return
 
+  console.log('PostHog: Initializing with key:', POSTHOG_API_KEY.slice(0, 10) + '...')
   posthog.init(POSTHOG_API_KEY, {
     api_host: POSTHOG_HOST,
     autocapture: true,
