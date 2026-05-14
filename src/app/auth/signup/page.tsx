@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
+import { captureEvent, identifyUser } from '@/lib/posthog'
 
 const roles = [
   { value: 'builder',  label: 'Builder / Maker'        },
@@ -32,13 +33,38 @@ export default function SignUpPage() {
         body: JSON.stringify(form),
       })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.error || 'Registration failed'); return }
+      if (!res.ok) {
+        captureEvent('signup failed', { email: form.email, role: form.role, error: data.error })
+        toast.error(data.error || 'Registration failed')
+        return
+      }
+
+      identifyUser(form.email, {
+        name: form.name,
+        email: form.email,
+        company: form.company,
+        role: form.role,
+        action: 'signup',
+      })
+      captureEvent('user signed up', {
+        email: form.email,
+        role: form.role,
+        company: form.company,
+      })
+
       toast.success('Account created! Signing you in...')
       const result = await signIn('credentials', { email: form.email, password: form.password, redirect: false })
-      if (result?.ok) router.push('/dashboard')
-      else router.push('/auth/signin')
-    } catch { toast.error('Something went wrong') }
-    finally { setLoading(false) }
+      if (result?.ok) {
+        captureEvent('signup sign in success', { email: form.email })
+        router.push('/dashboard')
+      } else {
+        captureEvent('signup sign in failed', { email: form.email })
+        router.push('/auth/signin')
+      }
+    } catch (error) {
+      captureEvent('signup error', { email: form.email, error: String(error) })
+      toast.error('Something went wrong')
+    } finally { setLoading(false) }
   }
 
   return (

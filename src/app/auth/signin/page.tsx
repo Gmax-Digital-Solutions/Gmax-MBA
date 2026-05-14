@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
+import { captureEvent, identifyUser } from '@/lib/posthog'
 
 export default function SignInPage() {
   const router = useRouter()
@@ -17,8 +18,16 @@ export default function SignInPage() {
     e.preventDefault()
     setLoading(true)
     const result = await signIn('credentials', { ...form, redirect: false })
-    if (result?.ok) { toast.success('Welcome back!'); router.push('/dashboard') }
-    else { toast.error('Invalid email or password'); setLoading(false) }
+    if (result?.ok) {
+      identifyUser(form.email, { email: form.email, plan: 'free', action: 'login' })
+      captureEvent('user logged in', { email: form.email })
+      toast.success('Welcome back!')
+      router.push('/dashboard')
+    } else {
+      captureEvent('login failed', { email: form.email })
+      toast.error('Invalid email or password')
+      setLoading(false)
+    }
   }
 
   return (
