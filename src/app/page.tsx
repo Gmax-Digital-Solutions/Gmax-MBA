@@ -332,7 +332,7 @@ export default function LandingPage() {
           </div>
           <p className="text-[#706070] text-xs text-center">
             A free education initiative by{' '}
-            <a href="https://gmaxdigitalsolutions.com" className="text-[#2ed8c3] hover:text-[#5ee3d2] transition-colors" target="_blank" rel="noopener noreferrer">
+            <a href="https://gmaxdigitals.com" className="text-[#2ed8c3] hover:text-[#5ee3d2] transition-colors" target="_blank" rel="noopener noreferrer">
               Gmax Digital Solutions
             </a>
           </p>
