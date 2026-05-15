@@ -22,6 +22,7 @@ model User {
   website     String?
   enrolledAt  DateTime   @default(now())
   lastSeen    DateTime   @default(now())
+  onboarded   Boolean    @default(false)
   isAdmin     Boolean    @default(false)
   progress     Progress[]
   notes        Note[]

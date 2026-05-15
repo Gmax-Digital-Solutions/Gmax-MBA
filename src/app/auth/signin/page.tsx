@@ -6,7 +6,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
-import { captureEvent, identifyUser } from '@/lib/posthog'
 
 export default function SignInPage() {
   const router = useRouter()
@@ -17,14 +16,24 @@ export default function SignInPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
+
     const result = await signIn('credentials', { ...form, redirect: false })
+
     if (result?.ok) {
-      identifyUser(form.email, { email: form.email, plan: 'free', action: 'login' })
-      captureEvent('user logged in', { email: form.email })
       toast.success('Welcome back!')
-      router.push('/dashboard')
+      // Check onboarded status before redirecting
+      try {
+        const res = await fetch('/api/users/me')
+        const user = await res.json()
+        if (!user.onboarded) {
+          router.push('/onboarding')
+        } else {
+          router.push('/dashboard')
+        }
+      } catch {
+        router.push('/dashboard')
+      }
     } else {
-      captureEvent('login failed', { email: form.email })
       toast.error('Invalid email or password')
       setLoading(false)
     }
@@ -74,7 +83,9 @@ export default function SignInPage() {
           </button>
           <p className="text-center text-xs text-[#706870]">
             New here?{' '}
-            <Link href="/auth/signup" className="text-[#2ed8c3] hover:text-[#5ee3d2] transition-colors">Create a free account</Link>
+            <Link href="/auth/signup" className="text-[#2ed8c3] hover:text-[#5ee3d2] transition-colors">
+              Create a free account
+            </Link>
           </p>
         </form>
       </div>

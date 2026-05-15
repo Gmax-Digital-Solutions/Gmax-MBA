@@ -62,7 +62,7 @@ export const DAILY_PLAN: DayPlan[] = [
     focus: 'The Personal MBA — Sales Fundamentals',
     tasks: [
       { id: 'd4-t1', type: 'read',    label: 'Morning Read', detail: 'The Personal MBA', chapter: 'Ch. 3 — Sales (pp. 79–108)', duration: '30 min' },
-      { id: 'd4-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Sales fundamentals for founders with no sales background', searchQuery: 'Sales for founders no experience how to sell startup', duration: '25 min' },
+      { id: 'd4-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'The Sales Playbook For Founders | Startup School', searchQuery: 'Sales for founders no experience how to sell startup', duration: '25 min' },
       { id: 'd4-t3', type: 'task',    label: 'Evening Task', detail: 'Map your current sales process step by step from first contact to signed deal. Identify where you lose most prospects.', duration: '30 min' },
       { id: 'd4-t4', type: 'reflect', label: 'Journal',      detail: 'What is the #1 reason prospects say no to you? Write your honest answer.', duration: '10 min' },
     ]

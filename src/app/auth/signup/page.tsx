@@ -6,7 +6,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
-import { captureEvent, identifyUser } from '@/lib/posthog'
 
 const roles = [
   { value: 'builder',  label: 'Builder / Maker'        },
@@ -29,42 +28,32 @@ export default function SignUpPage() {
     setLoading(true)
     try {
       const res = await fetch('/api/register', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
       const data = await res.json()
-      if (!res.ok) {
-        captureEvent('signup failed', { email: form.email, role: form.role, error: data.error })
-        toast.error(data.error || 'Registration failed')
-        return
-      }
+      if (!res.ok) { toast.error(data.error || 'Registration failed'); return }
 
-      identifyUser(form.email, {
-        name: form.name,
+      toast.success('Account created! Setting things up...')
+
+      const result = await signIn('credentials', {
         email: form.email,
-        company: form.company,
-        role: form.role,
-        action: 'signup',
-      })
-      captureEvent('user signed up', {
-        email: form.email,
-        role: form.role,
-        company: form.company,
+        password: form.password,
+        redirect: false,
       })
 
-      toast.success('Account created! Signing you in...')
-      const result = await signIn('credentials', { email: form.email, password: form.password, redirect: false })
       if (result?.ok) {
-        captureEvent('signup sign in success', { email: form.email })
-        router.push('/dashboard')
+        // New users always go to onboarding first
+        router.push('/onboarding')
       } else {
-        captureEvent('signup sign in failed', { email: form.email })
         router.push('/auth/signin')
       }
-    } catch (error) {
-      captureEvent('signup error', { email: form.email, error: String(error) })
+    } catch {
       toast.error('Something went wrong')
-    } finally { setLoading(false) }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -81,11 +70,10 @@ export default function SignUpPage() {
             <span className="font-display font-bold text-white text-lg md:text-xl">Gmax MBA</span>
           </Link>
           <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-1 mt-3">Create your account</h1>
-          <p className="text-[#a0a0b0] text-sm">Join free. No credit card. Start learning today.</p>
+          <p className="text-[#a0a0b0] text-sm">Join free. No credit card. Start Day 1 today.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 md:p-8 space-y-4 md:space-y-5">
-          {/* Stack on mobile, side by side on sm+ */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-[#a0a0b0] mb-2">Full Name *</label>
