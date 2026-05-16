@@ -17,11 +17,59 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const { day, taskId, done } = await req.json()
+
+  const { day, taskId, done, moduleId, progressTaskId, progressBookId } = await req.json()
+
+  // 1. Save to DailyTask table
   const task = await db.dailyTask.upsert({
     where: { userId_day_taskId: { userId: session.user.id, day, taskId } },
     update: { done, updatedAt: new Date() },
     create: { userId: session.user.id, day, taskId, done },
   })
+
+  // 2. Sync to Progress table if this daily task maps to a module task or book
+  if (moduleId && done) {
+    if (progressTaskId) {
+      await db.progress.upsert({
+        where: {
+          userId_moduleId_taskId: {
+            userId:   session.user.id,
+            moduleId: moduleId,
+            taskId:   progressTaskId,
+          },
+        },
+        update:  { completed: true, updatedAt: new Date() },
+        create:  {
+          userId:    session.user.id,
+          moduleId:  moduleId,
+          taskId:    progressTaskId,
+          type:      'task',
+          completed: true,
+        },
+      })
+    }
+
+    if (progressBookId) {
+      await db.progress.upsert({
+        where: {
+          userId_moduleId_taskId: {
+            userId:   session.user.id,
+            moduleId: moduleId,
+            taskId:   `book-${progressBookId}`,
+          },
+        },
+        update:  { completed: true, updatedAt: new Date() },
+        create:  {
+          userId:    session.user.id,
+          moduleId:  moduleId,
+          taskId:    `book-${progressBookId}`,
+          bookId:    progressBookId,
+          type:      'book',
+          completed: true,
+        },
+      })
+    }
+  }
+
   return NextResponse.json(task)
 }

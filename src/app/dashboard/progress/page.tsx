@@ -97,13 +97,27 @@ export default async function ProgressPage() {
           {ALL_BOOKS.map(book => {
             const read = !!progress.find(r => r.bookId === book.id && r.type === 'book' && r.completed)
             return (
-              <div key={book.id} className={`flex items-center gap-3 p-3 rounded-xl border text-sm transition-all ${read ? 'bg-[#2ed8c3]/5 border-[#2ed8c3]/15' : 'border-white/[0.04]'}`}>
-                <div className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center ${read ? 'bg-[#2ed8c3]' : 'border border-white/20'}`}>
+              <div key={book.id} className={`flex items-start gap-3 p-3 rounded-xl border transition-all ${read ? 'bg-[#2ed8c3]/5 border-[#2ed8c3]/15' : 'border-white/[0.04] hover:border-white/[0.08]'}`}>
+                <div className={`mt-0.5 w-4 h-4 rounded flex-shrink-0 flex items-center justify-center ${read ? 'bg-[#2ed8c3]' : 'border border-white/20'}`}>
                   {read && <span className="text-[#241e20] text-[8px] font-bold">✓</span>}
                 </div>
-                <div className="min-w-0">
+                <div className="flex-1 min-w-0">
                   <div className={`text-xs font-medium truncate ${read ? 'text-[#a0a0b0]' : 'text-white'}`}>{book.title}</div>
-                  <div className="text-[10px] text-[#606070] truncate">{book.author}</div>
+                  <div className="text-[10px] text-[#606070] truncate mb-1.5">{book.author}</div>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {book.freeUrl && (
+                      <a href={book.freeUrl} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[10px] bg-[#2ed8c3]/10 border border-[#2ed8c3]/20 text-[#2ed8c3] px-2 py-0.5 rounded-md hover:bg-[#2ed8c3]/20 transition-all whitespace-nowrap">
+                        🎁 Free
+                      </a>
+                    )}
+                    {book.amazonUrl && (
+                      <a href={book.amazonUrl} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[10px] bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2 py-0.5 rounded-md hover:bg-amber-500/20 transition-all whitespace-nowrap">
+                        Amazon
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             )

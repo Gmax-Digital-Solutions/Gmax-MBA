@@ -27,12 +27,12 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
   dayNumber: number
   userName: string
 }) {
-  const [tasks, setTasks]             = useState(initialDailyTasks)
-  const [journal, setJournal]         = useState(initialJournalEntry?.content || '')
-  const [mood, setMood]               = useState(initialJournalEntry?.mood || '')
-  const [saving, setSaving]           = useState<string | null>(null)
+  const [tasks, setTasks]               = useState(initialDailyTasks)
+  const [journal, setJournal]           = useState(initialJournalEntry?.content || '')
+  const [mood, setMood]                 = useState(initialJournalEntry?.mood || '')
+  const [saving, setSaving]             = useState<string | null>(null)
   const [savingJournal, setSavingJournal] = useState(false)
-  const [expandedTask, setExpandedTask]   = useState<string | null>(null)
+  const [expandedTask, setExpandedTask] = useState<string | null>(null)
 
   if (!plan) {
     return (
@@ -44,21 +44,36 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
     )
   }
 
-  const isTaskDone = (taskId: string) => tasks.find(t => t.taskId === taskId && t.done)
+  const isTaskDone     = (taskId: string) => tasks.find(t => t.taskId === taskId && t.done)
   const completedCount = plan.tasks.filter(t => isTaskDone(t.id)).length
-  const allDone = completedCount === plan.tasks.length
+  const allDone        = completedCount === plan.tasks.length
 
   async function toggleTask(task: DayTask) {
     setSaving(task.id)
-    const done = !isTaskDone(task.id)
+    const nowDone = !isTaskDone(task.id)
     try {
       const res = await fetch('/api/daily', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ day: plan!.day, taskId: task.id, done }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          day:              plan!.day,
+          taskId:           task.id,
+          done:             nowDone,
+          // Pass through progress-sync fields so the API can update the program bar
+          moduleId:         task.moduleId        || null,
+          progressTaskId:   task.progressTaskId  || null,
+          progressBookId:   task.progressBookId  || null,
+        }),
       })
       const data = await res.json()
       setTasks(prev => [...prev.filter(t => t.taskId !== task.id), data])
-      if (done) toast.success(task.type === 'reflect' ? '✍️ Journal task done!' : '✅ Nicely done!')
+      if (nowDone) {
+        toast.success(
+          task.progressTaskId || task.progressBookId
+            ? '✅ Done — progress bar updated!'
+            : task.type === 'reflect' ? '✍️ Reflection logged!' : '✅ Nicely done!'
+        )
+      }
     } catch { toast.error('Failed to save') }
     finally { setSaving(null) }
   }
@@ -68,7 +83,8 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
     setSavingJournal(true)
     try {
       await fetch('/api/journal', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date: today, day: plan!.day, content: journal, mood }),
       })
       toast.success('Journal saved!')
@@ -77,7 +93,7 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
   }
 
   const greetHour = new Date().getHours()
-  const greeting = greetHour < 12 ? 'Good morning' : greetHour < 17 ? 'Good afternoon' : 'Good evening'
+  const greeting  = greetHour < 12 ? 'Good morning' : greetHour < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
     <div className="max-w-3xl mx-auto space-y-4 md:space-y-6">
@@ -86,7 +102,9 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4 md:p-6">
         <div className="flex items-start justify-between mb-3 gap-3">
           <div className="min-w-0">
-            <p className="text-[#706870] text-xs mb-1">{greeting}, {userName.split(' ')[0]} · {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+            <p className="text-[#706870] text-xs mb-1">
+              {greeting}, {userName.split(' ')[0]} · {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+            </p>
             <h1 className="font-display text-xl md:text-2xl font-bold text-white leading-tight">{plan.title}</h1>
             <p className="text-[#a0a0b0] text-xs md:text-sm mt-1 line-clamp-1">{plan.focus}</p>
           </div>
@@ -106,35 +124,48 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
             <span className="text-[#2ed8c3] font-semibold">{completedCount}/{plan.tasks.length} done</span>
           </div>
           <div className="h-2 bg-white/[0.05] rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-[#2ed8c3] to-[#585de1] rounded-full transition-all duration-500"
-              style={{ width: `${(completedCount / plan.tasks.length) * 100}%` }} />
+            <div
+              className="h-full bg-gradient-to-r from-[#2ed8c3] to-[#585de1] rounded-full transition-all duration-500"
+              style={{ width: `${(completedCount / plan.tasks.length) * 100}%` }}
+            />
           </div>
         </div>
 
+        {/* Sync note */}
+        <p className="text-[10px] text-[#504850] mt-2">
+          ✓ Completing tasks here automatically updates your program progress bar
+        </p>
+
         {allDone && (
           <div className="mt-3 bg-[#2ed8c3]/10 border border-[#2ed8c3]/20 rounded-xl px-4 py-2.5 text-center">
-            <span className="text-[#2ed8c3] font-semibold text-sm">🎉 Day {plan.day} complete! Come back tomorrow for Day {plan.day + 1}.</span>
+            <span className="text-[#2ed8c3] font-semibold text-sm">
+              🎉 Day {plan.day} complete! Come back tomorrow for Day {plan.day + 1}.
+            </span>
           </div>
         )}
       </div>
 
-      {/* DAILY TASKS */}
+      {/* TASK LIST */}
       <div className="space-y-3">
         {plan.tasks.map((task, idx) => {
-          const cfg     = typeConfig[task.type]
-          const done    = !!isTaskDone(task.id)
+          const cfg      = typeConfig[task.type]
+          const done     = !!isTaskDone(task.id)
           const expanded = expandedTask === task.id
-          const Icon    = cfg.icon
+          const Icon     = cfg.icon
+          const syncs    = !!(task.progressTaskId || task.progressBookId)
 
           return (
-            <div key={task.id} className={cn('border rounded-2xl overflow-hidden transition-all',
-              done ? 'border-[#2ed8c3]/20 bg-[#2ed8c3]/4' : 'border-white/[0.07] bg-white/[0.02]')}>
+            <div key={task.id}
+              className={cn('border rounded-2xl overflow-hidden transition-all',
+                done ? 'border-[#2ed8c3]/20 bg-[#2ed8c3]/4' : 'border-white/[0.07] bg-white/[0.02]')}>
 
               {/* Header row */}
               <div className="flex items-center gap-2 md:gap-4 p-3 md:p-5">
                 {/* Step number */}
-                <div className={cn('flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs font-bold border',
-                  done ? 'bg-[#2ed8c3] border-[#2ed8c3] text-[#241e20]' : 'border-white/10 text-[#706870]')}>
+                <div className={cn(
+                  'flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs font-bold border',
+                  done ? 'bg-[#2ed8c3] border-[#2ed8c3] text-[#241e20]' : 'border-white/10 text-[#706870]'
+                )}>
                   {done ? '✓' : idx + 1}
                 </div>
 
@@ -147,12 +178,22 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
                 {/* Label + detail */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={cn('text-sm font-semibold', done ? 'text-[#706870] line-through' : 'text-white')}>{task.label}</span>
-                    {/* Show type on mobile */}
-                    <span className={cn('sm:hidden text-[10px] px-1.5 py-0.5 rounded border font-semibold', cfg.bg, cfg.color)}>{cfg.label}</span>
+                    <span className={cn('text-sm font-semibold', done ? 'text-[#706870] line-through' : 'text-white')}>
+                      {task.label}
+                    </span>
+                    {/* Mobile type badge */}
+                    <span className={cn('sm:hidden text-[10px] px-1.5 py-0.5 rounded border font-semibold', cfg.bg, cfg.color)}>
+                      {cfg.label}
+                    </span>
                     {task.duration && (
                       <span className="hidden md:flex items-center gap-1 text-[10px] text-[#706870] bg-white/[0.04] px-2 py-0.5 rounded-full">
                         <Clock className="w-2.5 h-2.5" />{task.duration}
+                      </span>
+                    )}
+                    {/* Progress sync indicator */}
+                    {syncs && !done && (
+                      <span className="hidden sm:inline text-[10px] text-[#2ed8c3]/60 bg-[#2ed8c3]/8 border border-[#2ed8c3]/15 px-2 py-0.5 rounded-full">
+                        syncs to progress
                       </span>
                     )}
                   </div>
@@ -168,13 +209,15 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
                     {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                   </button>
                   <button onClick={() => toggleTask(task)} disabled={saving === task.id}
-                    className={cn('px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-bold transition-all border whitespace-nowrap',
+                    className={cn(
+                      'px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-bold transition-all border whitespace-nowrap',
                       done
                         ? 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20 text-[#2ed8c3]'
-                        : 'bg-white/[0.04] border-white/[0.08] text-[#a0a0b0] hover:border-[#2ed8c3]/30 hover:text-[#2ed8c3]')}>
+                        : 'bg-white/[0.04] border-white/[0.08] text-[#a0a0b0] hover:border-[#2ed8c3]/30 hover:text-[#2ed8c3]'
+                    )}>
                     {saving === task.id
                       ? <Loader2 className="w-3 h-3 animate-spin" />
-                      : done ? '✓ Done' : 'Done'}
+                      : done ? '✓ Done' : 'Mark Done'}
                   </button>
                 </div>
               </div>
@@ -183,31 +226,37 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
               {expanded && (
                 <div className="px-4 md:px-5 pb-4 md:pb-5 pt-0 border-t border-white/[0.06]">
                   <div className="pt-3 space-y-3">
+                    {/* Book/reading task */}
                     {task.chapter && (
                       <div className="flex items-start gap-2">
                         <BookOpen className="w-3.5 h-3.5 text-[#2ed8c3] mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="text-[10px] text-[#706870] uppercase tracking-wider mb-0.5">Book Reference</div>
-                          <div className="text-sm text-white">{task.detail}</div>
+                          <div className="text-sm text-white font-medium">{task.detail}</div>
                           <div className="text-xs text-[#2ed8c3] mt-1 font-mono">{task.chapter}</div>
                         </div>
                       </div>
                     )}
+
+                    {/* YouTube task */}
                     {task.searchQuery && (
                       <div className="flex items-start gap-2">
                         <Youtube className="w-3.5 h-3.5 text-red-400 mt-0.5 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <div className="text-[10px] text-[#706870] uppercase tracking-wider mb-0.5">YouTube Search</div>
                           <div className="text-sm text-white mb-2">{task.detail}</div>
-                          <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(task.searchQuery)}`}
+                          <a
+                            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(task.searchQuery)}`}
                             target="_blank" rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 text-xs bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition-all">
                             <ExternalLink className="w-3 h-3" />
-                            Open YouTube Search
+                            Search on YouTube →
                           </a>
                         </div>
                       </div>
                     )}
+
+                    {/* Action task */}
                     {task.type === 'task' && !task.searchQuery && (
                       <div className="flex items-start gap-2">
                         <CheckSquare className="w-3.5 h-3.5 text-[#585de1] mt-0.5 flex-shrink-0" />
@@ -217,6 +266,8 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
                         </div>
                       </div>
                     )}
+
+                    {/* Journal reflection */}
                     {task.type === 'reflect' && (
                       <div className="flex items-start gap-2">
                         <PenLine className="w-3.5 h-3.5 text-amber-400 mt-0.5 flex-shrink-0" />
@@ -224,6 +275,14 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
                           <div className="text-[10px] text-[#706870] uppercase tracking-wider mb-0.5">Reflection Prompt</div>
                           <div className="text-sm text-[#d0d0d0] leading-relaxed italic">"{task.detail}"</div>
                         </div>
+                      </div>
+                    )}
+
+                    {/* Progress sync note */}
+                    {syncs && (
+                      <div className="flex items-center gap-2 text-[10px] text-[#2ed8c3]/70 bg-[#2ed8c3]/8 border border-[#2ed8c3]/15 rounded-lg px-3 py-2">
+                        <span>↗</span>
+                        <span>Completing this task updates your overall program progress bar automatically.</span>
                       </div>
                     )}
                   </div>
@@ -268,6 +327,7 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
           </button>
         </div>
       </div>
+
     </div>
   )
 }
