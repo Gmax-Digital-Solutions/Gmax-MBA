@@ -30,6 +30,9 @@ model User {
   accounts     Account[]
   dailyTasks   DailyTask[]
   journalEntries JournalEntry[]
+  posts          Post[]
+  replies        Reply[]
+  reactions      Reaction[]
 }
 
 model Progress {
@@ -123,4 +126,47 @@ model JournalEntry {
 
   @@unique([userId, date])
   @@index([userId])
+}
+
+model Post {
+  id        String     @id @default(cuid())
+  userId    String
+  content   String
+  type      String     @default("general") // "question" | "win" | "insight" | "resource" | "general"
+  moduleTag String?    // optional module id tag
+  pinned    Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replies   Reply[]
+  reactions Reaction[]
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Reply {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  emoji     String   // "👍" | "🔥" | "💡"
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId, emoji])
+  @@index([postId])
 }
