@@ -5,6 +5,7 @@ import { ALL_MODULES } from '@/lib/data/curriculum'
 import { getInitials } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import Image from 'next/image'
 import {
   Send, Loader2, MessageSquare, Trash2, Pin, PinOff,
   Flame, Lightbulb, Trophy, Link2, LayoutGrid, ChevronDown, ChevronUp, RefreshCw
@@ -58,9 +59,24 @@ function timeAgo(dateStr: string) {
 
 // ── AVATAR ─────────────────────────────────────────────────────────────────
 function Avatar({ user, size = 8 }: { user: User; size?: number }) {
+  const px = size * 4
+  if (user.image) {
+    return (
+      <div className="rounded-xl overflow-hidden flex-shrink-0 border border-white/10"
+        style={{ width: px, height: px, minWidth: px }}>
+        <Image
+          src={user.image}
+          alt={user.name || 'User'}
+          width={px} height={px}
+          className="w-full h-full object-cover"
+          unoptimized
+        />
+      </div>
+    )
+  }
   return (
-    <div className={`w-${size} h-${size} rounded-xl bg-[#2ed8c3]/15 border border-[#2ed8c3]/25 flex items-center justify-center font-display font-bold text-[#2ed8c3] flex-shrink-0`}
-      style={{ width: size * 4, height: size * 4, fontSize: size * 1.6 }}>
+    <div className="rounded-xl bg-[#2ed8c3]/15 border border-[#2ed8c3]/25 flex items-center justify-center font-display font-bold text-[#2ed8c3] flex-shrink-0"
+      style={{ width: px, height: px, minWidth: px, fontSize: size * 1.6 }}>
       {getInitials(user.name)}
     </div>
   )

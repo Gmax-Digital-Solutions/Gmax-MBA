@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getInitials } from '@/lib/utils'
+import Image from 'next/image'
 import { Users, Building2, Globe, Github, Twitter } from 'lucide-react'
 
 const roleColors: Record<string, string> = {
@@ -21,7 +22,7 @@ export default async function MembersPage() {
     db.user.findMany({
       select: {
         id: true, name: true, company: true, role: true,
-        bio: true, twitter: true, github: true, website: true, enrolledAt: true,
+        bio: true, twitter: true, github: true, website: true, enrolledAt: true, image: true,
       },
       orderBy: { enrolledAt: 'asc' },
       take: 100,
@@ -73,8 +74,14 @@ export default async function MembersPage() {
               className={`bg-white/[0.02] border rounded-2xl p-4 md:p-5 transition-all hover:bg-white/[0.04]
                 ${isYou ? 'border-[#2ed8c3]/25' : 'border-white/[0.06] hover:border-white/10'}`}>
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-[#2ed8c3]/15 border border-[#2ed8c3]/25 flex items-center justify-center text-sm font-bold text-[#2ed8c3] flex-shrink-0 font-display">
-                  {getInitials(u.name)}
+                <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 flex-shrink-0">
+                  {u.image ? (
+                    <Image src={u.image} alt={u.name || 'User'} width={40} height={40} className="w-full h-full object-cover" unoptimized />
+                  ) : (
+                    <div className="w-full h-full bg-[#2ed8c3]/15 border border-[#2ed8c3]/25 flex items-center justify-center text-sm font-bold text-[#2ed8c3] font-display">
+                      {getInitials(u.name)}
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">

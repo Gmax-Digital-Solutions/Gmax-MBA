@@ -2,46 +2,95 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+   (Best practice: keep fonts in next/font.ts)
+────────────────────────────────────────────── */
 
 :root {
-  --font-geist-sans: 'Outfit', system-ui, sans-serif;
-  --font-geist-mono: 'DM Mono', ui-monospace, monospace;
-  --font-cal: 'Playfair Display', Georgia, serif;
+  /* Fonts (mapped from next/font in layout.tsx) */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
 
   /* Gmax Brand */
-  --color-dark:   #241e20;
-  --color-teal:   #2ed8c3;
-  --color-blue:   #585de1;
+  --color-dark: #241e20;
+  --color-teal: #2ed8c3;
+  --color-blue: #585de1;
+
+  /* System improvements */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
 }
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* ─────────────────────────────────────────────
+   BASE STYLES (Next.js App Router friendly)
+────────────────────────────────────────────── */
 
-body {
-  background: var(--color-dark);
-  color: #f0f0f0;
-  font-family: var(--font-geist-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-dark);
+    color: #f0f0f0;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Better media defaults */
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  button,
+  a {
+    touch-action: manipulation;
+  }
 }
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+/* ─────────────────────────────────────────────
+   COMPONENT UTILITIES
+────────────────────────────────────────────── */
 
-.font-display { font-family: var(--font-cal); }
-.font-mono { font-family: var(--font-geist-mono); }
+@layer components {
+  .font-display {
+    font-family: var(--font-display), Georgia, serif;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   UTILITIES
+────────────────────────────────────────────── */
 
 @layer utilities {
-  .text-balance { text-wrap: balance; }
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Animation delays */
   .animate-delay-100 { animation-delay: 100ms; }
   .animate-delay-200 { animation-delay: 200ms; }
   .animate-delay-300 { animation-delay: 300ms; }
   .animate-delay-400 { animation-delay: 400ms; }
 
-  /* Primary brand gradient — teal */
+  /* ── GMAX GRADIENT SYSTEM ── */
+
   .gradient-text {
     background: linear-gradient(135deg, #2ed8c3 0%, #5ee3d2 50%, #9aeee6 100%);
     -webkit-background-clip: text;
@@ -49,7 +98,6 @@ body {
     background-clip: text;
   }
 
-  /* Secondary brand gradient — blue */
   .gradient-blue {
     background: linear-gradient(135deg, #585de1 0%, #7b7fe8 50%, #a5a8f0 100%);
     -webkit-background-clip: text;
@@ -57,31 +105,73 @@ body {
     background-clip: text;
   }
 
-  /* Combined teal → blue */
   .gradient-brand {
     background: linear-gradient(135deg, #2ed8c3 0%, #585de1 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* Scroll improvements */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area (iOS modern support) */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
-/* ── MOBILE IMPROVEMENTS ──────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   SCROLLBAR (clean + minimal)
+────────────────────────────────────────────── */
 
-/* Prevent double-tap zoom on buttons */
-button, a { touch-action: manipulation; }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
 
-/* Smooth scrolling on iOS */
-* { -webkit-overflow-scrolling: touch; }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-/* Prevent text size adjustment on orientation change */
-html { -webkit-text-size-adjust: 100%; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
 
-/* Hide scrollbar on horizontal scroll containers */
-.overflow-x-auto::-webkit-scrollbar { display: none; }
-.overflow-x-auto { -ms-overflow-style: none; scrollbar-width: none; }
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
 
-/* Bottom nav safe area for iOS */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+/* ─────────────────────────────────────────────
+   ACCESSIBILITY
+────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   PERFORMANCE MOBILE FIXES
+────────────────────────────────────────────── */
+
+@supports (-webkit-touch-callout: none) {
+  /* iOS smooth scrolling fix */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
 }
