@@ -1,10 +1,4 @@
-import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  title: 'Sign In',
-  description: 'Sign in to your Gmax MBA account and continue your learning journey.',
-  robots: { index: false, follow: false },
-}
 
 
 'use client'
@@ -15,6 +9,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Sign In',
+  description: 'Sign in to your Gmax MBA account and continue your learning journey.',
+  robots: { index: false, follow: false },
+}
 
 export default function SignInPage() {
   const router = useRouter()
