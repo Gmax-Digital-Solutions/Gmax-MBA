@@ -1,0 +1,41 @@
+{
+  "name": "Gmax MBA — Free Business School for Founders",
+  "short_name": "Gmax MBA",
+  "description": "Free MBA-level business education for developers, engineers, and solo founders. 30 minutes a day.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#241e20",
+  "theme_color": "#241e20",
+  "orientation": "portrait-primary",
+  "categories": ["education", "business", "productivity"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "500x500",
+      "type": "image/jpeg"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today's Plan",
+      "short_name": "Today",
+      "description": "Open your daily study plan",
+      "url": "/dashboard/daily",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Curriculum",
+      "short_name": "Curriculum",
+      "description": "View the full MBA curriculum",
+      "url": "/curriculum",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

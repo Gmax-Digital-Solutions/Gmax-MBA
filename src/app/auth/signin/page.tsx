@@ -1,3 +1,12 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Sign In',
+  description: 'Sign in to your Gmax MBA account and continue your learning journey.',
+  robots: { index: false, follow: false },
+}
+
+
 'use client'
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
