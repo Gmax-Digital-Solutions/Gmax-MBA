@@ -1,27 +1,30 @@
 'use client'
 import { useState } from 'react'
 import { DayPlan, DayTask } from '@/lib/data/daily-plan'
-import { BookOpen, Youtube, CheckSquare, PenLine, ExternalLink, Loader2, ChevronDown, ChevronUp, Clock, Flame, ArrowLeft, ArrowRight, CalendarDays, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 
-const typeConfig = {
-  read:    { icon: BookOpen,    color: 'text-[#2ed8c3]', bg: 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20', label: 'Read'    },
-  watch:   { icon: Youtube,     color: 'text-red-400',   bg: 'bg-red-500/10 border-red-500/20',       label: 'Watch'   },
-  task:    { icon: CheckSquare, color: 'text-[#585de1]', bg: 'bg-[#585de1]/10 border-[#585de1]/20',  label: 'Task'    },
-  reflect: { icon: PenLine,     color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20',   label: 'Journal' },
-}
+const TYPE_CONFIG = {
+  read:    { icon: 'menu_book',   color: 'text-primary',      bg: 'bg-primary/10',       border: 'border-primary/20',       label: 'Read'    },
+  watch:   { icon: 'play_circle', color: 'text-status-red',   bg: 'bg-status-red/10',    border: 'border-status-red/20',    label: 'Watch'   },
+  task:    { icon: 'task_alt',    color: 'text-secondary',    bg: 'bg-secondary/10',     border: 'border-secondary/20',     label: 'Task'    },
+  reflect: { icon: 'edit_square', color: 'text-status-amber', bg: 'bg-status-amber/10',  border: 'border-status-amber/20',  label: 'Journal' },
+} as const
 
-const moodOptions = [
-  { value: 'great', emoji: '🔥', label: 'Great' },
-  { value: 'good',  emoji: '😊', label: 'Good'  },
-  { value: 'okay',  emoji: '😐', label: 'Okay'  },
-  { value: 'tough', emoji: '😤', label: 'Tough' },
+const MOODS = [
+  { value: 'great',     emoji: '🔥' },
+  { value: 'good',      emoji: '😊' },
+  { value: 'okay',      emoji: '😐' },
+  { value: 'tough',     emoji: '😤' },
 ]
 
-export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, today, dayNumber, userName, isPast = false, isToday = true, isFuture = false, currentDay }: {
+export function DailyClient({
+  plan, initialDailyTasks, initialJournalEntry, today,
+  dayNumber, userName, isPast = false, isToday = true,
+  isFuture = false, currentDay,
+}: {
   plan: DayPlan | null
   initialDailyTasks: any[]
   initialJournalEntry: any
@@ -33,46 +36,45 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
   isFuture?: boolean
   currentDay?: number
 }) {
-  const router = useRouter()
-  const [tasks, setTasks]               = useState(initialDailyTasks)
-  const [journal, setJournal]           = useState(initialJournalEntry?.content || '')
-  const [mood, setMood]                 = useState(initialJournalEntry?.mood || '')
-  const [saving, setSaving]             = useState<string | null>(null)
+  const [tasks, setTasks]             = useState(initialDailyTasks)
+  const [journal, setJournal]         = useState(initialJournalEntry?.content || '')
+  const [mood, setMood]               = useState(initialJournalEntry?.mood || '')
+  const [saving, setSaving]           = useState<string | null>(null)
   const [savingJournal, setSavingJournal] = useState(false)
-  const [expandedTask, setExpandedTask] = useState<string | null>(null)
+  const [expanded, setExpanded]       = useState<string | null>(null)
 
-  if (!plan) {
-    return (
-      <div className="max-w-3xl mx-auto flex flex-col items-center justify-center py-24 text-center px-4">
-        <div className="text-5xl mb-4">🎓</div>
-        <h2 className="font-display text-2xl font-bold text-white mb-2">Program complete!</h2>
-        <p className="text-[#a0a0b0] mb-6">You've finished the structured program. Keep going with the curriculum at your own pace.</p>
-        <Link href="/dashboard/curriculum" className="flex items-center gap-2 bg-[#2ed8c3]/10 border border-[#2ed8c3]/20 text-[#2ed8c3] px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:bg-[#2ed8c3]/20">
-          Browse Curriculum →
+  // ── No plan ────────────────────────────────────────────────────
+  if (!plan) return (
+    <div className="max-w-4xl mx-auto flex flex-col items-center justify-center py-24 text-center px-4">
+      <div className="text-5xl mb-4">🎓</div>
+      <h2 className="font-headline-sm text-headline-sm text-text-primary mb-2">Program complete!</h2>
+      <p className="text-text-secondary mb-6">You've finished all 30 days. Keep going with the full curriculum.</p>
+      <Link href="/dashboard/curriculum"
+        className="flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:bg-primary/20">
+        Browse Curriculum →
+      </Link>
+    </div>
+  )
+
+  // ── Future day ─────────────────────────────────────────────────
+  if (isFuture) return (
+    <div className="max-w-4xl mx-auto space-y-6 dot-pattern pb-12">
+      <DayNavBar dayNumber={dayNumber} currentDay={currentDay} />
+      <div className="glass-card rounded-xl p-8 border border-dashed border-white/10 flex flex-col items-center text-center opacity-60">
+        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4">
+          <span className="material-symbols-outlined text-text-tertiary">lock</span>
+        </div>
+        <h4 className="font-headline-sm text-headline-sm text-text-secondary mb-2">Day {dayNumber} is coming</h4>
+        <p className="font-body-sm text-text-tertiary mb-6">Focus on today's plan first.</p>
+        <Link href="/dashboard/daily"
+          className="px-6 py-2 rounded-full border border-border-subtle text-text-tertiary font-label-mono text-xs hover:border-primary hover:text-primary transition-all">
+          GO TO TODAY — DAY {currentDay}
         </Link>
       </div>
-    )
-  }
+    </div>
+  )
 
-  // Future day — locked
-  if (isFuture) {
-    return (
-      <div className="max-w-3xl mx-auto space-y-4 md:space-y-6">
-        <DayNavBar dayNumber={dayNumber} currentDay={currentDay} plan={plan} />
-        <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-8 text-center">
-          <Lock className="w-10 h-10 text-[#504850] mx-auto mb-4" />
-          <h2 className="font-display text-xl font-bold text-white mb-2">Day {dayNumber} is coming</h2>
-          <p className="text-[#a0a0b0] text-sm mb-2">This day hasn't arrived yet.</p>
-          <p className="text-[#606070] text-xs mb-6">Focus on today's plan first — the program is designed to build knowledge sequentially.</p>
-          <Link href="/dashboard/daily" className="inline-flex items-center gap-2 bg-[#2ed8c3] hover:bg-[#5ee3d2] text-[#241e20] font-bold px-6 py-3 rounded-xl text-sm transition-all">
-            Go to Today — Day {currentDay}
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  const isTaskDone     = (taskId: string) => tasks.find(t => t.taskId === taskId && t.done)
+  const isTaskDone     = (taskId: string) => tasks.some(t => t.taskId === taskId && t.done)
   const completedCount = plan.tasks.filter(t => isTaskDone(t.id)).length
   const allDone        = completedCount === plan.tasks.length
 
@@ -81,12 +83,9 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
     const nowDone = !isTaskDone(task.id)
     try {
       const res = await fetch('/api/daily', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          day:            plan!.day,
-          taskId:         task.id,
-          done:           nowDone,
+          day:            plan?.day, taskId: task.id, done: nowDone,
           moduleId:       task.moduleId       || null,
           progressTaskId: task.progressTaskId || null,
           progressBookId: task.progressBookId || null,
@@ -94,7 +93,7 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
       })
       const data = await res.json()
       setTasks(prev => [...prev.filter(t => t.taskId !== task.id), data])
-      if (nowDone) toast.success(isPast ? '✅ Marked done — progress updated!' : task.progressTaskId || task.progressBookId ? '✅ Done — progress bar updated!' : '✅ Nicely done!')
+      if (nowDone) toast.success(task.progressTaskId || task.progressBookId ? '✅ Done — progress updated!' : '✅ Done!')
     } catch { toast.error('Failed to save') }
     finally { setSaving(null) }
   }
@@ -104,12 +103,11 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
     setSavingJournal(true)
     try {
       await fetch('/api/journal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: today, day: plan!.day, content: journal, mood }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: today, day: plan?.day, content: journal, mood }),
       })
-      toast.success('Journal saved!')
-    } catch { toast.error('Failed to save journal') }
+      toast.success('Reflection saved!')
+    } catch { toast.error('Failed to save') }
     finally { setSavingJournal(false) }
   }
 
@@ -117,197 +115,272 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
   const greeting  = greetHour < 12 ? 'Good morning' : greetHour < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4 md:space-y-6">
+    <div className="max-w-4xl mx-auto dot-pattern pb-12">
 
-      {/* Day navigation bar */}
-      <DayNavBar dayNumber={dayNumber} currentDay={currentDay} plan={plan} />
+      {/* ── DAY NAV BAR ───────────────────────────────────────── */}
+      <DayNavBar dayNumber={dayNumber} currentDay={currentDay} />
 
-      {/* Past day banner */}
+      {/* ── PAST DAY BANNER ───────────────────────────────────── */}
       {isPast && (
-        <div className="flex items-center gap-3 bg-amber-500/8 border border-amber-500/20 rounded-xl px-4 py-3">
-          <CalendarDays className="w-4 h-4 text-amber-400 flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <span className="text-amber-400 text-sm font-semibold">Past Day</span>
-            <span className="text-[#a0a0b0] text-sm"> — You can still complete tasks and update your journal.</span>
-          </div>
+        <div className="flex items-center gap-3 bg-status-amber/8 border border-status-amber/20 rounded-xl px-4 py-3 mb-5 mt-2">
+          <span className="material-symbols-outlined text-status-amber flex-shrink-0">calendar_today</span>
+          <p className="font-body-sm text-text-secondary">
+            <span className="text-status-amber font-semibold">Past Day</span> — you can still complete tasks and update your journal.
+          </p>
         </div>
       )}
 
-      {/* HEADER */}
-      <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4 md:p-6">
-        <div className="flex items-start justify-between mb-3 gap-3">
-          <div className="min-w-0">
-            <p className="text-[#706870] text-xs mb-1">
-              {isToday ? `${greeting}, ${userName.split(' ')[0]}` : isPast ? `Day ${dayNumber} — Past` : `Day ${dayNumber}`}
-              {' · '}{new Date(today + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-            </p>
-            <h1 className="font-display text-xl md:text-2xl font-bold text-white leading-tight">{plan.title}</h1>
-            <p className="text-[#a0a0b0] text-xs md:text-sm mt-1 line-clamp-1">{plan.focus}</p>
-          </div>
-          <div className="text-right flex-shrink-0">
-            <div className="flex items-center gap-1 justify-end mb-0.5">
-              <Flame className={cn('w-3 h-3', isPast ? 'text-amber-400' : 'text-[#2ed8c3]')} />
-              <span className={cn('text-xs font-mono font-bold', isPast ? 'text-amber-400' : 'text-[#2ed8c3]')}>Day {plan.day}</span>
-            </div>
-            <div className="text-[10px] text-[#706870]">Week {plan.week} · Phase {plan.phase}</div>
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <div>
-          <div className="flex justify-between text-xs text-[#706870] mb-1.5">
-            <span>{isPast ? 'Completed tasks' : "Today's progress"}</span>
-            <span className={cn('font-semibold', allDone ? 'text-[#2ed8c3]' : isPast ? 'text-amber-400' : 'text-[#2ed8c3]')}>
-              {completedCount}/{plan.tasks.length} done
+      {/* ── DAY HEADER CARD ───────────────────────────────────── */}
+      <div className="glass-card rounded-2xl p-6 md:p-8 mb-5 mt-2 relative overflow-hidden">
+        <div className="flex justify-between items-start mb-5 md:mb-6 gap-2">
+          <div className={cn(
+            'flex items-center gap-2 px-3 py-1.5 rounded-full border',
+            isPast ? 'bg-status-amber/5 border-status-amber/10' : 'bg-primary/5 border-primary/10'
+          )}>
+            <span className={cn('material-symbols-outlined text-sm fill-icon', isPast ? 'text-status-amber' : 'text-primary')}
+              style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+            <span className={cn('font-label-mono text-label-mono tracking-tighter', isPast ? 'text-status-amber' : 'text-primary')}>
+              DAY {plan.day}
             </span>
           </div>
-          <div className="h-2 bg-white/[0.05] rounded-full overflow-hidden">
+          <span className="font-label-caps text-label-caps text-text-tertiary tracking-widest uppercase text-right">
+            Week {plan.week} · Phase {plan.phase}
+          </span>
+        </div>
+
+        <h1 className="font-headline-md text-headline-md text-text-primary mb-2 leading-tight">{plan.title}</h1>
+        <p className="text-text-secondary text-sm mb-6 leading-relaxed">{plan.focus}</p>
+
+        {/* Progress bar */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-end mb-1">
+            <span className="font-label-mono text-label-mono text-text-secondary uppercase">
+              {isPast ? 'Completed Tasks' : 'Course Progress'}
+            </span>
+            <span className={cn('font-label-mono text-label-mono', allDone ? 'text-primary' : isPast ? 'text-status-amber' : 'text-primary')}>
+              {completedCount}/{plan.tasks.length} Done
+            </span>
+          </div>
+          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
             <div
-              className={cn('h-full rounded-full transition-all duration-500', allDone ? 'bg-[#2ed8c3]' : isPast ? 'bg-amber-500' : 'bg-gradient-to-r from-[#2ed8c3] to-[#585de1]')}
+              className={cn('h-full rounded-full transition-all duration-500', isPast && !allDone ? 'bg-status-amber' : 'gradient-progress')}
               style={{ width: `${(completedCount / plan.tasks.length) * 100}%` }}
             />
           </div>
         </div>
 
-        <p className="text-[10px] text-[#504850] mt-2">
-          ✓ Completing tasks here {isPast ? 'still updates' : 'automatically updates'} your overall program progress bar
-        </p>
-
-        {allDone && (
-          <div className="mt-3 bg-[#2ed8c3]/10 border border-[#2ed8c3]/20 rounded-xl px-4 py-2.5 text-center">
-            <span className="text-[#2ed8c3] font-semibold text-sm">🎉 All tasks complete for Day {plan.day}!</span>
-          </div>
-        )}
+        <p className="text-[10px] text-text-tertiary mt-2">✓ Completing tasks {isPast ? 'still updates' : 'updates'} your overall progress bar</p>
       </div>
 
-      {/* TASK LIST */}
-      <div className="space-y-3">
+      {/* ── COMPLETION BANNER ─────────────────────────────────── */}
+      {allDone && (
+        <div className="glass-card border border-primary/30 bg-primary/5 rounded-xl p-4 mb-5 flex items-center justify-center gap-3">
+          <span className="text-xl">🎉</span>
+          <span className="font-body-md text-primary font-semibold">All tasks complete for Day {plan.day}!</span>
+        </div>
+      )}
+
+      {/* ── TASK LIST ─────────────────────────────────────────── */}
+      <div className="space-y-4">
         {plan.tasks.map((task, idx) => {
-          const cfg      = typeConfig[task.type]
-          const done     = !!isTaskDone(task.id)
-          const expanded = expandedTask === task.id
-          const Icon     = cfg.icon
+          const cfg      = TYPE_CONFIG[task.type as keyof typeof TYPE_CONFIG] || TYPE_CONFIG.task
+          const done     = isTaskDone(task.id)
+          const isOpen   = expanded === task.id
           const syncs    = !!(task.progressTaskId || task.progressBookId)
+          const isJournal = task.type === 'reflect'
 
-          return (
+          // Journal task — special card
+          if (isJournal) return (
             <div key={task.id}
-              className={cn('border rounded-2xl overflow-hidden transition-all',
-                done ? 'border-[#2ed8c3]/20 bg-[#2ed8c3]/4' : 'border-white/[0.07] bg-white/[0.02]')}>
-
-              <div className="flex items-center gap-2 md:gap-4 p-3 md:p-5">
-                {/* Step number */}
-                <div className={cn(
-                  'flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs font-bold border',
-                  done ? 'bg-[#2ed8c3] border-[#2ed8c3] text-[#241e20]' : 'border-white/10 text-[#706870]'
-                )}>
-                  {done ? '✓' : idx + 1}
-                </div>
-
-                {/* Type badge */}
-                <div className={cn('hidden sm:flex flex-shrink-0 items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold', cfg.bg, cfg.color)}>
-                  <Icon className="w-3 h-3" />
-                  {cfg.label}
-                </div>
-
-                {/* Label + detail */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={cn('text-sm font-semibold', done ? 'text-[#706870] line-through' : 'text-white')}>
-                      {task.label}
-                    </span>
-                    <span className={cn('sm:hidden text-[10px] px-1.5 py-0.5 rounded border font-semibold', cfg.bg, cfg.color)}>
-                      {cfg.label}
-                    </span>
-                    {task.duration && (
-                      <span className="hidden md:flex items-center gap-1 text-[10px] text-[#706870] bg-white/[0.04] px-2 py-0.5 rounded-full">
-                        <Clock className="w-2.5 h-2.5" />{task.duration}
-                      </span>
-                    )}
-                    {syncs && !done && (
-                      <span className="hidden sm:inline text-[10px] text-[#2ed8c3]/60 bg-[#2ed8c3]/8 border border-[#2ed8c3]/15 px-2 py-0.5 rounded-full">
-                        syncs to progress
-                      </span>
-                    )}
+              className={cn('glass-card rounded-xl p-5 transition-all', done ? 'border-primary/20' : 'border-status-amber/20')}>
+              <div className="flex items-center justify-between mb-5 md:mb-6">
+                <div className="flex items-center gap-4 md:gap-5">
+                  <div className={cn(
+                    'w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-label-mono text-sm border',
+                    done ? 'bg-primary/20 border-primary/30 text-primary' : 'bg-status-amber/5 border-status-amber/20 text-status-amber'
+                  )}>
+                    {done ? '✓' : idx + 1}
                   </div>
-                  <p className={cn('text-xs mt-0.5 truncate', done ? 'text-[#504850]' : 'text-[#a0a0b0]')}>
-                    {task.chapter || task.searchQuery || task.detail.slice(0, 55) + '...'}
-                  </p>
+                  <div>
+                    <div className="flex items-center gap-2 md:gap-3 mb-1 flex-wrap">
+                      <div className={cn('flex items-center gap-1.5 px-2 py-0.5 rounded border', cfg.bg, cfg.border)}>
+                        <span className={cn('material-symbols-outlined text-[14px]', cfg.color)}>{cfg.icon}</span>
+                        <span className={cn('font-label-mono text-[10px] uppercase', cfg.color)}>{cfg.label}</span>
+                      </div>
+                      {task.duration && (
+                        <span className="font-label-mono text-[10px] text-text-tertiary">{task.duration}</span>
+                      )}
+                    </div>
+                    <h3 className={cn('font-body-md', done ? 'text-text-primary line-through opacity-60' : 'text-text-primary')}>
+                      {task.label}
+                    </h3>
+                  </div>
                 </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <button onClick={() => setExpandedTask(expanded ? null : task.id)}
-                    className="w-7 h-7 rounded-lg border border-white/[0.07] hover:border-white/15 flex items-center justify-center text-[#706870] hover:text-white transition-all">
-                    {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                <div className="flex items-center gap-3 md:gap-4">
+                  <button onClick={() => setExpanded(isOpen ? null : task.id)}
+                    className="material-symbols-outlined text-text-tertiary cursor-pointer hover:text-text-primary transition-colors">
+                    {isOpen ? 'expand_less' : 'expand_more'}
                   </button>
                   <button onClick={() => toggleTask(task)} disabled={saving === task.id}
                     className={cn(
-                      'px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-bold transition-all border whitespace-nowrap',
+                      'px-3 md:px-5 py-1.5 rounded-lg border text-sm font-semibold transition-all whitespace-nowrap',
                       done
-                        ? 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20 text-[#2ed8c3]'
+                        ? 'border-primary/30 bg-primary/10 text-primary'
                         : isPast
-                          ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20'
-                          : 'bg-white/[0.04] border-white/[0.08] text-[#a0a0b0] hover:border-[#2ed8c3]/30 hover:text-[#2ed8c3]'
+                          ? 'border-status-amber/30 text-status-amber hover:bg-status-amber/5'
+                          : 'border-status-amber/30 text-status-amber hover:bg-status-amber/5'
                     )}>
-                    {saving === task.id
-                      ? <Loader2 className="w-3 h-3 animate-spin" />
-                      : done ? '✓ Done' : isPast ? 'Complete' : 'Mark Done'}
+                    {saving === task.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : done ? 'Done' : 'Open Journal'}
                   </button>
                 </div>
               </div>
 
-              {/* Expanded detail */}
-              {expanded && (
-                <div className="px-4 md:px-5 pb-4 md:pb-5 pt-0 border-t border-white/[0.06]">
-                  <div className="pt-3 space-y-3">
-                    {task.chapter && (
-                      <div className="flex items-start gap-2">
-                        <BookOpen className="w-3.5 h-3.5 text-[#2ed8c3] mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-[10px] text-[#706870] uppercase tracking-wider mb-0.5">Book Reference</div>
-                          <div className="text-sm text-white font-medium">{task.detail}</div>
-                          <div className="text-xs text-[#2ed8c3] mt-1 font-mono">{task.chapter}</div>
-                        </div>
+              {/* Inline journal */}
+              <div className="bg-surface-container/50 border border-border-subtle rounded-xl p-5 md:p-6">
+                <div className="mb-5 md:mb-6">
+                  <span className="font-label-mono text-[10px] text-text-tertiary uppercase block mb-3">How are you feeling about today's concepts?</span>
+                  <div className="flex gap-2 md:gap-4 flex-wrap">
+                    {MOODS.map(m => (
+                      <button key={m.value} onClick={() => setMood(mood === m.value ? '' : m.value)}
+                        className={cn(
+                          'w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center text-xl border transition-all',
+                          mood === m.value
+                            ? 'border-status-amber bg-status-amber/10 grayscale-0'
+                            : 'bg-surface border-border-subtle hover:border-status-amber grayscale hover:grayscale-0'
+                        )}>
+                        {m.emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="font-label-mono text-[10px] text-text-tertiary uppercase block">Reflection Prompt</label>
+                  {task.detail && (
+                    <p className="text-sm text-text-primary mb-3 leading-relaxed italic">"{task.detail}"</p>
+                  )}
+                  <textarea
+                    value={journal}
+                    onChange={e => setJournal(e.target.value)}
+                    placeholder={`Day ${plan.day} — ${plan.title}\n\nType your thoughts here...`}
+                    className="w-full bg-surface-container-lowest border border-border-subtle rounded-lg p-4 font-label-mono text-sm text-text-primary focus:ring-1 focus:ring-status-amber focus:border-status-amber outline-none transition-all h-32 resize-none placeholder:text-text-tertiary custom-scrollbar"
+                  />
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <button onClick={saveJournal} disabled={savingJournal || !journal.trim()}
+                    className="flex items-center gap-2 px-5 md:px-6 py-2.5 bg-status-amber text-surface-container-lowest font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all disabled:opacity-50">
+                    {savingJournal ? <Loader2 className="w-4 h-4 animate-spin" /> : '✍️'}
+                    {isPast ? 'Update Reflection' : 'Save Reflection'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+
+          // Regular task card
+          return (
+            <div key={task.id}
+              className={cn(
+                'glass-card rounded-xl p-5 transition-all',
+                done ? 'border-primary/20 bg-primary/5' : isOpen ? 'border-l-2 border-l-secondary' : ''
+              )}>
+
+              {/* Task header row */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4 md:gap-5 min-w-0">
+                  <div className={cn(
+                    'w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-label-mono text-sm border flex-shrink-0',
+                    done ? 'bg-primary/20 border-primary/30 text-primary' : 'bg-white/5 border-white/10 text-text-secondary'
+                  )}>
+                    {done ? '✓' : idx + 1}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 md:gap-3 mb-1 flex-wrap">
+                      <div className={cn('flex items-center gap-1.5 px-2 py-0.5 rounded border flex-shrink-0', cfg.bg, cfg.border)}>
+                        <span className={cn('material-symbols-outlined text-[14px]', cfg.color)}>{cfg.icon}</span>
+                        <span className={cn('font-label-mono text-[10px] uppercase hidden sm:inline', cfg.color)}>{cfg.label}</span>
                       </div>
-                    )}
-                    {task.searchQuery && (
-                      <div className="flex items-start gap-2">
-                        <Youtube className="w-3.5 h-3.5 text-red-400 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[10px] text-[#706870] uppercase tracking-wider mb-0.5">YouTube Search</div>
-                          <div className="text-sm text-white mb-2">{task.detail}</div>
+                      {task.duration && (
+                        <span className="font-label-mono text-[10px] text-text-tertiary">{task.duration}</span>
+                      )}
+                      {syncs && !done && (
+                        <span className="hidden md:inline text-[9px] font-label-mono text-primary/60 bg-primary/8 border border-primary/15 px-2 py-0.5 rounded-full">↗ syncs to progress</span>
+                      )}
+                    </div>
+                    <h3 className={cn('font-body-md truncate', done ? 'text-text-primary line-through opacity-60' : 'text-text-primary font-medium')}>
+                      {task.label}
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
+                  <button onClick={() => setExpanded(isOpen ? null : task.id)}
+                    className="material-symbols-outlined text-text-tertiary cursor-pointer hover:text-text-primary transition-colors">
+                    {isOpen ? 'expand_less' : 'expand_more'}
+                  </button>
+                  {done ? (
+                    <button onClick={() => toggleTask(task)} disabled={saving === task.id}
+                      className="flex items-center gap-1.5 px-3 md:px-4 py-1.5 rounded-lg border border-primary/30 bg-primary/10 text-primary text-sm font-semibold whitespace-nowrap">
+                      {saving === task.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <span className="material-symbols-outlined text-sm">check</span>}
+                      Done
+                    </button>
+                  ) : (
+                    <button onClick={() => toggleTask(task)} disabled={saving === task.id}
+                      className={cn(
+                        'px-3 md:px-5 py-1.5 rounded-lg font-bold text-sm hover:opacity-90 active:scale-95 transition-all whitespace-nowrap',
+                        isPast
+                          ? 'bg-status-amber text-surface-container-lowest'
+                          : 'bg-primary text-surface-container-lowest'
+                      )}>
+                      {saving === task.id ? <Loader2 className="w-4 h-4 animate-spin" /> : isPast ? 'Complete' : 'Mark Done'}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Expanded detail */}
+              {isOpen && (
+                <div className="mt-5 md:mt-6 pt-5 md:pt-6 border-t border-border-subtle">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                    <div className="space-y-4">
+                      {task.chapter && (
+                        <div>
+                          <span className="font-label-mono text-[10px] text-text-tertiary uppercase block mb-1">Reference Material</span>
+                          <div className="bg-surface-container p-3 rounded-lg border border-border-subtle flex items-start gap-3">
+                            <span className="material-symbols-outlined text-secondary mt-0.5">auto_stories</span>
+                            <div>
+                              <p className="text-sm text-text-secondary leading-relaxed">{task.detail}</p>
+                              <p className="font-label-mono text-[11px] text-primary mt-1 italic">{task.chapter}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {!task.chapter && task.detail && (
+                        <div>
+                          <span className="font-label-mono text-[10px] text-text-tertiary uppercase block mb-1">Instructions</span>
+                          <p className="text-sm text-text-secondary leading-relaxed">{task.detail}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-4">
+                      {task.searchQuery && (
+                        <div>
+                          <span className="font-label-mono text-[10px] text-text-tertiary uppercase block mb-1">YouTube Search</span>
                           <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(task.searchQuery)}`}
                             target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition-all">
-                            <ExternalLink className="w-3 h-3" /> Search on YouTube →
+                            className="flex items-center gap-2 text-xs font-bold text-status-red hover:text-primary transition-colors">
+                            <span className="material-symbols-outlined text-sm">search</span>
+                            SEARCH ON YOUTUBE
+                            <span className="material-symbols-outlined text-sm">open_in_new</span>
                           </a>
                         </div>
-                      </div>
-                    )}
-                    {task.type === 'task' && !task.searchQuery && (
-                      <div className="flex items-start gap-2">
-                        <CheckSquare className="w-3.5 h-3.5 text-[#585de1] mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-[10px] text-[#706870] uppercase tracking-wider mb-0.5">Your Task</div>
-                          <div className="text-sm text-[#d0d0d0] leading-relaxed">{task.detail}</div>
+                      )}
+                      {syncs && (
+                        <div className="flex items-center gap-2 bg-primary/8 border border-primary/15 rounded-lg px-3 py-2 text-[10px] font-label-mono text-primary/70">
+                          <span>↗</span>
+                          <span>Completing this {isPast ? 'still counts toward' : 'updates'} your overall progress bar.</span>
                         </div>
-                      </div>
-                    )}
-                    {task.type === 'reflect' && (
-                      <div className="flex items-start gap-2">
-                        <PenLine className="w-3.5 h-3.5 text-amber-400 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-[10px] text-[#706870] uppercase tracking-wider mb-0.5">Reflection Prompt</div>
-                          <div className="text-sm text-[#d0d0d0] leading-relaxed italic">"{task.detail}"</div>
-                        </div>
-                      </div>
-                    )}
-                    {syncs && (
-                      <div className="flex items-center gap-2 text-[10px] text-[#2ed8c3]/70 bg-[#2ed8c3]/8 border border-[#2ed8c3]/15 rounded-lg px-3 py-2">
-                        <span>↗</span>
-                        <span>Completing this {isPast ? 'still counts toward' : 'updates'} your overall program progress bar.</span>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -315,101 +388,52 @@ export function DailyClient({ plan, initialDailyTasks, initialJournalEntry, toda
           )
         })}
       </div>
-
-      {/* JOURNAL */}
-      <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-4 md:p-6">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <PenLine className="w-4 h-4 text-amber-400" />
-            <h2 className="font-display text-base font-bold text-white">
-              {isPast ? `Journal — Day ${plan.day}` : "Today's Journal"}
-            </h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-[#706870] hidden sm:inline">{isPast ? 'Edit your entry' : 'How was today?'}</span>
-            {moodOptions.map(m => (
-              <button key={m.value} onClick={() => setMood(m.value)}
-                className={cn('text-lg transition-all hover:scale-110', mood === m.value ? 'opacity-100 scale-110' : 'opacity-40')}
-                title={m.label}>
-                {m.emoji}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <textarea
-          value={journal}
-          onChange={e => setJournal(e.target.value)}
-          placeholder={isPast
-            ? `Day ${plan.day} — ${plan.title}\n\nLooking back: what did you learn? What can you apply now?`
-            : `Day ${plan.day} — ${plan.title}\n\nWhat did I learn today? How does it apply to my business?`
-          }
-          className="w-full bg-white/[0.03] border border-white/[0.06] focus:border-amber-500/30 rounded-xl px-4 py-3 text-sm text-white placeholder-[#504850] outline-none resize-none min-h-[120px] md:min-h-[140px] leading-relaxed transition-colors"
-        />
-
-        <div className="flex items-center justify-between mt-3">
-          <span className="text-xs text-[#706870]">{journal.length} chars</span>
-          <button onClick={saveJournal} disabled={savingJournal || !journal.trim()}
-            className="flex items-center gap-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-xs font-semibold px-4 py-2 rounded-xl transition-all disabled:opacity-40">
-            {savingJournal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '✍️'} {isPast ? 'Update Journal' : 'Save'}
-          </button>
-        </div>
-      </div>
-
     </div>
   )
 }
 
-// ── DAY NAVIGATION BAR ────────────────────────────────────────────────────────
-function DayNavBar({ dayNumber, currentDay, plan }: { dayNumber: number; currentDay?: number; plan: DayPlan }) {
+function DayNavBar({ dayNumber, currentDay }: { dayNumber: number; currentDay?: number }) {
   const isToday  = dayNumber === currentDay
   const hasPrev  = dayNumber > 1
   const hasNext  = currentDay ? dayNumber < currentDay : false
 
   return (
-    <div className="flex items-center justify-between gap-3">
-      {/* Prev day */}
-      <Link
-        href={hasPrev ? `/dashboard/daily/${dayNumber - 1}` : '#'}
+    <div className="flex items-center justify-between mb-6 md:mb-8">
+      <Link href={hasPrev ? `/dashboard/daily/${dayNumber - 1}` : '#'}
         className={cn(
-          'flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-medium transition-all',
-          hasPrev
-            ? 'border-white/[0.08] text-[#a0a0b0] hover:border-white/15 hover:text-white'
-            : 'border-white/[0.04] text-[#404040] cursor-not-allowed pointer-events-none'
+          'flex items-center gap-2 font-label-mono text-label-mono transition-colors',
+          hasPrev ? 'text-text-secondary hover:text-primary' : 'text-text-tertiary pointer-events-none opacity-30'
         )}>
-        <ArrowLeft className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">Day {dayNumber - 1}</span>
+        <span className="material-symbols-outlined">arrow_back</span>
+        <span className="hidden sm:inline">← DAY {dayNumber - 1}</span>
         <span className="sm:hidden">Prev</span>
       </Link>
 
-      {/* Centre — current day info */}
-      <div className="flex items-center gap-2 flex-1 justify-center">
+      <div className="flex items-center gap-2 md:gap-4">
         {!isToday && (
           <Link href="/dashboard/daily"
-            className="flex items-center gap-1.5 text-xs text-[#2ed8c3] hover:text-[#5ee3d2] bg-[#2ed8c3]/8 border border-[#2ed8c3]/15 px-3 py-1.5 rounded-lg transition-all">
-            <Flame className="w-3 h-3" />
-            Go to Today (Day {currentDay})
+            className="flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3 md:px-4 py-2 hover:bg-primary/15 transition-all"
+            style={{ boxShadow: '0 0 15px rgba(46,216,195,0.15)' }}>
+            <span className="material-symbols-outlined text-primary text-sm"
+              style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+            <span className="text-primary font-bold text-xs md:text-sm tracking-wide">GO TO TODAY</span>
           </Link>
         )}
         <Link href="/dashboard/calendar"
-          className="flex items-center gap-1.5 text-xs text-[#706870] hover:text-[#a0a0b0] border border-white/[0.07] hover:border-white/15 px-3 py-1.5 rounded-lg transition-all">
-          <CalendarDays className="w-3 h-3" />
-          <span className="hidden sm:inline">Calendar</span>
+          className="flex items-center gap-1.5 border border-border-subtle rounded-full px-3 py-2 text-text-secondary hover:text-primary hover:border-primary/30 transition-all">
+          <span className="material-symbols-outlined text-sm">calendar_month</span>
+          <span className="hidden md:inline font-label-caps text-label-caps">Calendar</span>
         </Link>
       </div>
 
-      {/* Next day */}
-      <Link
-        href={hasNext ? `/dashboard/daily/${dayNumber + 1}` : '#'}
+      <Link href={hasNext ? `/dashboard/daily/${dayNumber + 1}` : '#'}
         className={cn(
-          'flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-medium transition-all',
-          hasNext
-            ? 'border-white/[0.08] text-[#a0a0b0] hover:border-white/15 hover:text-white'
-            : 'border-white/[0.04] text-[#404040] cursor-not-allowed pointer-events-none'
+          'flex items-center gap-2 font-label-mono text-label-mono transition-colors',
+          hasNext ? 'text-text-secondary hover:text-primary' : 'text-text-tertiary pointer-events-none opacity-30'
         )}>
-        <span className="hidden sm:inline">Day {dayNumber + 1}</span>
+        <span className="hidden sm:inline">DAY {dayNumber + 1} →</span>
         <span className="sm:hidden">Next</span>
-        <ArrowRight className="w-3.5 h-3.5" />
+        <span className="material-symbols-outlined">arrow_forward</span>
       </Link>
     </div>
   )

@@ -15,7 +15,7 @@ export function StructuredData() {
           width:     500,
           height:    500,
         },
-        sameAs: ['https://gmaxdigitalsolutions.com'],
+        sameAs: ['https://gmaxdigitals.com'],
       },
       {
         '@type':       'WebSite',

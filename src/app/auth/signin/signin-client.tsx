@@ -1,96 +1,146 @@
-
 'use client'
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import toast from 'react-hot-toast'
-import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
-
-export default function SignInClient() {
+export default function SignInPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [showPw, setShowPw] = useState(false)
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [showPw, setShowPw]   = useState(false)
+  const [form, setForm]       = useState({ email: '', password: '' })
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-
-    const result = await signIn('credentials', { ...form, redirect: false })
-
-    if (result?.ok) {
-      toast.success('Welcome back!')
-      // Check onboarded status before redirecting
-      try {
-        const res = await fetch('/api/users/me')
-        const user = await res.json()
-        if (!user.onboarded) {
-          router.push('/onboarding')
-        } else {
-          router.push('/dashboard')
-        }
-      } catch {
-        router.push('/dashboard')
+    try {
+      const result = await signIn('credentials', { ...form, redirect: false })
+      if (!result?.ok) {
+        toast.error('Invalid email or password')
+        setLoading(false)
+        return
       }
-    } else {
-      toast.error('Invalid email or password')
+      toast.success('Welcome back!')
+      const res = await fetch('/api/users/me')
+      if (!res.ok) throw new Error('Unable to load profile')
+      const user = await res.json()
+      router.push(user.onboarded ? '/dashboard' : '/onboarding')
+    } catch {
+      toast.error('Something went wrong')
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#241e20] flex flex-col items-center justify-center px-4 py-8">
-      <div className="absolute inset-0 bg-grid-pattern pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#2ed8c3]/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="flex flex-col min-h-screen bg-background text-text-primary font-body-md">
+      {/* Atmospheric bg */}
+      <div className="fixed inset-0 pointer-events-none z-0 grid-pattern" />
+      <div className="fixed top-[-10%] right-[-10%] w-1/2 h-1/2 bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-[-10%] left-[-10%] w-2/5 h-2/5 bg-secondary/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="relative w-full max-w-sm">
-        <div className="text-center mb-6 md:mb-8">
-          <Link href="/" className="inline-flex flex-col items-center gap-2 mb-2">
-            <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl overflow-hidden bg-white border border-white/10 shadow-xl shadow-black/30">
-              <Image src="/logo.png" alt="Gmax MBA" width={64} height={64} className="w-full h-full object-cover" priority />
+      <main className="relative z-10 flex-grow flex items-center justify-center px-4 py-20 md:py-24">
+        <div className="w-full max-w-[440px] animate-fade-up">
+
+          {/* Brand */}
+          <div className="flex flex-col items-center mb-10 md:mb-12">
+            <div className="w-14 h-14 md:w-16 md:h-16 glass-card border border-primary/20 rounded-xl flex items-center justify-center mb-5">
+              <span className="material-symbols-outlined text-primary text-2xl md:text-3xl"
+                style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
             </div>
-            <span className="font-display font-bold text-white text-lg md:text-xl">Gmax MBA</span>
-          </Link>
-          <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-1 mt-3">Welcome back</h1>
-          <p className="text-[#a0a0b0] text-sm">Continue your learning journey.</p>
+            <span className="font-label-caps text-label-caps text-primary tracking-[0.2em] mb-2 block uppercase">Gmax MBA</span>
+            <h1 className="font-headline-md text-headline-md text-on-surface mb-2 text-center">Welcome back</h1>
+            <p className="font-body-md text-body-md text-text-secondary text-center">Return to your learning journey.</p>
+          </div>
+
+          {/* Form card */}
+          <div className="glass-card rounded-xl p-6 md:p-8 mb-6">
+            <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+
+              <div className="space-y-2">
+                <label htmlFor="email" className="font-label-caps text-label-caps text-text-tertiary uppercase ml-1 block">
+                  Email Address
+                </label>
+                <div className="relative group">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary text-lg transition-colors group-focus-within:text-primary"
+                    style={{ fontVariationSettings: "'FILL' 0" }}>mail</span>
+                  <input id="email" type="email" required
+                    value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    placeholder="name@example.com"
+                    className="w-full bg-surface-container border border-border-subtle rounded-lg py-3.5 pl-12 pr-4 font-label-mono text-label-mono text-text-primary focus:outline-none focus:border-primary transition-all placeholder:text-text-tertiary" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center px-1">
+                  <label htmlFor="password" className="font-label-caps text-label-caps text-text-tertiary uppercase">Password</label>
+                  <span className="font-label-caps text-label-caps text-primary cursor-pointer hover:opacity-80 transition-opacity">Forgot?</span>
+                </div>
+                <div className="relative group">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary text-lg transition-colors group-focus-within:text-primary"
+                    style={{ fontVariationSettings: "'FILL' 0" }}>lock</span>
+                  <input id="password" type={showPw ? 'text' : 'password'} required
+                    value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                    placeholder="••••••••"
+                    className="w-full bg-surface-container border border-border-subtle rounded-lg py-3.5 pl-12 pr-12 font-label-mono text-label-mono text-text-primary focus:outline-none focus:border-primary transition-all placeholder:text-text-tertiary" />
+                  <button type="button" onClick={() => setShowPw(!showPw)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-primary transition-colors">
+                    <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: `'FILL' ${showPw ? 1 : 0}` }}>
+                      {showPw ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-1">
+                <button type="submit" disabled={loading}
+                  className="w-full bg-primary-container text-on-primary-fixed font-label-caps text-label-caps py-4 rounded-lg flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(46,216,195,0.25)] transition-all active:scale-[0.98] group disabled:opacity-60">
+                  {loading
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : <><span>Sign In</span><span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span></>}
+                </button>
+              </div>
+            </form>
+
+            <div className="relative my-8">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border-subtle" /></div>
+              <div className="relative flex justify-center">
+                <span className="bg-[#1c181a] px-4 font-label-caps text-label-caps text-text-tertiary uppercase">Or continue with</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {[['terminal', 'GitHub'], ['data_object', 'Google']].map(([icon, label]) => (
+                <button key={label} className="flex items-center justify-center gap-2 py-3 rounded-lg border border-border-subtle font-label-caps text-label-caps text-text-secondary hover:bg-surface-container hover:border-border-hover transition-all">
+                  <span className="material-symbols-outlined text-lg">{icon}</span>{label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="text-center">
+            <p className="font-body-sm text-body-sm text-text-secondary">
+              New here?{' '}
+              <Link href="/auth/signup" className="text-primary font-bold ml-1 hover:underline underline-offset-4 decoration-primary/30">
+                Create a free account
+              </Link>
+            </p>
+          </div>
         </div>
+      </main>
 
-        <form onSubmit={handleSubmit} className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 md:p-8 space-y-4 md:space-y-5">
-          <div>
-            <label className="block text-xs font-medium text-[#a0a0b0] mb-2">Email Address</label>
-            <input type="email" value={form.email}
-              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-              placeholder="you@example.com"
-              className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-[#2ed8c3]/50 rounded-xl px-4 py-3 text-sm text-white placeholder-[#504850] outline-none transition-colors" required />
+      <footer className="relative z-10 w-full py-8 border-t border-border-subtle bg-surface-dim">
+        <div className="flex flex-col md:flex-row justify-between items-center px-4 md:px-margin-desktop gap-4 max-w-container-max mx-auto">
+          <span className="font-headline-sm text-on-surface opacity-50 italic">Gmax MBA</span>
+          <div className="flex gap-5 flex-wrap justify-center">
+            {[['Terms', '#'], ['Privacy', '#'], ['Curriculum', '/curriculum'], ['Community', '/auth/signup']].map(([l, h]) => (
+              <Link key={l} href={h} className="font-label-mono text-label-mono text-text-tertiary hover:text-on-surface transition-colors">{l}</Link>
+            ))}
           </div>
-          <div>
-            <label className="block text-xs font-medium text-[#a0a0b0] mb-2">Password</label>
-            <div className="relative">
-              <input type={showPw ? 'text' : 'password'} value={form.password}
-                onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                placeholder="Your password"
-                className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-[#2ed8c3]/50 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-[#504850] outline-none transition-colors" required />
-              <button type="button" onClick={() => setShowPw(!showPw)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#706870] hover:text-[#a0a0b0] transition-colors">
-                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-          <button type="submit" disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-[#2ed8c3] hover:bg-[#5ee3d2] disabled:opacity-60 text-[#241e20] font-bold py-3.5 rounded-xl transition-all text-sm">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Sign In <ArrowRight className="w-4 h-4" /></>}
-          </button>
-          <p className="text-center text-xs text-[#706870]">
-            New here?{' '}
-            <Link href="/auth/signup" className="text-[#2ed8c3] hover:text-[#5ee3d2] transition-colors">
-              Create a free account
-            </Link>
-          </p>
-        </form>
-      </div>
+          <span className="font-body-sm text-body-sm text-text-tertiary">© {new Date().getFullYear()} Gmax MBA.</span>
+        </div>
+      </footer>
     </div>
   )
 }
