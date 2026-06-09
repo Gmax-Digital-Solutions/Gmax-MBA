@@ -15,16 +15,20 @@ export default function SignInPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    const result = await signIn('credentials', { ...form, redirect: false })
-    if (result?.ok) {
+    try {
+      const result = await signIn('credentials', { ...form, redirect: false })
+      if (!result?.ok) {
+        toast.error('Invalid email or password')
+        setLoading(false)
+        return
+      }
       toast.success('Welcome back!')
-      try {
-        const res  = await fetch('/api/users/me')
-        const user = await res.json()
-        router.push(user.onboarded ? '/dashboard' : '/onboarding')
-      } catch { router.push('/dashboard') }
-    } else {
-      toast.error('Invalid email or password')
+      const res = await fetch('/api/users/me')
+      if (!res.ok) throw new Error('Unable to load profile')
+      const user = await res.json()
+      router.push(user.onboarded ? '/dashboard' : '/onboarding')
+    } catch {
+      toast.error('Something went wrong')
       setLoading(false)
     }
   }

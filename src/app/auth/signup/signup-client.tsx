@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -24,6 +24,19 @@ export default function SignUpPage() {
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      document.querySelectorAll<HTMLElement>('.glass-card').forEach(card => {
+        const r = card.getBoundingClientRect()
+        card.style.setProperty('--mouse-x', `${e.clientX - r.left}px`)
+        card.style.setProperty('--mouse-y', `${e.clientY - r.top}px`)
+      })
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    return () => document.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
@@ -34,14 +47,20 @@ export default function SignUpPage() {
         body: JSON.stringify(form),
       })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.error || 'Registration failed'); return }
+      if (!res.ok) {
+        toast.error(data.error || 'Registration failed')
+        return
+      }
       toast.success('Account created! Setting things up...')
       const result = await signIn('credentials', {
         email: form.email, password: form.password, redirect: false,
       })
       router.push(result?.ok ? '/onboarding' : '/auth/signin')
-    } catch { toast.error('Something went wrong') }
-    finally { setLoading(false) }
+    } catch {
+      toast.error('Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -177,15 +196,6 @@ export default function SignUpPage() {
       </main>
 
       {/* Glass card mouse tracking */}
-      <script dangerouslySetInnerHTML={{ __html: `
-        document.addEventListener('mousemove', e => {
-          document.querySelectorAll('.glass-card').forEach(card => {
-            const r = card.getBoundingClientRect();
-            card.style.setProperty('--mouse-x', (e.clientX - r.left) + 'px');
-            card.style.setProperty('--mouse-y', (e.clientY - r.top) + 'px');
-          });
-        });
-      ` }} />
     </div>
   )
 }

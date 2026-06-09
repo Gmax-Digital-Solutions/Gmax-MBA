@@ -7,7 +7,7 @@ import { DashboardTopbar } from '@/components/dashboard/topbar'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions)
-  if (!session) redirect('/auth/signin')
+  if (!session?.user?.id) redirect('/auth/signin')
 
   // Send users who haven't completed onboarding back to it
   const user = await db.user.findUnique({

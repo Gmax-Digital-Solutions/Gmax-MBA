@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { Loader2 } from 'lucide-react'
 import { DAILY_PLAN } from '@/lib/data/daily-plan'
@@ -33,13 +32,20 @@ export function OnboardingClient({ userName }: { userName: string }) {
   async function completeOnboarding() {
     setSaving(true)
     try {
-      await fetch('/api/users/me', {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('/api/users/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ onboarded: true }),
       })
+
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null)
+        throw new Error(payload?.error || 'Unable to complete onboarding')
+      }
+
       router.push('/dashboard')
-    } catch {
-      toast.error('Something went wrong')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Something went wrong. Please try again.')
       setSaving(false)
     }
   }
