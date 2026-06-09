@@ -5,7 +5,8 @@ import { CURRICULUM } from '@/lib/data/curriculum'
 import { notFound } from 'next/navigation'
 import { ModuleClient } from './client'
 
-export default async function ModulePage({ params }: { params: { moduleId: string } }) {
+export default async function ModulePage({ params }: { params: Promise<{ moduleId: string }> }) {
+  const { moduleId } = await params
   const session  = await getServerSession(authOptions)
   const userId   = session!.user.id
 
@@ -13,7 +14,7 @@ export default async function ModulePage({ params }: { params: { moduleId: strin
   let foundMod: any = null
   let foundPhase: any = null
   for (const phase of CURRICULUM) {
-    const mod = phase.modules.find(m => m.id === params.moduleId)
+    const mod = phase.modules.find(m => m.id === moduleId)
     if (mod) { foundMod = mod; foundPhase = phase; break }
   }
   if (!foundMod) notFound()
@@ -21,7 +22,7 @@ export default async function ModulePage({ params }: { params: { moduleId: strin
   const [progress, notes] = await Promise.all([
     db.progress.findMany({ where: { userId } }),
     db.note.findMany({
-      where:   { userId, moduleId: params.moduleId },
+      where:   { userId, moduleId: moduleId },
       orderBy: { createdAt: 'desc' },
     }),
   ])

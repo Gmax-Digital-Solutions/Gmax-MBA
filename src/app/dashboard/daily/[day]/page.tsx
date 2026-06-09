@@ -9,8 +9,9 @@ export async function generateStaticParams() {
   return DAILY_PLAN.map(p => ({ day: String(p.day) }))
 }
 
-export default async function SpecificDayPage({ params }: { params: { day: string } }) {
-  const dayNum = parseInt(params.day)
+export default async function SpecificDayPage({ params }: { params: Promise<{ day: string }> }) {
+  const { day } = await params
+  const dayNum = parseInt(day)
   if (isNaN(dayNum) || dayNum < 1) notFound()
 
   const plan = getPlanByDay(dayNum)
