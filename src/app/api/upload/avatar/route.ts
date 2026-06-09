@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const formData = await req.formData()
-    const file = formData.get('avatar') as File | null
+    const file = formData.get('file') as File | null
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       data:  { image: imageUrl },
     })
 
-    return NextResponse.json({ imageUrl })
+    return NextResponse.json({ url: imageUrl })
   } catch (err: any) {
     console.error('[AVATAR UPLOAD ERROR]', err)
     return NextResponse.json({ error: err.message || 'Something went wrong' }, { status: 500 })
