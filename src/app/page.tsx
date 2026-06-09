@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { StructuredData } from '@/components/structured-data'
 import Image from 'next/image'
 import { ArrowRight, BookOpen, Users, Trophy, Zap, BarChart3, Globe, CheckCircle, Star, Code2, Rocket, Brain, Clock, Play } from 'lucide-react'
 
@@ -52,10 +53,11 @@ const phaseColorMap: Record<string, { border: string; bg: string; text: string }
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#241e20] overflow-x-hidden">
+    <div className="min-h-screen bg-[#171214] overflow-x-hidden">
+      <StructuredData />
 
       {/* NAV */}
-      <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-[#241e20]/85 backdrop-blur-xl">
+      <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-[#171214]/85 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg overflow-hidden bg-white border border-white/10 flex-shrink-0">
@@ -65,7 +67,7 @@ export default function LandingPage() {
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-[#a0a0b0]">
             <a href="#how"        className="hover:text-white transition-colors">How it Works</a>
-            <a href="#curriculum" className="hover:text-white transition-colors">Curriculum</a>
+            <Link href="/curriculum" className="hover:text-white transition-colors">Curriculum</Link>
             <a href="#features"   className="hover:text-white transition-colors">Features</a>
           </div>
           <div className="flex items-center gap-3">
@@ -80,57 +82,76 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO */}
-      <section className="pt-28 pb-16 md:pt-32 md:pb-24 px-4 md:px-6 relative">
-        <div className="absolute inset-0 bg-grid-pattern pointer-events-none" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#2ed8c3]/6 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-0 right-1/4 w-[400px] h-[300px] bg-[#585de1]/6 rounded-full blur-3xl pointer-events-none" />
+      <header className="relative pt-32 pb-24 dot-grid min-h-[921px] flex flex-col justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px]" />
+        </div>
 
-        <div className="max-w-5xl mx-auto text-center relative">
-          <div className="inline-flex items-center gap-2 bg-[#2ed8c3]/10 border border-[#2ed8c3]/20 text-[#2ed8c3] text-xs font-semibold px-4 py-2 rounded-full mb-8 tracking-wide">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2ed8c3] animate-pulse" />
-            FREE FOREVER — START IN 60 SECONDS
+        <div className="max-w-container-max mx-auto px-margin-desktop relative z-10 grid lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <span className="inline-block px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full font-label-mono text-label-mono uppercase tracking-widest">
+                Enrollment Open • Cohort 2026
+              </span>
+              <h1 className="font-display-lg text-display-lg leading-tight text-on-surface">
+                MBA-Level Business Skills.
+                <br />
+                <span className="primary-gradient-text italic">30 Minutes a Day.</span>
+              </h1>
+              <p className="text-text-secondary text-body-lg max-w-xl">
+                Institutional-grade business education for the builders of tomorrow. Self-guided, free, and designed specifically for high-performance engineers.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-4 pt-4">
+              <Link href="/auth/signup" className="bg-primary-container text-on-primary-container px-8 py-4 rounded-lg font-label-caps text-label-caps font-bold flex items-center gap-3 hover:shadow-[0_0_20px_rgba(46,216,195,0.3)] transition-all active:scale-95">
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                Start Day 1 — It's Free
+              </Link>
+              <Link href="#how" className="border border-border-subtle hover:bg-surface-container text-text-primary px-8 py-4 rounded-lg font-label-caps text-label-caps font-bold transition-all">
+                See How It Works
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12">
+              {stats.map((item) => (
+                <div key={item.label} className="glass-card p-4 rounded-xl">
+                  <p className="font-label-mono text-label-mono text-primary uppercase">{item.value}</p>
+                  <p className="text-text-secondary text-body-sm mt-1">
+                    {item.label === 'Modules' && 'Full Curriculum'}
+                    {item.label === 'Curated Books' && 'Curated Library'}
+                    {item.label === 'Per Day' && 'Focused Learning'}
+                    {item.label === 'Cost' && 'Open Access'}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
-            MBA-Level Business Skills.
-            <br />
-            <span className="gradient-text">30 Minutes a Day.</span>
-          </h1>
+          <div className="hidden lg:block relative">
+            <div className="aspect-[4/5] rounded-2xl overflow-hidden glass-card border-border-hover relative">
+              <img
+                alt="Tech founders working"
+                className="w-full h-full object-cover grayscale-[0.3]"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnZm8VA31vsY89rFemczk5hIQLt8LFya30wNTNiMy1b_ma3AHotXrUch86vS93LbjIIm6A7njuXFF7HOQXJjIQ42ZV1cYAQqKqe3Mb_MK3BR2BZVaqVRevvreU0VKCMDLICdwM3wWwm43gQDLQLDpiSXdP4_mecpgYHLK_-OziFr_eikfVp9LVzcYRz9COj8blmgM0FkH0rVRDL8bfEjCU0pJ5xnn8kyRkgLxwjaj0xReRZJuO8RfUK_0-LG_a5b1vTLXZptW8XTYP"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60" />
+            </div>
 
-          <p className="text-lg md:text-xl text-[#a0a0b0] max-w-2xl mx-auto mb-4 leading-relaxed">
-            A self-guided business curriculum for developers, engineers, and solo founders. Every day: one chapter, one video, one task — applied to your real business.
-          </p>
-
-          {/* The key objection-killer line */}
-          <p className="text-sm text-[#706870] max-w-xl mx-auto mb-10">
-            Everything here is freely available online. What isn't free is the 200 hours of research figuring out what to read, in what order, and how to apply it. <span className="text-[#a0a0b0]">We did that part.</span>
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Link href="/auth/signup"
-              className="group flex items-center gap-2 bg-[#2ed8c3] hover:bg-[#5ee3d2] text-[#241e20] font-bold px-8 py-4 rounded-xl text-base transition-all hover:scale-[1.02] shadow-lg shadow-[#2ed8c3]/15 w-full sm:w-auto justify-center">
-              <Play className="w-4 h-4" />
-              Start Day 1 — It's Free
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <Link href="#how"
-              className="flex items-center gap-2 text-[#a0a0b0] hover:text-white border border-white/10 hover:border-white/20 px-8 py-4 rounded-xl text-base transition-all w-full sm:w-auto justify-center">
-              <BookOpen className="w-4 h-4" />
-              See How It Works
-            </Link>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
-            {stats.map((s) => (
-              <div key={s.label} className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 md:p-5">
-                <div className="font-display text-2xl md:text-3xl font-bold text-white mb-1">{s.value}</div>
-                <div className="text-xs text-[#a0a0b0]">{s.label}<br /><span className="text-[#706870]">{s.sub}</span></div>
+            <div className="absolute -bottom-6 -left-6 glass-card p-6 rounded-xl animate-pulse">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                  <span className="material-symbols-outlined">trending_up</span>
+                </div>
+                <div>
+                  <p className="text-body-sm font-bold">Premium Business Mastery</p>
+                  <p className="text-label-mono text-primary">+90% Efficiency</p>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
-      </section>
+      </header>
 
       {/* HOW IT WORKS */}
       <section id="how" className="py-14 md:py-20 px-4 md:px-6 border-t border-white/[0.06]">
@@ -332,13 +353,13 @@ export default function LandingPage() {
           </div>
           <p className="text-[#706070] text-xs text-center">
             A free education initiative by{' '}
-            <a href="https://gmaxdigitals.com" className="text-[#2ed8c3] hover:text-[#5ee3d2] transition-colors" target="_blank" rel="noopener noreferrer">
+            <a href="https://gmaxdigitalsolutions.com" className="text-[#2ed8c3] hover:text-[#5ee3d2] transition-colors" target="_blank" rel="noopener noreferrer">
               Gmax Digital Solutions
             </a>
           </p>
           <div className="flex gap-6 text-xs text-[#706070]">
             <Link href="/auth/signup"  className="hover:text-white transition-colors">Enroll Free</Link>
-            <Link href="#curriculum"   className="hover:text-white transition-colors">Curriculum</Link>
+            <Link href="/curriculum"   className="hover:text-white transition-colors">Curriculum</Link>
             <Link href="#how"          className="hover:text-white transition-colors">How It Works</Link>
           </div>
         </div>

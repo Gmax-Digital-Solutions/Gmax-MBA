@@ -1,216 +1,264 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
-import { DayPlan } from '@/lib/data/daily-plan'
-import { ArrowRight, BookOpen, Youtube, CheckSquare, PenLine, Loader2, Flame, Users, Clock, Play } from 'lucide-react'
+import Link from 'next/link'
+import toast from 'react-hot-toast'
+import { Loader2 } from 'lucide-react'
+import { DAILY_PLAN } from '@/lib/data/daily-plan'
 import { cn } from '@/lib/utils'
 
-const steps = [
-  { id: 0, label: 'Welcome'   },
-  { id: 1, label: 'How it works' },
-  { id: 2, label: 'Day 1 preview' },
-  { id: 3, label: 'You\'re in' },
+const STEPS = [1, 2, 3, 4] as const
+type Step = typeof STEPS[number]
+
+const DAILY_TASKS = [
+  { icon: 'menu_book',   color: 'text-primary',      label: 'Deep Read',       dur: '10 MIN', desc: 'Specific chapters from curated MBA texts, applied to your business.'        },
+  { icon: 'play_circle', color: 'text-status-red',   label: 'Watch',           dur: '08 MIN', desc: 'Direct YouTube link — expert breakdowns and case studies.'                  },
+  { icon: 'assignment',  color: 'text-secondary',    label: 'Execution Task',  dur: '07 MIN', desc: 'One practical deliverable you apply to your actual company today.'           },
+  { icon: 'history_edu', color: 'text-status-amber', label: 'Journal',         dur: '05 MIN', desc: 'Synthesize what you learned into your permanent knowledge base.'            },
 ]
 
-const typeConfig = {
-  read:    { icon: BookOpen,    color: 'text-[#2ed8c3]', bg: 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20', label: 'Read'    },
-  watch:   { icon: Youtube,     color: 'text-red-400',   bg: 'bg-red-500/10 border-red-500/20',       label: 'Watch'   },
-  task:    { icon: CheckSquare, color: 'text-[#585de1]', bg: 'bg-[#585de1]/10 border-[#585de1]/20',  label: 'Task'    },
-  reflect: { icon: PenLine,     color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20',   label: 'Journal' },
-}
+const TRUST_BADGES = [
+  { icon: 'verified',          label: 'ELITE CURRICULUM' },
+  { icon: 'security',          label: 'SECURE ACCESS'    },
+  { icon: 'school',            label: 'OPEN NETWORK'     },
+  { icon: 'workspace_premium', label: 'MBA CERTIFIED'    },
+]
 
-export function OnboardingClient({ userName, day1, userId }: {
-  userName: string; day1: DayPlan | null; userId: string
-}) {
-  const router = useRouter()
-  const [step, setStep]       = useState(0)
-  const [loading, setLoading] = useState(false)
-  const firstName = userName.split(' ')[0]
+export function OnboardingClient({ userName }: { userName: string }) {
+  const router  = useRouter()
+  const [step, setStep]       = useState<Step>(1)
+  const [saving, setSaving]   = useState(false)
+  const day1Plan = DAILY_PLAN[0]
 
-  async function finish() {
-    setLoading(true)
+  async function completeOnboarding() {
+    setSaving(true)
     try {
       await fetch('/api/users/me', {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ onboarded: true }),
       })
-      router.push('/dashboard/daily')
+      router.push('/dashboard')
     } catch {
-      router.push('/dashboard/daily')
+      toast.error('Something went wrong')
+      setSaving(false)
     }
   }
 
+  function advance(to: Step) {
+    setStep(to)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
-    <div className="min-h-screen bg-[#241e20] flex flex-col items-center justify-center px-4 py-8">
-      <div className="absolute inset-0 bg-grid-pattern pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#2ed8c3]/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="bg-background text-text-primary font-body-md min-h-screen overflow-x-hidden">
+      {/* Background */}
+      <div className="fixed inset-0 z-0 dot-grid" />
+      <div className="fixed top-[-10%] right-[-10%] w-1/2 h-1/2 bg-primary/5 rounded-full blur-[120px] pointer-events-none z-0" />
+      <div className="fixed bottom-[-10%] left-[-10%] w-1/3 h-1/3 bg-secondary/5 rounded-full blur-[100px] pointer-events-none z-0" />
 
-      <div className="relative w-full max-w-lg">
+      <main className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
 
-        {/* Step indicators */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          {steps.map((s, i) => (
-            <div key={s.id} className={cn(
-              'h-1.5 rounded-full transition-all duration-300',
-              i === step ? 'w-8 bg-[#2ed8c3]' : i < step ? 'w-4 bg-[#2ed8c3]/40' : 'w-4 bg-white/10'
-            )} />
-          ))}
-        </div>
-
-        {/* ── STEP 0 — WELCOME ──────────────────────────────────────────── */}
-        {step === 0 && (
-          <div className="text-center animate-fade-up">
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 rounded-3xl overflow-hidden bg-white border border-white/10 shadow-2xl shadow-black/40">
-                <Image src="/logo.png" alt="Gmax MBA" width={80} height={80} className="w-full h-full object-cover" />
-              </div>
-            </div>
-            <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-3">
-              Welcome, {firstName}! 🎉
-            </h1>
-            <p className="text-[#a0a0b0] text-base leading-relaxed mb-4">
-              You just enrolled in the Gmax MBA — a free, self-guided business curriculum built for founders and builders like you.
-            </p>
-            <p className="text-[#706070] text-sm mb-8">
-              Before you dive in, let us show you exactly how this works. Takes 60 seconds.
-            </p>
-            <div className="grid grid-cols-3 gap-3 mb-8">
-              {[
-                { icon: Clock,  val: '30 min',    label: 'per day'            },
-                { icon: Flame,  val: 'Day 1',     label: 'ready now'          },
-                { icon: Users,  val: '100% free', label: 'forever'            },
-              ].map(s => (
-                <div key={s.val} className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 text-center">
-                  <s.icon className="w-5 h-5 text-[#2ed8c3] mx-auto mb-2" />
-                  <div className="font-display text-lg font-bold text-white">{s.val}</div>
-                  <div className="text-[10px] text-[#706070]">{s.label}</div>
-                </div>
-              ))}
-            </div>
-            <button onClick={() => setStep(1)}
-              className="w-full flex items-center justify-center gap-2 bg-[#2ed8c3] hover:bg-[#5ee3d2] text-[#241e20] font-bold py-4 rounded-xl transition-all text-base shadow-lg shadow-[#2ed8c3]/15">
-              Show me how it works <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
-        {/* ── STEP 1 — HOW IT WORKS ─────────────────────────────────────── */}
-        {step === 1 && (
-          <div className="animate-fade-up">
-            <div className="text-center mb-6">
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-2">Here's your daily routine</h2>
-              <p className="text-[#a0a0b0] text-sm">Four blocks. 30 minutes total. Every day your dashboard tells you exactly what to do next.</p>
-            </div>
-            <div className="space-y-3 mb-8">
-              {[
-                { icon: BookOpen,    color: 'text-[#2ed8c3] bg-[#2ed8c3]/10 border-[#2ed8c3]/20', time: '6:00 AM · 30 min',  title: 'Read',    desc: 'A specific chapter with page numbers. Open the book and read — nothing else.' },
-                { icon: Youtube,     color: 'text-red-400 bg-red-500/10 border-red-500/20',         time: '12:00 PM · 20 min', title: 'Watch',   desc: 'A YouTube video with a direct search link. Watch over lunch.' },
-                { icon: CheckSquare, color: 'text-[#585de1] bg-[#585de1]/10 border-[#585de1]/20',  time: '5:00 PM · 30 min',  title: 'Task',    desc: 'Apply the concept to your actual business. Not theory — real work.' },
-                { icon: PenLine,     color: 'text-amber-400 bg-amber-500/10 border-amber-500/20',   time: 'Evening · 10 min',  title: 'Journal', desc: 'One reflection prompt. What did you learn? How will you apply it?' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-start gap-4 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4">
-                  <div className={cn('flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center border', item.color)}>
-                    <item.icon className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-white font-semibold text-sm">{item.title}</span>
-                      <span className="text-[10px] text-[#706070] font-mono">{item.time}</span>
-                    </div>
-                    <p className="text-[#a0a0b0] text-xs leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => setStep(0)} className="flex-shrink-0 px-5 py-3.5 border border-white/10 text-[#a0a0b0] hover:text-white hover:border-white/20 rounded-xl text-sm transition-all">Back</button>
-              <button onClick={() => setStep(2)}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#2ed8c3] hover:bg-[#5ee3d2] text-[#241e20] font-bold py-3.5 rounded-xl transition-all text-sm">
-                Preview Day 1 <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 2 — DAY 1 PREVIEW ───────────────────────────────────── */}
-        {step === 2 && (
-          <div className="animate-fade-up">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 bg-[#2ed8c3]/10 border border-[#2ed8c3]/20 text-[#2ed8c3] text-xs font-semibold px-3 py-1.5 rounded-full mb-3">
-                <Flame className="w-3 h-3" /> Day 1 is ready for you
-              </div>
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-2">
-                {day1?.title || 'What is a Business?'}
-              </h2>
-              <p className="text-[#a0a0b0] text-sm">{day1?.focus || 'The Personal MBA — Understanding Value Creation'}</p>
-            </div>
-
-            <div className="space-y-2 mb-6">
-              {(day1?.tasks || []).map((task, i) => {
-                const cfg = typeConfig[task.type as keyof typeof typeConfig] || typeConfig.task
-                const Icon = cfg.icon
-                return (
-                  <div key={task.id} className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.06] rounded-xl p-3.5">
-                    <div className={cn('flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center border text-xs', cfg.bg, cfg.color)}>
-                      <Icon className="w-3.5 h-3.5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-semibold text-white">{task.label}</div>
-                      <div className="text-[11px] text-[#706070] truncate">
-                        {task.chapter || task.searchQuery || task.detail.slice(0, 55)}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 text-[10px] text-[#706070] flex-shrink-0">
-                      <Clock className="w-2.5 h-2.5" />{task.duration}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            <div className="bg-white/[0.02] border border-white/[0.07] rounded-xl p-4 mb-6">
-              <p className="text-xs text-[#a0a0b0] leading-relaxed">
-                <span className="text-white font-semibold">Everything you need is linked.</span>{' '}
-                Book chapters tell you exact pages. Videos open directly on YouTube. Tasks are specific and apply to your business — not generic exercises.
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <button onClick={() => setStep(1)} className="flex-shrink-0 px-5 py-3.5 border border-white/10 text-[#a0a0b0] hover:text-white hover:border-white/20 rounded-xl text-sm transition-all">Back</button>
-              <button onClick={() => setStep(3)}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#2ed8c3] hover:bg-[#5ee3d2] text-[#241e20] font-bold py-3.5 rounded-xl transition-all text-sm">
-                I'm ready <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 3 — LET'S GO ─────────────────────────────────────────── */}
-        {step === 3 && (
-          <div className="text-center animate-fade-up">
-            <div className="text-6xl mb-5">🚀</div>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-3">You're all set, {firstName}!</h2>
-            <p className="text-[#a0a0b0] text-base leading-relaxed mb-3">
-              Your Day 1 plan is loaded and waiting. Come back every day — even for just 30 minutes — and in a year you'll have more practical business knowledge than most MBAs.
-            </p>
-            <p className="text-[#706070] text-sm mb-8">
-              The best time to start was yesterday. The second best time is right now.
-            </p>
-            <button onClick={finish} disabled={loading}
-              className="w-full flex items-center justify-center gap-3 bg-[#2ed8c3] hover:bg-[#5ee3d2] disabled:opacity-60 text-[#241e20] font-bold py-4 rounded-xl transition-all text-base shadow-lg shadow-[#2ed8c3]/15">
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                <>
-                  <Play className="w-5 h-5" />
-                  Start Day 1 Now
-                </>
+        {/* ── STEP INDICATOR ─────────────────────────────────── */}
+        <nav className="flex items-center gap-2 md:gap-3 mb-10 md:mb-12">
+          {STEPS.map(s => (
+            <div key={s} className={cn(
+              'rounded-full flex items-center justify-center transition-all duration-300',
+              s < step  ? 'w-4 h-4 bg-primary' :
+              s === step ? 'w-3 h-3 bg-primary shadow-[0_0_8px_#58f5df]' :
+              'w-2.5 h-2.5 bg-surface-container'
+            )}>
+              {s < step && (
+                <span className="material-symbols-outlined text-on-primary"
+                  style={{ fontSize: '10px', fontVariationSettings: "'FILL' 1" }}>check</span>
               )}
-            </button>
-            <button onClick={() => setStep(2)} className="mt-3 text-xs text-[#706070] hover:text-[#a0a0b0] transition-colors">← Back</button>
-          </div>
-        )}
+            </div>
+          ))}
+          <span className="font-label-mono text-label-mono text-text-tertiary ml-2">
+            Step {step} of 4
+          </span>
+        </nav>
 
-      </div>
+        <div className="w-full max-w-2xl">
+
+          {/* ── STEP 1: WELCOME ─────────────────────────────── */}
+          {step === 1 && (
+            <section className="flex flex-col items-center text-center animate-fade-up">
+              {/* Logo mark */}
+              <div className="w-16 h-16 md:w-20 md:h-20 mb-6 md:mb-8 rounded-xl bg-primary flex items-center justify-center"
+                style={{ boxShadow: '0 0 15px rgba(46,216,195,0.3)' }}>
+                <span className="font-display-lg text-headline-md text-on-primary font-bold italic">G</span>
+              </div>
+
+              <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-3 md:mb-4 leading-tight">
+                Welcome, {userName.split(' ')[0]}
+              </h1>
+              <p className="text-text-secondary font-body-lg max-w-md mb-10 md:mb-12 leading-relaxed">
+                You're about to start a high-performance journey designed for elite engineers and founders. 30 minutes a day. Real skills. Zero cost.
+              </p>
+
+              {/* Stat cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 w-full mb-10 md:mb-12">
+                {[
+                  { label: 'COMMITMENT', val: '30 min/day'  },
+                  { label: 'START',      val: 'Day 1 Ready' },
+                  { label: 'ACCESS',     val: 'Free Forever' },
+                ].map(s => (
+                  <div key={s.label} className="glass-card p-5 md:p-6 rounded-xl text-left border-l-2 border-l-primary">
+                    <span className="font-label-mono text-label-mono text-primary block mb-2">{s.label}</span>
+                    <span className="font-headline-sm text-headline-sm block">{s.val}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button onClick={() => advance(2)}
+                className="w-full md:w-auto px-10 md:px-12 py-4 bg-primary text-on-primary font-label-caps text-label-caps rounded-lg hover:brightness-110 active:scale-95 transition-all"
+                style={{ boxShadow: '0 0 15px rgba(46,216,195,0.2)' }}>
+                START YOUR JOURNEY →
+              </button>
+            </section>
+          )}
+
+          {/* ── STEP 2: DAILY ROUTINE ───────────────────────── */}
+          {step === 2 && (
+            <section className="flex flex-col items-center animate-fade-up">
+              <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md mb-2 text-center">Daily Routine</h2>
+              <p className="text-text-secondary font-body-md mb-8 md:mb-10 text-center">Precision-engineered for the modern founder.</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 w-full mb-8 md:mb-10">
+                {DAILY_TASKS.map((task, i) => (
+                  <div key={i} className="glass-card p-5 md:p-6 rounded-xl hover:border-primary/30 transition-all">
+                    <div className="flex items-center justify-between mb-3 md:mb-4">
+                      <span className={cn('material-symbols-outlined text-2xl', task.color)}
+                        style={{ fontVariationSettings: "'FILL' 1" }}>{task.icon}</span>
+                      <span className="font-label-mono text-label-mono text-text-tertiary">{task.dur}</span>
+                    </div>
+                    <h4 className="font-headline-sm text-headline-sm mb-1">{task.label}</h4>
+                    <p className="text-text-secondary text-body-sm leading-relaxed">{task.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-3 w-full md:w-auto">
+                <button onClick={() => advance(1)}
+                  className="px-6 py-3.5 border border-border-subtle text-text-secondary rounded-lg font-label-caps text-label-caps hover:border-border-hover hover:text-text-primary transition-all">
+                  ← Back
+                </button>
+                <button onClick={() => advance(3)}
+                  className="flex-1 md:flex-none px-10 md:px-12 py-3.5 bg-primary text-on-primary font-label-caps text-label-caps rounded-lg hover:brightness-110 active:scale-95 transition-all">
+                  VIEW DAY 1 →
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* ── STEP 3: DAY 1 PREVIEW ───────────────────────── */}
+          {step === 3 && (
+            <section className="flex flex-col items-center animate-fade-up">
+              <div className="bg-primary/10 border border-primary/20 px-4 py-1.5 rounded-full mb-5 md:mb-6">
+                <span className="text-primary font-label-mono text-label-mono">DAY 1 IS READY</span>
+              </div>
+              <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md mb-6 md:mb-8 text-center">
+                First Session Preview
+              </h2>
+
+              {day1Plan && (
+                <div className="w-full glass-card rounded-2xl overflow-hidden mb-8 md:mb-12 shimmer-top">
+                  {/* Hero */}
+                  <div className="relative p-6 md:p-8 bg-gradient-to-br from-primary/8 via-surface to-surface-container">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+                    <div className="relative z-10">
+                      <span className="font-label-mono text-label-mono text-primary block mb-2">Foundation Module 01</span>
+                      <h3 className="font-headline-sm text-headline-sm text-text-primary">{day1Plan.title}</h3>
+                      <p className="text-text-secondary text-body-sm mt-1">{day1Plan.focus}</p>
+                    </div>
+                  </div>
+                  {/* Tasks preview */}
+                  <div className="p-6 md:p-8 space-y-3 md:space-y-4">
+                    {day1Plan.tasks.map(task => {
+                      const icons: Record<string, string> = { read: 'menu_book', watch: 'play_circle', task: 'assignment', reflect: 'history_edu' }
+                      const colors: Record<string, string> = { read: 'text-primary/60', watch: 'text-status-red/60', task: 'text-secondary/60', reflect: 'text-status-amber/60' }
+                      return (
+                        <div key={task.id} className="flex items-center gap-3 md:gap-4 text-text-secondary">
+                          <span className={cn('material-symbols-outlined flex-shrink-0', colors[task.type] || 'text-primary/60')}
+                            style={{ fontVariationSettings: "'FILL' 1" }}>{icons[task.type] || 'check_circle'}</span>
+                          <div className="min-w-0">
+                            <p className="font-body-md text-text-primary">{task.label}</p>
+                            {task.duration && (
+                              <span className="font-label-mono text-[10px] text-text-tertiary">{task.duration}</span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                    <p className="text-xs text-text-tertiary pt-2 border-t border-border-subtle">
+                      These tasks were built specifically for founders and builders.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 w-full md:w-auto">
+                <button onClick={() => advance(2)}
+                  className="px-6 py-3.5 border border-border-subtle text-text-secondary rounded-lg font-label-caps text-label-caps hover:border-border-hover hover:text-text-primary transition-all">
+                  ← Back
+                </button>
+                <button onClick={() => advance(4)}
+                  className="flex-1 md:flex-none px-10 md:px-12 py-3.5 bg-primary text-on-primary font-label-caps text-label-caps rounded-lg hover:brightness-110 active:scale-95 transition-all">
+                  CONFIRM & LAUNCH →
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* ── STEP 4: LAUNCH ──────────────────────────────── */}
+          {step === 4 && (
+            <section className="flex flex-col items-center text-center animate-fade-up">
+              <div className="text-5xl md:text-6xl mb-6 md:mb-8 animate-float">🚀</div>
+
+              <h2 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-3 md:mb-4">
+                You're all set!
+              </h2>
+              <p className="text-text-secondary font-body-lg max-w-md mb-10 md:mb-12 leading-relaxed">
+                Success in Gmax MBA isn't about speed — it's about consistency. Your curriculum is now live and tailored for your growth as a technical leader.
+              </p>
+
+              {/* CTA */}
+              <div className="w-full mb-10 md:mb-12">
+                <button onClick={completeOnboarding} disabled={saving}
+                  className="w-full flex items-center justify-center gap-3 py-4 md:py-5 bg-primary text-on-primary font-headline-sm rounded-xl hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-70"
+                  style={{ boxShadow: '0 0 20px rgba(46,216,195,0.25)' }}>
+                  {saving ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                  )}
+                  {saving ? 'Setting things up...' : 'Start Day 1 Now'}
+                </button>
+              </div>
+
+              {/* Trust badges */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full pt-6 md:pt-8 border-t border-border-subtle">
+                {TRUST_BADGES.map(badge => (
+                  <div key={badge.icon} className="flex flex-col items-center gap-2">
+                    <span className="material-symbols-outlined text-primary"
+                      style={{ fontVariationSettings: "'FILL' 1" }}>{badge.icon}</span>
+                    <span className="font-label-caps text-[9px] md:text-label-caps text-text-tertiary text-center leading-tight">
+                      {badge.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Back link */}
+              <button onClick={() => advance(3)}
+                className="mt-6 font-label-caps text-label-caps text-text-tertiary hover:text-text-secondary transition-colors">
+                ← Go back
+              </button>
+            </section>
+          )}
+
+        </div>
+      </main>
     </div>
   )
 }

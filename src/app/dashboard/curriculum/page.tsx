@@ -3,90 +3,162 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { CURRICULUM } from '@/lib/data/curriculum'
 import Link from 'next/link'
-import { BookOpen, CheckCircle2, ArrowRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+const phaseConfig = {
+  blue:   { accent: 'border-secondary',    label: 'text-secondary',    bar: 'bg-secondary',    tag: 'bg-secondary/10 text-secondary',    progress: 'text-secondary'    },
+  teal:   { accent: 'border-primary',      label: 'text-primary',      bar: 'bg-primary',      tag: 'bg-primary/10 text-primary',        progress: 'text-primary'      },
+  purple: { accent: 'border-tertiary',     label: 'text-tertiary',     bar: 'bg-tertiary',     tag: 'bg-tertiary/10 text-tertiary',      progress: 'text-tertiary'     },
+  gold:   { accent: 'border-status-amber', label: 'text-status-amber', bar: 'bg-status-amber', tag: 'bg-status-amber/10 text-status-amber', progress: 'text-status-amber' },
+}
 
 export default async function CurriculumPage() {
-  const session = await getServerSession(authOptions)
+  const session  = await getServerSession(authOptions)
   const progress = await db.progress.findMany({ where: { userId: session!.user.id } })
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-2">Curriculum</h1>
-        <p className="text-[#a0a0b0] text-sm">4 phases · 12 modules · 30 books · 36 months</p>
-      </div>
+    <main className="pb-16 dot-pattern min-h-screen">
+      <div className="max-w-5xl mx-auto">
 
-      {CURRICULUM.map(phase => {
-        const phaseTasks = phase.modules.flatMap(m => m.tasks)
-        const doneTasks  = phaseTasks.filter(t => progress.find(r => r.taskId === t.id && r.completed)).length
-        const phasePct   = Math.round((doneTasks / phaseTasks.length) * 100)
+        {/* Page header */}
+        <header className="mb-12 md:mb-16">
+          <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-3">
+            The Curriculum
+          </h1>
+          <p className="text-text-secondary font-body-lg">
+            Absolute mastery across 4 phases, 12 modules, and 30 business texts.
+          </p>
+        </header>
 
-        const colorMap: Record<string, { border: string; text: string; bg: string; bar: string }> = {
-          blue:   { border: 'border-[#585de1]/30', text: 'text-[#7b7fe8]', bg: 'bg-[#585de1]/8', bar: 'bg-[#585de1]' },
-          teal:   { border: 'border-[#2ed8c3]/30', text: 'text-[#2ed8c3]', bg: 'bg-[#2ed8c3]/8', bar: 'bg-[#2ed8c3]' },
-          purple: { border: 'border-purple-500/30', text: 'text-purple-400', bg: 'bg-purple-500/8', bar: 'bg-purple-500' },
-          gold:   { border: 'border-amber-500/30',  text: 'text-amber-400',  bg: 'bg-amber-500/8',  bar: 'bg-amber-500'  },
-        }
-        const c = colorMap[phase.color] || colorMap.teal
+        {/* Phases */}
+        <div className="space-y-16 md:space-y-24">
+          {CURRICULUM.map((phase) => {
+            const cfg       = phaseConfig[phase.color as keyof typeof phaseConfig] || phaseConfig.teal
+            const allTasks  = phase.modules.flatMap(m => m.tasks)
+            const allBooks  = phase.modules.flatMap(m => m.books)
+            const doneTasks = allTasks.filter(t => progress.find(r => r.taskId === t.id && r.completed)).length
+            const doneModules = phase.modules.filter(mod => {
+              const mt  = mod.tasks.filter(t => progress.find(r => r.taskId === t.id && r.completed)).length
+              return mt === mod.tasks.length
+            }).length
+            const phasePct  = allTasks.length ? Math.round((doneTasks / allTasks.length) * 100) : 0
+            const isLocked  = phase.number > 1 && CURRICULUM
+              .filter(p => p.number < phase.number)
+              .some(p => {
+                const pt  = p.modules.flatMap(m => m.tasks)
+                const done = pt.filter(t => progress.find(r => r.taskId === t.id && r.completed)).length
+                return done < pt.length * 0.5 // unlock when 50% of previous phase done
+              })
 
-        return (
-          <div key={phase.id}>
-            {/* Phase header */}
-            <div className={`flex flex-col sm:flex-row sm:items-center justify-between border ${c.border} ${c.bg} rounded-2xl px-4 md:px-6 py-4 mb-4 gap-3`}>
-              <div>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className={`font-mono text-xs font-bold ${c.text}`}>Phase {phase.number}</span>
-                  <h2 className="font-display text-lg md:text-xl font-bold text-white">{phase.title}</h2>
-                  <span className="text-xs text-[#606070] font-mono hidden sm:inline">{phase.months}</span>
-                </div>
-                <p className="text-[#808090] text-sm mt-1 max-w-xl">{phase.description}</p>
-                <p className="text-[#606070] text-xs mt-0.5 sm:hidden">{phase.months}</p>
-              </div>
-              <div className="text-left sm:text-right flex-shrink-0">
-                <div className={`font-display text-2xl font-bold ${c.text}`}>{phasePct}%</div>
-                <div className="text-xs text-[#606070]">{doneTasks}/{phaseTasks.length} tasks</div>
-              </div>
-            </div>
-
-            <div className="h-1 bg-white/[0.05] rounded-full overflow-hidden mb-5">
-              <div className={`h-full rounded-full ${c.bar}`} style={{ width: `${phasePct}%` }} />
-            </div>
-
-            {/* Modules — 1 col mobile, 2 col desktop */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-              {phase.modules.map(mod => {
-                const modDone  = mod.tasks.filter(t => progress.find(r => r.taskId === t.id && r.completed)).length
-                const booksDone = mod.books.filter(b => progress.find(r => r.bookId === b.id && r.type === 'book' && r.completed)).length
-                const modPct   = Math.round((modDone / mod.tasks.length) * 100)
-                const isComplete = modPct === 100
-                return (
-                  <Link key={mod.id} href={`/dashboard/modules/${mod.id}`}
-                    className={`group bg-white/[0.02] hover:bg-white/[0.04] border rounded-2xl p-4 md:p-5 transition-all ${isComplete ? 'border-[#2ed8c3]/20' : 'border-white/[0.06] hover:border-white/10'}`}>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-9 h-9 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center font-mono text-xs font-bold text-[#a0a0b0]">
-                          {mod.number}
-                        </div>
-                        {isComplete && <CheckCircle2 className="w-4 h-4 text-[#2ed8c3]" />}
+            return (
+              <section key={phase.id}>
+                {/* Phase header */}
+                <div className={`mb-8 border-l-4 ${cfg.accent} pl-5 md:pl-6`}>
+                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5 md:mb-6">
+                    <div>
+                      <span className={`font-label-mono text-label-mono ${cfg.label} uppercase tracking-widest block mb-2`}>
+                        Phase 0{phase.number}
+                      </span>
+                      <h2 className="font-headline-md text-headline-md text-on-surface">{phase.title}</h2>
+                      <p className="text-text-secondary text-body-sm mt-1 hidden md:block">{phase.description}</p>
+                    </div>
+                    <div className="flex gap-6 md:gap-8 flex-shrink-0">
+                      <div>
+                        <span className="block font-label-mono text-label-mono text-text-tertiary mb-1">DURATION</span>
+                        <span className="font-body-md text-text-primary">{phase.months}</span>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-[#404050] group-hover:text-[#a0a0b0] group-hover:translate-x-0.5 transition-all" />
+                      <div>
+                        <span className="block font-label-mono text-label-mono text-text-tertiary mb-1">PROGRESS</span>
+                        <span className={`font-body-md ${cfg.progress}`}>{doneModules}/{phase.modules.length} Modules</span>
+                      </div>
                     </div>
-                    <h3 className="text-white font-semibold text-sm mb-0.5 group-hover:text-[#2ed8c3] transition-colors">{mod.title}</h3>
-                    <p className="text-[#606070] text-xs mb-3">{mod.tag}</p>
-                    <div className="flex items-center gap-4 text-xs text-[#606070] mb-3">
-                      <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" />{booksDone}/{mod.books.length}</span>
-                      <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />{modDone}/{mod.tasks.length}</span>
-                    </div>
-                    <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${isComplete ? 'bg-[#2ed8c3]' : c.bar}`} style={{ width: `${modPct}%` }} />
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        )
-      })}
-    </div>
+                  </div>
+                  {/* Phase progress bar */}
+                  <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${cfg.bar} transition-all duration-1000`}
+                      style={{ width: `${phasePct}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Module cards */}
+                <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-gutter transition-opacity', isLocked && 'opacity-40')}>
+                  {phase.modules.map((mod) => {
+                    const modDone     = mod.tasks.filter(t => progress.find(r => r.taskId === t.id && r.completed)).length
+                    const booksDone   = mod.books.filter(b => progress.find(r => r.bookId === b.id && r.type === 'book' && r.completed)).length
+                    const modPct      = mod.tasks.length ? Math.round((modDone / mod.tasks.length) * 100) : 0
+                    const isComplete  = modPct === 100
+
+                    return (
+                      <Link key={mod.id} href={isLocked ? '#' : `/dashboard/modules/${mod.id}`}
+                        className={cn(
+                          'glass-surface border border-border-subtle rounded-xl p-5 md:p-6 transition-all group block',
+                          !isLocked && 'hover:border-border-hover teal-glow cursor-pointer',
+                          isLocked && 'cursor-not-allowed'
+                        )}>
+                        {/* Card header */}
+                        <div className="flex justify-between items-start mb-5 md:mb-6">
+                          <span className="font-label-mono text-label-mono text-text-tertiary">{mod.number}</span>
+                          <span className={cn(
+                            'material-symbols-outlined transition-colors text-xl',
+                            isComplete ? 'text-primary' : 'text-text-tertiary opacity-30'
+                          )} style={{ fontVariationSettings: isComplete ? "'FILL' 1" : "'FILL' 0" }}>
+                            check_circle
+                          </span>
+                        </div>
+
+                        {/* Title */}
+                        <h3 className={cn(
+                          'font-headline-sm text-headline-sm text-on-surface mb-2 transition-colors leading-tight',
+                          !isLocked && 'group-hover:text-primary'
+                        )}>
+                          {mod.title}
+                        </h3>
+
+                        {/* Tag */}
+                        <span className={cn('inline-block px-2.5 py-1 rounded font-label-caps text-label-caps mb-6 md:mb-8 text-[10px]', cfg.tag)}>
+                          {mod.tag.toUpperCase()}
+                        </span>
+
+                        {/* Stats */}
+                        <div className="flex items-center gap-4 md:gap-6 text-text-secondary text-body-sm mb-4">
+                          <span className="flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[15px]">menu_book</span>
+                            {booksDone}/{mod.books.length} Books
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[15px]">task_alt</span>
+                            {modDone}/{mod.tasks.length} Tasks
+                          </span>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className={cn('h-full rounded-full transition-all duration-700', isComplete ? 'bg-primary' : cfg.bar)}
+                            style={{ width: modPct > 0 ? `${modPct}%` : '0%' }}
+                          />
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
+
+                {/* Lock overlay message for future phases */}
+                {isLocked && (
+                  <div className="glass-surface border border-border-subtle rounded-xl p-8 md:p-12 text-center mt-4">
+                    <span className="material-symbols-outlined text-3xl md:text-4xl text-text-tertiary mb-3 block"
+                      style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
+                    <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Phase Locked</h3>
+                    <p className="text-text-secondary text-body-sm">Complete at least 50% of the previous phase to unlock.</p>
+                  </div>
+                )}
+              </section>
+            )
+          })}
+        </div>
+      </div>
+    </main>
   )
 }

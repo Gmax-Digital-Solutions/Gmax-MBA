@@ -8,6 +8,7 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.supabase.in' },
     ],
   },
+  experimental: {},
   serverExternalPackages: ['@prisma/client', 'bcryptjs', 'sharp'],
   async headers() {
     return [
