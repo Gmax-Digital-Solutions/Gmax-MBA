@@ -1,19 +1,21 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { PenLine, Loader2, Trash2, Calendar, BookOpen, Search } from 'lucide-react'
-import toast from 'react-hot-toast'
-import { cn } from '@/lib/utils'
 import { DAILY_PLAN } from '@/lib/data/daily-plan'
+import toast from 'react-hot-toast'
+import { Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const moodOptions = [
-  { value: 'great', emoji: '🔥', label: 'Great', color: 'text-orange-400 border-orange-400/30 bg-orange-400/10' },
-  { value: 'good',  emoji: '😊', label: 'Good',  color: 'text-[#2ed8c3] border-[#2ed8c3]/30 bg-[#2ed8c3]/10' },
-  { value: 'okay',  emoji: '😐', label: 'Okay',  color: 'text-amber-400 border-amber-400/30 bg-amber-400/10'  },
-  { value: 'tough', emoji: '😤', label: 'Tough', color: 'text-[#585de1] border-[#585de1]/30 bg-[#585de1]/10'  },
+  { value: 'focused',    emoji: '🎯', label: 'Focused'    },
+  { value: 'creative',   emoji: '💡', label: 'Creative'   },
+  { value: 'balanced',   emoji: '⚖️', label: 'Balanced'   },
+  { value: 'challenged', emoji: '🌪️', label: 'Challenged' },
+  { value: 'drained',    emoji: '🔋', label: 'Drained'    },
 ]
 
 export default function JournalPage() {
   const today = new Date().toISOString().split('T')[0]
+
   const [entries, setEntries]         = useState<any[]>([])
   const [todayEntry, setTodayEntry]   = useState('')
   const [todayMood, setTodayMood]     = useState('')
@@ -22,6 +24,7 @@ export default function JournalPage() {
   const [selected, setSelected]       = useState<any | null>(null)
   const [loading, setLoading]         = useState(true)
   const [currentDay, setCurrentDay]   = useState(1)
+  const [daysStreak, setDaysStreak]   = useState(0)
 
   useEffect(() => {
     Promise.all([
@@ -29,12 +32,23 @@ export default function JournalPage() {
       fetch(`/api/journal?date=${today}`).then(r => r.json()),
       fetch('/api/users/me').then(r => r.json()),
     ]).then(([all, todayEnt, user]) => {
-      setEntries(Array.isArray(all) ? all : [])
-      if (todayEnt) { setTodayEntry(todayEnt.content || ''); setTodayMood(todayEnt.mood || '') }
+      const allEntries = Array.isArray(all) ? all : []
+      setEntries(allEntries)
+      if (todayEnt?.content) { setTodayEntry(todayEnt.content); setTodayMood(todayEnt.mood || '') }
       if (user?.enrolledAt) {
         const dayNum = Math.floor((Date.now() - new Date(user.enrolledAt).getTime()) / 86400000) + 1
         setCurrentDay(dayNum)
       }
+      // Calculate streak
+      let streak = 0
+      const now = new Date()
+      for (let i = 0; i < 365; i++) {
+        const d = new Date(now); d.setDate(d.getDate() - i)
+        const ds = d.toISOString().split('T')[0]
+        if (allEntries.find((e: any) => e.date === ds)) streak++
+        else break
+      }
+      setDaysStreak(streak)
       setLoading(false)
     })
   }, [today])
@@ -49,193 +63,309 @@ export default function JournalPage() {
       })
       const data = await res.json()
       setEntries(prev => {
-        const filtered = prev.filter(e => e.date !== today)
+        const filtered = prev.filter((e: any) => e.date !== today)
         return [data, ...filtered]
       })
-      toast.success('Journal saved!')
+      toast.success('Entry saved!')
     } catch { toast.error('Failed to save') }
     finally { setSaving(false) }
   }
 
   async function deleteEntry(date: string) {
     try {
-      await fetch('/api/journal', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date }) })
-      setEntries(prev => prev.filter(e => e.date !== date))
+      await fetch('/api/journal', {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date }),
+      })
+      setEntries(prev => prev.filter((e: any) => e.date !== date))
       if (selected?.date === date) setSelected(null)
       toast.success('Entry deleted')
     } catch { toast.error('Failed to delete') }
   }
 
-  const todayPlan = DAILY_PLAN.find(p => p.day === currentDay)
-  const filtered = entries.filter(e => e.content?.toLowerCase().includes(search.toLowerCase()) || e.date?.includes(search))
+  const todayPlan   = DAILY_PLAN.find(p => p.day === currentDay)
+  const filtered    = entries.filter((e: any) =>
+    e.content?.toLowerCase().includes(search.toLowerCase()) || e.date?.includes(search)
+  )
+  const totalWords  = entries.reduce((acc: number, e: any) => acc + (e.content?.split(' ').length || 0), 0)
+
+  // Mood bar percentages
+  const moodCounts  = moodOptions.map(m => ({
+    ...m,
+    count: entries.filter((e: any) => e.mood === m.value).length,
+  }))
+  const totalMoods  = moodCounts.reduce((a, m) => a + m.count, 0)
+
+  const moodBarColors: Record<string, string> = {
+    focused: 'bg-status-amber', creative: 'bg-primary',
+    balanced: 'bg-text-tertiary', challenged: 'bg-status-red', drained: 'bg-secondary',
+  }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
-      <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-1">Learning Journal</h1>
-        <p className="text-[#a0a0b0] text-sm">Capture insights, reflections, and ideas from every study session.</p>
-      </div>
+    <div className="max-w-container-max mx-auto">
+      <div className="grid grid-cols-12 gap-gutter">
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* LEFT — today's entry + list */}
-        <div className="lg:col-span-2 space-y-4 md:space-y-5">
+        {/* ── LEFT COLUMN (today + entry) ───────────────────────────── */}
+        <div className="col-span-12 lg:col-span-8 space-y-8">
 
-          {/* TODAY */}
-          <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <PenLine className="w-4 h-4 text-amber-400" />
-                <h2 className="font-display text-base font-bold text-white">Today's Entry</h2>
-                <span className="text-xs text-[#706870] font-mono">{today}</span>
+          {/* Header */}
+          <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h2 className="font-headline-md text-headline-md text-text-primary">Daily Journal</h2>
+              <p className="font-label-mono text-label-mono text-status-amber mt-1">
+                {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-text-tertiary">
+              <span className="material-symbols-outlined text-[18px]">history</span>
+              <span className="font-label-mono text-label-mono">Streak: {daysStreak} Days</span>
+            </div>
+          </header>
+
+          {/* Today's entry card */}
+          <section className="glass-surface p-6 md:p-8 rounded-xl space-y-6">
+
+            {/* Card header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border-subtle pb-6 gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-11 h-11 md:w-12 md:h-12 rounded-full bg-status-amber/10 flex items-center justify-center text-status-amber flex-shrink-0">
+                  <span className="material-symbols-outlined text-xl"
+                    style={{ fontVariationSettings: "'FILL' 1" }}>edit_square</span>
+                </div>
+                <div>
+                  <h3 className="font-body-lg text-body-lg font-semibold text-text-primary">Today's Entry</h3>
+                  <p className="font-body-sm text-body-sm text-text-tertiary">Capturing your learning & decisions.</p>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-[#706870] mr-1">Mood:</span>
+              {todayPlan && (
+                <div className="bg-surface-container px-3 md:px-4 py-2 rounded-full border border-border-subtle flex-shrink-0">
+                  <span className="font-label-mono text-label-mono text-status-amber text-[10px] md:text-xs">
+                    Day {currentDay} · {todayPlan.title}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Mood selector */}
+            <div className="space-y-3">
+              <p className="font-label-caps text-label-caps text-text-secondary">Current Cognitive State</p>
+              <div className="flex gap-2 md:gap-4 flex-wrap">
                 {moodOptions.map(m => (
-                  <button key={m.value} onClick={() => setTodayMood(m.value === todayMood ? '' : m.value)}
-                    className={cn('text-base transition-all hover:scale-110', todayMood === m.value ? 'opacity-100 scale-110' : 'opacity-35 hover:opacity-70')}
-                    title={m.label}>
+                  <button key={m.value} onClick={() => setTodayMood(todayMood === m.value ? '' : m.value)}
+                    title={m.label}
+                    className={cn(
+                      'w-11 h-11 md:w-12 md:h-12 rounded-lg border transition-all flex items-center justify-center text-xl',
+                      todayMood === m.value
+                        ? 'bg-status-amber/10 border-status-amber grayscale-0'
+                        : 'bg-surface-container border-transparent hover:bg-status-amber/10 hover:border-status-amber grayscale hover:grayscale-0'
+                    )}>
                     {m.emoji}
                   </button>
                 ))}
               </div>
             </div>
 
-            {todayPlan && (
-              <div className="mb-3 flex items-center gap-2 text-xs text-[#706870] bg-white/[0.03] rounded-xl px-3 py-2 border border-white/[0.05]">
-                <BookOpen className="w-3 h-3 text-[#2ed8c3]" />
-                <span>Day {todayPlan.day} · {todayPlan.title}</span>
-                {todayPlan.tasks.find(t => t.type === 'reflect') && (
-                  <span className="ml-auto text-amber-400 italic">
-                    "{todayPlan.tasks.find(t => t.type === 'reflect')!.detail.slice(0, 60)}..."
-                  </span>
-                )}
-              </div>
+            {/* Reflection prompt */}
+            {todayPlan?.tasks.find(t => t.type === 'reflect') && (
+              <p className="italic font-headline-sm text-xl md:text-headline-sm text-text-secondary opacity-70 leading-relaxed">
+                "{todayPlan.tasks.find(t => t.type === 'reflect')!.detail}"
+              </p>
             )}
 
-            <textarea
-              value={todayEntry}
-              onChange={e => setTodayEntry(e.target.value)}
-              placeholder={`What did you learn today?\nHow does it apply to your business?\nWhat will you do differently?`}
-              className="w-full bg-white/[0.03] border border-white/[0.06] focus:border-amber-500/30 rounded-xl px-4 py-3.5 text-sm text-white placeholder-[#504850] outline-none resize-none min-h-[160px] leading-relaxed transition-colors"
-            />
+            {/* Textarea */}
+            <div className="space-y-4">
+              <div className="relative">
+                <textarea
+                  value={todayEntry}
+                  onChange={e => setTodayEntry(e.target.value)}
+                  placeholder="Start writing your reflection here..."
+                  className="w-full h-64 md:h-80 bg-surface-container border border-border-subtle rounded-lg p-5 md:p-6 font-label-mono text-body-md focus:ring-1 focus:ring-status-amber focus:border-status-amber transition-all resize-none custom-scrollbar text-text-primary placeholder:text-text-tertiary outline-none"
+                />
+                <div className="absolute bottom-3 md:bottom-4 right-4 md:right-6 font-label-mono text-label-mono text-text-tertiary">
+                  {todayEntry.length.toLocaleString()} chars
+                </div>
+              </div>
+            </div>
 
-            <div className="flex items-center justify-between mt-3">
-              <span className="text-xs text-[#706870]">{todayEntry.length} characters</span>
+            {/* Save action */}
+            <div className="flex justify-end pt-2 md:pt-4">
               <button onClick={saveTodayJournal} disabled={saving || !todayEntry.trim()}
-                className="flex items-center gap-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-xs font-semibold px-5 py-2.5 rounded-xl transition-all disabled:opacity-40">
-                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '✍️'} Save Entry
+                className="bg-status-amber text-black px-8 md:px-10 py-3.5 md:py-4 rounded-lg font-label-caps text-label-caps tracking-widest hover:brightness-110 transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                  <span className="material-symbols-outlined text-[18px]">save</span>
+                )}
+                Save Entry
               </button>
             </div>
-          </div>
+          </section>
 
-          {/* PAST ENTRIES */}
-          <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-base font-bold text-white">All Entries</h2>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-[#706870]" />
-                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search entries..."
-                  className="bg-white/[0.04] border border-white/[0.07] rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-[#504850] outline-none w-44 focus:border-white/15 transition-colors" />
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-[#706870]" /></div>
-            ) : filtered.length === 0 ? (
-              <div className="text-center py-8 text-[#706870] text-sm">No journal entries yet. Start writing today.</div>
-            ) : (
-              <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-                {filtered.map(entry => {
-                  const moodOpt = moodOptions.find(m => m.value === entry.mood)
-                  const dayPlan = DAILY_PLAN.find(p => p.day === entry.day)
-                  return (
-                    <button key={entry.id} onClick={() => setSelected(selected?.id === entry.id ? null : entry)}
-                      className={cn('w-full text-left p-4 rounded-xl border transition-all',
-                        selected?.id === entry.id ? 'border-[#585de1]/30 bg-[#585de1]/8' : 'border-white/[0.05] bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]')}>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-3 h-3 text-[#706870]" />
-                          <span className="text-xs font-mono text-[#a0a0b0]">{entry.date}</span>
-                          {dayPlan && <span className="text-[10px] text-[#706870]">· Day {entry.day} — {dayPlan.title}</span>}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {moodOpt && <span className="text-sm">{moodOpt.emoji}</span>}
-                          <button onClick={e => { e.stopPropagation(); deleteEntry(entry.date) }}
-                            className="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center text-[#706870] hover:text-red-400 transition-all">
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                        </div>
-                      </div>
-                      <p className="text-xs text-[#a0a0b0] leading-relaxed line-clamp-2">{entry.content}</p>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* RIGHT — selected entry detail */}
-        <div className="space-y-4">
-          {selected ? (
-            <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-4 md:p-5 lg:sticky lg:top-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-mono text-[#a0a0b0]">{selected.date}</span>
-                <div className="flex items-center gap-2">
+          {/* Selected entry full view (mobile) */}
+          {selected && (
+            <section className="glass-surface p-6 rounded-xl lg:hidden space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="font-label-mono text-label-mono text-text-tertiary">{selected.date}</span>
+                <div className="flex items-center gap-3">
                   {moodOptions.find(m => m.value === selected.mood) && (
-                    <span className={cn('text-xs px-2 py-0.5 rounded-full border font-semibold', moodOptions.find(m => m.value === selected.mood)!.color)}>
-                      {moodOptions.find(m => m.value === selected.mood)!.emoji} {moodOptions.find(m => m.value === selected.mood)!.label}
-                    </span>
+                    <span className="text-xl">{moodOptions.find(m => m.value === selected.mood)!.emoji}</span>
                   )}
-                  <button onClick={() => deleteEntry(selected.date)} className="text-[#706870] hover:text-red-400 transition-colors">
-                    <Trash2 className="w-3.5 h-3.5" />
+                  <button onClick={() => deleteEntry(selected.date)} className="text-text-tertiary hover:text-status-red transition-colors">
+                    <span className="material-symbols-outlined text-lg">delete</span>
                   </button>
                 </div>
               </div>
               {DAILY_PLAN.find(p => p.day === selected.day) && (
-                <div className="text-xs text-[#2ed8c3] mb-3 font-semibold">
+                <p className="font-label-mono text-label-mono text-status-amber text-xs">
                   Day {selected.day} · {DAILY_PLAN.find(p => p.day === selected.day)!.title}
-                </div>
+                </p>
               )}
-              <p className="text-sm text-[#d0d0d0] leading-relaxed whitespace-pre-wrap">{selected.content}</p>
+              <p className="font-body-md text-body-md text-text-primary leading-relaxed whitespace-pre-wrap">{selected.content}</p>
+              <button onClick={() => setSelected(null)} className="font-label-caps text-label-caps text-text-tertiary hover:text-text-primary transition-colors text-xs">
+                CLOSE
+              </button>
+            </section>
+          )}
+        </div>
+
+        {/* ── RIGHT COLUMN ──────────────────────────────────────────── */}
+        <div className="col-span-12 lg:col-span-4 space-y-6 md:space-y-8">
+
+          {/* Past reflections */}
+          <section className="glass-surface rounded-xl flex flex-col" style={{ height: '500px' }}>
+            <div className="p-5 md:p-6 border-b border-border-subtle flex-shrink-0">
+              <h3 className="font-headline-sm text-headline-sm text-text-primary mb-4">Past Reflections</h3>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-[20px]">search</span>
+                <input
+                  value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Search archive..."
+                  className="w-full bg-surface-container border border-border-subtle rounded-lg pl-10 pr-4 py-2 font-body-sm text-body-sm text-text-primary focus:ring-1 focus:ring-status-amber focus:border-status-amber transition-all outline-none placeholder:text-text-tertiary" />
+              </div>
             </div>
-          ) : (
-            <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-6 text-center">
-              <PenLine className="w-8 h-8 text-[#504850] mx-auto mb-3" />
-              <p className="text-sm text-[#706870]">Select an entry to read it in full</p>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 space-y-3 md:space-y-4">
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-5 h-5 animate-spin text-text-tertiary" />
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="text-center py-10">
+                  <span className="material-symbols-outlined text-3xl text-text-tertiary block mb-2">edit_note</span>
+                  <p className="font-body-sm text-body-sm text-text-tertiary">No entries yet. Start writing today.</p>
+                </div>
+              ) : (
+                filtered.map((entry: any) => {
+                  const mood = moodOptions.find(m => m.value === entry.mood)
+                  const isSelected = selected?.date === entry.date
+                  return (
+                    <div key={entry.id}
+                      onClick={() => setSelected(isSelected ? null : entry)}
+                      className={cn(
+                        'p-4 rounded-lg border transition-all cursor-pointer group',
+                        isSelected
+                          ? 'bg-status-amber/5 border-status-amber/30'
+                          : 'bg-surface-container/50 border-border-subtle hover:bg-surface-container hover:border-border-hover'
+                      )}>
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="px-2 py-1 bg-surface-container rounded text-[10px] font-label-mono text-text-secondary uppercase">
+                          {new Date(entry.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {mood && <span className="text-lg">{mood.emoji}</span>}
+                          <button
+                            onClick={e => { e.stopPropagation(); deleteEntry(entry.date) }}
+                            className="opacity-0 group-hover:opacity-100 text-text-tertiary hover:text-status-red transition-all">
+                            <span className="material-symbols-outlined text-sm">delete</span>
+                          </button>
+                        </div>
+                      </div>
+                      <p className="font-body-sm text-body-sm text-text-primary line-clamp-2 leading-relaxed">
+                        {entry.content}
+                      </p>
+                      {DAILY_PLAN.find(p => p.day === entry.day) && (
+                        <p className="font-label-mono text-[10px] text-text-tertiary mt-1.5">
+                          Day {entry.day} · {DAILY_PLAN.find(p => p.day === entry.day)!.title}
+                        </p>
+                      )}
+                    </div>
+                  )
+                })
+              )}
             </div>
+          </section>
+
+          {/* Selected entry full view (desktop) */}
+          {selected && (
+            <section className="glass-surface p-5 md:p-6 rounded-xl hidden lg:block space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="font-label-mono text-label-mono text-text-tertiary">{selected.date}</span>
+                <div className="flex items-center gap-3">
+                  {moodOptions.find(m => m.value === selected.mood) && (
+                    <span className="text-lg">{moodOptions.find(m => m.value === selected.mood)!.emoji}</span>
+                  )}
+                  <button onClick={() => deleteEntry(selected.date)} className="text-text-tertiary hover:text-status-red transition-colors">
+                    <span className="material-symbols-outlined text-lg">delete</span>
+                  </button>
+                </div>
+              </div>
+              {DAILY_PLAN.find(p => p.day === selected.day) && (
+                <p className="font-label-mono text-label-mono text-status-amber text-[10px]">
+                  Day {selected.day} · {DAILY_PLAN.find(p => p.day === selected.day)!.title}
+                </p>
+              )}
+              <p className="font-body-sm text-body-sm text-text-primary leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto custom-scrollbar">
+                {selected.content}
+              </p>
+            </section>
           )}
 
-          {/* STATS */}
-          <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-5">
-            <h3 className="text-xs font-semibold text-[#706870] uppercase tracking-wider mb-3">Journal Stats</h3>
-            <div className="space-y-2.5">
-              <div className="flex justify-between text-sm">
-                <span className="text-[#a0a0b0]">Total entries</span>
-                <span className="text-white font-bold">{entries.length}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[#a0a0b0]">Total words</span>
-                <span className="text-white font-bold">{entries.reduce((acc, e) => acc + (e.content?.split(' ').length || 0), 0).toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[#a0a0b0]">Mood breakdown</span>
-                <div className="flex gap-1">
-                  {moodOptions.map(m => {
-                    const count = entries.filter(e => e.mood === m.value).length
-                    return count > 0 ? <span key={m.value} className="text-xs">{m.emoji} {count}</span> : null
-                  })}
+          {/* Journal analytics */}
+          <section className="glass-surface p-5 md:p-6 rounded-xl space-y-5 md:space-y-6">
+            <h3 className="font-label-caps text-label-caps text-text-secondary">Journal Analytics</h3>
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
+              {[
+                { label: 'Total Entries', val: entries.length },
+                { label: 'Total Words',   val: totalWords > 999 ? `${(totalWords / 1000).toFixed(1)}k` : totalWords },
+              ].map(s => (
+                <div key={s.label} className="bg-surface-container rounded-lg p-3 md:p-4 border border-border-subtle">
+                  <p className="font-label-mono text-label-mono text-text-tertiary">{s.label}</p>
+                  <p className="font-headline-sm text-headline-sm text-status-amber mt-1">{s.val}</p>
                 </div>
+              ))}
+            </div>
+
+            {/* Mood bar */}
+            <div className="space-y-3">
+              <p className="font-label-mono text-[10px] text-text-tertiary uppercase">Mood Distribution</p>
+              <div className="h-2 w-full flex rounded-full overflow-hidden gap-px">
+                {totalMoods === 0 ? (
+                  <div className="h-full bg-surface-container w-full rounded-full" />
+                ) : moodCounts.filter(m => m.count > 0).map(m => (
+                  <div key={m.value}
+                    className={cn('h-full transition-all', moodBarColors[m.value])}
+                    style={{ width: `${(m.count / totalMoods) * 100}%` }}
+                    title={`${m.label}: ${m.count}`} />
+                ))}
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[#a0a0b0]">Avg entry length</span>
-                <span className="text-white font-bold">
-                  {entries.length > 0 ? Math.round(entries.reduce((acc, e) => acc + (e.content?.length || 0), 0) / entries.length) : 0} chars
-                </span>
+              <div className="flex flex-wrap gap-2 md:gap-3">
+                {moodCounts.filter(m => m.count > 0).map(m => (
+                  <div key={m.value} className="flex items-center gap-1.5">
+                    <span className={cn('w-1.5 h-1.5 rounded-full', moodBarColors[m.value])} />
+                    <span className="font-label-mono text-[10px] text-text-tertiary">{m.emoji} {m.count}</span>
+                  </div>
+                ))}
               </div>
             </div>
+          </section>
+
+          {/* Decorative quote */}
+          <div className="p-6 md:p-8 text-center">
+            <p className="font-body-sm text-body-sm italic text-text-tertiary">
+              "The unexamined life is not worth living."
+              <span className="block mt-2 not-italic font-label-caps text-[10px]">— Socrates</span>
+            </p>
           </div>
         </div>
+
       </div>
     </div>
   )

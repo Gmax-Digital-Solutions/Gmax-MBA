@@ -6,270 +6,109 @@ import { getInitials } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
-import {
-  Send, Loader2, MessageSquare, Trash2, Pin, PinOff,
-  Flame, Lightbulb, Trophy, Link2, LayoutGrid, ChevronDown, ChevronUp, RefreshCw
-} from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
-// ── TYPES ──────────────────────────────────────────────────────────────────
 type User    = { id: string; name: string | null; company?: string | null; role?: string; image?: string | null }
 type Reply   = { id: string; postId: string; userId: string; content: string; createdAt: string; user: User }
 type PostRx  = { id: string; userId: string; emoji: string }
-type Post    = {
-  id: string; userId: string; content: string; type: string; moduleTag?: string | null
-  pinned: boolean; createdAt: string; user: User; replies: Reply[]; reactions: PostRx[]
-  _count: { replies: number; reactions: number }
-}
+type Post    = { id: string; userId: string; content: string; type: string; moduleTag?: string | null; pinned: boolean; createdAt: string; user: User; replies: Reply[]; reactions: PostRx[]; _count: { replies: number; reactions: number } }
 
-// ── CONSTANTS ─────────────────────────────────────────────────────────────
 const POST_TYPES = [
-  { value: 'all',      label: 'All Posts',  icon: LayoutGrid, color: '' },
-  { value: 'question', label: 'Questions',  icon: MessageSquare, color: 'text-[#585de1]' },
-  { value: 'win',      label: 'Wins',       icon: Trophy,        color: 'text-amber-400' },
-  { value: 'insight',  label: 'Insights',   icon: Lightbulb,     color: 'text-[#2ed8c3]' },
-  { value: 'resource', label: 'Resources',  icon: Link2,         color: 'text-purple-400' },
-  { value: 'general',  label: 'General',    icon: Flame,         color: 'text-[#a0a0b0]' },
+  { value: 'all',      label: 'All Posts'  },
+  { value: 'question', label: 'Questions'  },
+  { value: 'win',      label: 'Wins'       },
+  { value: 'insight',  label: 'Insights'   },
+  { value: 'resource', label: 'Resources'  },
+  { value: 'general',  label: 'General'    },
 ]
 
-const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-  question: { label: 'Question', color: 'text-[#585de1]', bg: 'bg-[#585de1]/10 border-[#585de1]/20', icon: MessageSquare },
-  win:      { label: 'Win 🎉',   color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: Trophy        },
-  insight:  { label: 'Insight',  color: 'text-[#2ed8c3]', bg: 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20',icon: Lightbulb     },
-  resource: { label: 'Resource', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20',icon: Link2        },
-  general:  { label: 'General',  color: 'text-[#a0a0b0]', bg: 'bg-white/[0.05] border-white/[0.08]', icon: Flame        },
+const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: string }> = {
+  question: { label: 'Question', color: 'text-[#585de1]', bg: 'bg-[#585de1]/10', border: 'border-[#585de1]/20', icon: 'help'           },
+  win:      { label: 'Win',      color: 'text-status-amber', bg: 'bg-status-amber/10', border: 'border-status-amber/20', icon: 'military_tech' },
+  insight:  { label: 'Insight',  color: 'text-primary',   bg: 'bg-primary/10',   border: 'border-primary/20',   icon: 'lightbulb'      },
+  resource: { label: 'Resource', color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', icon: 'attachment'    },
+  general:  { label: 'General',  color: 'text-text-secondary', bg: 'bg-surface-container', border: 'border-border-subtle', icon: 'forum' },
 }
 
-const EMOJIS = ['👍', '🔥', '💡']
 const ROLE_COLORS: Record<string, string> = {
-  founder:  'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  engineer: 'bg-[#585de1]/10 text-[#7b7fe8] border-[#585de1]/20',
-  builder:  'bg-[#2ed8c3]/10 text-[#2ed8c3] border-[#2ed8c3]/20',
-  designer: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  other:    'bg-white/[0.05] text-[#a0a0b0] border-white/[0.08]',
+  founder:  'bg-status-amber/10 text-status-amber',
+  engineer: 'bg-primary/10 text-primary',
+  builder:  'bg-secondary/10 text-secondary',
+  designer: 'bg-purple-500/10 text-purple-400',
+  other:    'bg-surface-bright text-text-secondary',
 }
 
-// ── HELPERS ────────────────────────────────────────────────────────────────
+const REACTIONS = [
+  { emoji: '👍', icon: 'thumb_up'           },
+  { emoji: '🔥', icon: 'local_fire_department' },
+  { emoji: '💡', icon: 'lightbulb'           },
+]
+
 function timeAgo(dateStr: string) {
   const diff = (Date.now() - new Date(dateStr).getTime()) / 1000
-  if (diff < 60)   return 'just now'
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-  if (diff < 86400)return `${Math.floor(diff / 3600)}h ago`
+  if (diff < 60)    return 'Just Now'
+  if (diff < 3600)  return `${Math.floor(diff / 60)}h ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-// ── AVATAR ─────────────────────────────────────────────────────────────────
-function Avatar({ user, size = 8 }: { user: User; size?: number }) {
+function Avatar({ user, size = 10 }: { user: User; size?: number }) {
   const px = size * 4
-  if (user.image) {
-    return (
-      <div className="rounded-xl overflow-hidden flex-shrink-0 border border-white/10"
-        style={{ width: px, height: px, minWidth: px }}>
-        <Image
-          src={user.image}
-          alt={user.name || 'User'}
-          width={px} height={px}
-          className="w-full h-full object-cover"
-          unoptimized
-        />
-      </div>
-    )
-  }
+  if (user.image) return (
+    <div className="rounded-full overflow-hidden flex-shrink-0 border border-border-subtle" style={{ width: px, height: px }}>
+      <Image src={user.image} alt={user.name || ''} width={px} height={px} className="w-full h-full object-cover" unoptimized />
+    </div>
+  )
   return (
-    <div className="rounded-xl bg-[#2ed8c3]/15 border border-[#2ed8c3]/25 flex items-center justify-center font-display font-bold text-[#2ed8c3] flex-shrink-0"
-      style={{ width: px, height: px, minWidth: px, fontSize: size * 1.6 }}>
-      {getInitials(user.name)}
+    <div className="rounded-full flex-shrink-0 border border-border-subtle bg-surface-bright flex items-center justify-center"
+      style={{ width: px, height: px }}>
+      <span className="font-label-mono font-bold text-primary" style={{ fontSize: size * 1.4 }}>{getInitials(user.name)}</span>
     </div>
   )
 }
 
-// ── REACTION BAR ───────────────────────────────────────────────────────────
-function ReactionBar({ post, currentUserId, onReact }: { post: Post; currentUserId: string; onReact: (postId: string, emoji: string) => void }) {
-  return (
-    <div className="flex items-center gap-2 flex-wrap">
-      {EMOJIS.map(emoji => {
-        const count  = post.reactions.filter(r => r.emoji === emoji).length
-        const reacted = post.reactions.some(r => r.emoji === emoji && r.userId === currentUserId)
-        return (
-          <button key={emoji} onClick={() => onReact(post.id, emoji)}
-            className={cn('flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all',
-              reacted
-                ? 'bg-[#2ed8c3]/15 border-[#2ed8c3]/30 text-[#2ed8c3]'
-                : 'bg-white/[0.03] border-white/[0.06] text-[#706870] hover:border-white/15 hover:text-white')}>
-            <span>{emoji}</span>
-            {count > 0 && <span>{count}</span>}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
-// ── REPLY ITEM ─────────────────────────────────────────────────────────────
-function ReplyItem({ reply, currentUserId, isAdmin, onDelete }: {
-  reply: Reply; currentUserId: string; isAdmin: boolean; onDelete: (id: string) => void
-}) {
-  const canDelete = reply.userId === currentUserId || isAdmin
-  return (
-    <div className="flex gap-3 group">
-      <Avatar user={reply.user} size={7} />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1 flex-wrap">
-          <span className="text-sm font-semibold text-white">{reply.user.name || 'Anonymous'}</span>
-          <span className="text-[10px] text-[#606070] font-mono">{timeAgo(reply.createdAt)}</span>
-        </div>
-        <p className="text-sm text-[#c0c0d0] leading-relaxed whitespace-pre-wrap break-words">{reply.content}</p>
-      </div>
-      {canDelete && (
-        <button onClick={() => onDelete(reply.id)}
-          className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-[#606070] hover:text-red-400 transition-all mt-0.5">
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
-      )}
-    </div>
-  )
-}
-
-// ── POST CARD ─────────────────────────────────────────────────────────────
-function PostCard({ post, currentUserId, isAdmin, onDelete, onReact, onReply, onPin, onDeleteReply }: {
-  post: Post; currentUserId: string; isAdmin: boolean
-  onDelete: (id: string) => void
-  onReact: (postId: string, emoji: string) => void
-  onReply: (postId: string, content: string) => Promise<void>
-  onPin: (id: string, pinned: boolean) => void
-  onDeleteReply: (id: string, postId: string) => void
-}) {
-  const [showReplies, setShowReplies] = useState(false)
-  const [replying, setReplying]       = useState(false)
-  const [replyText, setReplyText]     = useState('')
-  const [sendingReply, setSendingReply] = useState(false)
-  const cfg     = TYPE_CONFIG[post.type] || TYPE_CONFIG.general
-  const modName = post.moduleTag ? ALL_MODULES.find(m => m.id === post.moduleTag)?.title : null
-  const canDelete = post.userId === currentUserId || isAdmin
-
-  async function handleReply() {
-    if (!replyText.trim()) return
-    setSendingReply(true)
-    await onReply(post.id, replyText)
-    setReplyText('')
-    setReplying(false)
-    setShowReplies(true)
-    setSendingReply(false)
-  }
-
-  return (
-    <div className={cn('bg-white/[0.02] border rounded-2xl p-4 md:p-5 transition-all',
-      post.pinned ? 'border-[#2ed8c3]/25 bg-[#2ed8c3]/4' : 'border-white/[0.07] hover:border-white/10')}>
-
-      {/* Pinned badge */}
-      {post.pinned && (
-        <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#2ed8c3] mb-3">
-          <Pin className="w-3 h-3" /> Pinned by admin
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="flex items-start gap-3 mb-3">
-        <Avatar user={post.user} size={9} />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-white font-semibold text-sm">{post.user.name || 'Anonymous'}</span>
-            {post.user.role && (
-              <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full border font-semibold', ROLE_COLORS[post.user.role] || ROLE_COLORS.other)}>
-                {post.user.role}
-              </span>
-            )}
-            {post.user.company && <span className="text-[11px] text-[#606070]">· {post.user.company}</span>}
-          </div>
-          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-            <span className="text-[10px] text-[#606070] font-mono">{timeAgo(post.createdAt)}</span>
-            {/* Post type badge */}
-            <span className={cn('inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border font-semibold', cfg.bg, cfg.color)}>
-              <cfg.icon className="w-2.5 h-2.5" />{cfg.label}
-            </span>
-            {/* Module tag */}
-            {modName && (
-              <span className="text-[10px] bg-white/[0.05] border border-white/[0.08] text-[#a0a0b0] px-2 py-0.5 rounded-full">
-                {modName}
-              </span>
-            )}
-          </div>
-        </div>
-        {/* Actions */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          {isAdmin && (
-            <button onClick={() => onPin(post.id, !post.pinned)}
-              className={cn('w-7 h-7 rounded-lg border flex items-center justify-center transition-all',
-                post.pinned ? 'border-[#2ed8c3]/30 bg-[#2ed8c3]/10 text-[#2ed8c3]' : 'border-white/[0.07] text-[#606070] hover:border-white/15 hover:text-white')}>
-              {post.pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}
-            </button>
-          )}
-          {canDelete && (
-            <button onClick={() => onDelete(post.id)}
-              className="w-7 h-7 rounded-lg border border-white/[0.07] flex items-center justify-center text-[#606070] hover:border-red-500/30 hover:text-red-400 hover:bg-red-500/10 transition-all">
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Content */}
-      <p className="text-[#d0d0d0] text-sm leading-relaxed whitespace-pre-wrap break-words mb-4">{post.content}</p>
-
-      {/* Reactions */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <ReactionBar post={post} currentUserId={currentUserId} onReact={onReact} />
-        <div className="flex items-center gap-2">
-          <button onClick={() => { setShowReplies(!showReplies); setReplying(false) }}
-            className="flex items-center gap-1.5 text-xs text-[#706870] hover:text-[#a0a0b0] transition-colors">
-            <MessageSquare className="w-3.5 h-3.5" />
-            {post.replies.length > 0 ? `${post.replies.length} ${post.replies.length === 1 ? 'reply' : 'replies'}` : 'Reply'}
-            {post.replies.length > 0 && (showReplies ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-          </button>
-          {!showReplies && (
-            <button onClick={() => { setReplying(!replying); setShowReplies(true) }}
-              className="text-xs text-[#2ed8c3] hover:text-[#5ee3d2] transition-colors font-medium">
-              + Reply
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Replies section */}
-      {showReplies && (
-        <div className="mt-4 pt-4 border-t border-white/[0.06] space-y-3">
-          {post.replies.map(reply => (
-            <ReplyItem key={reply.id} reply={reply} currentUserId={currentUserId} isAdmin={isAdmin}
-              onDelete={id => onDeleteReply(id, post.id)} />
-          ))}
-
-          {/* Reply input */}
-          <div className="flex gap-2.5 mt-3">
-            <Avatar user={{ id: currentUserId, name: 'You' }} size={7} />
-            <div className="flex-1 flex gap-2">
-              <input value={replyText} onChange={e => setReplyText(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleReply() } }}
-                placeholder="Write a reply... (Enter to send)"
-                className="flex-1 bg-white/[0.04] border border-white/[0.08] focus:border-[#2ed8c3]/40 rounded-xl px-3 py-2 text-sm text-white placeholder-[#504850] outline-none transition-colors" />
-              <button onClick={handleReply} disabled={sendingReply || !replyText.trim()}
-                className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-[#2ed8c3]/10 hover:bg-[#2ed8c3]/20 border border-[#2ed8c3]/20 text-[#2ed8c3] rounded-xl transition-all disabled:opacity-40">
-                {sendingReply ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── COMPOSE BOX ────────────────────────────────────────────────────────────
-function ComposeBox({ currentUser, onPost }: { currentUser: User; onPost: (post: Post) => void }) {
-  const [content, setContent]   = useState('')
-  const [type, setType]         = useState('general')
+export default function CommunityPage() {
+  const { data: session } = useSession()
+  const [posts, setPosts]         = useState<Post[]>([])
+  const [loading, setLoading]     = useState(true)
+  const [filter, setFilter]       = useState('all')
+  const [isAdmin, setIsAdmin]     = useState(false)
+  const [memberCount, setMemberCount] = useState(0)
+  const [content, setContent]     = useState('')
+  const [postType, setPostType]   = useState('general')
   const [moduleTag, setModuleTag] = useState('')
-  const [posting, setPosting]   = useState(false)
-  const [expanded, setExpanded] = useState(false)
-  const maxChars = 2000
+  const [posting, setPosting]     = useState(false)
+  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set())
+  const [replyTexts, setReplyTexts] = useState<Record<string, string>>({})
+  const [sendingReply, setSendingReply] = useState<string | null>(null)
+  const pollRef = useRef<NodeJS.Timeout | null>(null)
+
+  const currentUser: User = {
+    id:   session?.user?.id || '',
+    name: session?.user?.name || 'You',
+    image: (session?.user as any)?.image,
+  }
+
+  const fetchPosts = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (filter !== 'all') params.set('type', filter)
+      const res = await fetch(`/api/posts?${params}`)
+      if (res.ok) setPosts(await res.json())
+    } finally { if (!silent) setLoading(false) }
+  }, [filter])
+
+  useEffect(() => {
+    fetchPosts()
+    pollRef.current = setInterval(() => fetchPosts(true), 30000)
+    return () => { if (pollRef.current) clearInterval(pollRef.current) }
+  }, [fetchPosts])
+
+  useEffect(() => {
+    fetch('/api/users/me').then(r => r.json()).then(u => setIsAdmin(u.isAdmin || false))
+    fetch('/api/users/count').then(r => r.json()).then(d => setMemberCount(d.count || 0)).catch(() => {})
+  }, [])
 
   async function handlePost() {
     if (!content.trim() || posting) return
@@ -277,140 +116,15 @@ function ComposeBox({ currentUser, onPost }: { currentUser: User; onPost: (post:
     try {
       const res = await fetch('/api/posts', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, type, moduleTag: moduleTag || null }),
+        body: JSON.stringify({ content, type: postType, moduleTag: moduleTag || null }),
       })
       if (!res.ok) { toast.error('Failed to post'); return }
       const post = await res.json()
-      onPost(post)
-      setContent(''); setType('general'); setModuleTag(''); setExpanded(false)
-      toast.success('Posted! 🎉')
+      setPosts(prev => [post, ...prev])
+      setContent(''); setPostType('general'); setModuleTag('')
+      toast.success('Posted!')
     } catch { toast.error('Something went wrong') }
     finally { setPosting(false) }
-  }
-
-  return (
-    <div className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-4 md:p-5">
-      <div className="flex gap-3">
-        <Avatar user={currentUser} size={9} />
-        <div className="flex-1 min-w-0">
-          <textarea
-            value={content}
-            onChange={e => { setContent(e.target.value); if (!expanded) setExpanded(true) }}
-            onFocus={() => setExpanded(true)}
-            placeholder="Share a win, ask a question, post an insight..."
-            rows={expanded ? 4 : 2}
-            className="w-full bg-white/[0.03] border border-white/[0.06] focus:border-[#2ed8c3]/40 rounded-xl px-4 py-3 text-sm text-white placeholder-[#504850] outline-none resize-none transition-all leading-relaxed"
-          />
-
-          {expanded && (
-            <div className="mt-3 space-y-3">
-              {/* Type selector */}
-              <div className="flex gap-2 flex-wrap">
-                {POST_TYPES.slice(1).map(t => (
-                  <button key={t.value} onClick={() => setType(t.value)}
-                    className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all',
-                      type === t.value
-                        ? 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20 text-[#2ed8c3]'
-                        : 'border-white/[0.07] text-[#706870] hover:border-white/15 hover:text-white')}>
-                    <t.icon className={cn('w-3 h-3', t.value === type ? 'text-[#2ed8c3]' : t.color)} />
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Module tag */}
-              <select value={moduleTag} onChange={e => setModuleTag(e.target.value)}
-                className="bg-white/[0.04] border border-white/[0.07] focus:border-[#2ed8c3]/40 rounded-xl px-3 py-2 text-xs text-white outline-none transition-colors w-full sm:w-auto">
-                <option value="" className="bg-[#2c2528]">Tag a module (optional)</option>
-                {ALL_MODULES.map(m => (
-                  <option key={m.id} value={m.id} className="bg-[#2c2528]">{m.number} — {m.title}</option>
-                ))}
-              </select>
-
-              {/* Footer row */}
-              <div className="flex items-center justify-between gap-3">
-                <span className={cn('text-xs font-mono', content.length > maxChars * 0.9 ? 'text-red-400' : 'text-[#606070]')}>
-                  {content.length}/{maxChars}
-                </span>
-                <div className="flex gap-2">
-                  <button onClick={() => { setExpanded(false); setContent('') }}
-                    className="px-4 py-2 text-xs text-[#706870] hover:text-white border border-white/[0.07] hover:border-white/15 rounded-xl transition-all">
-                    Cancel
-                  </button>
-                  <button onClick={handlePost} disabled={posting || !content.trim() || content.length > maxChars}
-                    className="flex items-center gap-2 px-5 py-2 bg-[#2ed8c3] hover:bg-[#5ee3d2] disabled:opacity-40 text-[#241e20] font-bold text-xs rounded-xl transition-all">
-                    {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                    Post
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── MAIN PAGE ──────────────────────────────────────────────────────────────
-export default function CommunityPage() {
-  const { data: session } = useSession()
-  const [posts, setPosts]         = useState<Post[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-  const [filter, setFilter]       = useState('all')
-  const [moduleFilter, setModuleFilter] = useState('')
-  const [isAdmin, setIsAdmin]     = useState(false)
-  const [memberCount, setMemberCount] = useState(0)
-  const pollRef = useRef<NodeJS.Timeout | null>(null)
-
-  const currentUser: User = {
-    id:      session?.user?.id || '',
-    name:    session?.user?.name || 'You',
-    company: (session?.user as any)?.company,
-    role:    (session?.user as any)?.role,
-  }
-
-  const fetchPosts = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true)
-    else setRefreshing(true)
-    try {
-      const params = new URLSearchParams()
-      if (filter !== 'all') params.set('type', filter)
-      if (moduleFilter) params.set('module', moduleFilter)
-      const res = await fetch(`/api/posts?${params}`)
-      if (res.ok) setPosts(await res.json())
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
-    }
-  }, [filter, moduleFilter])
-
-  useEffect(() => {
-    fetchPosts()
-    // Poll every 30 seconds for new posts
-    pollRef.current = setInterval(() => fetchPosts(true), 30000)
-    return () => { if (pollRef.current) clearInterval(pollRef.current) }
-  }, [fetchPosts])
-
-  useEffect(() => {
-    // Load admin status and member count
-    fetch('/api/users/me').then(r => r.json()).then(u => setIsAdmin(u.isAdmin || false))
-    fetch('/api/users/count').then(r => r.json()).then(d => setMemberCount(d.count || 0)).catch(() => {})
-  }, [])
-
-  function handleNewPost(post: Post) {
-    setPosts(prev => [post, ...prev])
-  }
-
-  async function handleDelete(id: string) {
-    if (!confirm('Delete this post?')) return
-    const res = await fetch('/api/posts', {
-      method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    if (res.ok) setPosts(prev => prev.filter(p => p.id !== id))
-    else toast.error('Failed to delete')
   }
 
   async function handleReact(postId: string, emoji: string) {
@@ -429,119 +143,287 @@ export default function CommunityPage() {
     }))
   }
 
-  async function handleReply(postId: string, content: string) {
-    const res = await fetch('/api/posts/replies', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ postId, content }),
-    })
-    if (!res.ok) { toast.error('Failed to reply'); return }
-    const reply = await res.json()
-    setPosts(prev => prev.map(p =>
-      p.id === postId ? { ...p, replies: [...p.replies, reply], _count: { ...p._count, replies: p._count.replies + 1 } } : p
-    ))
-    toast.success('Reply sent!')
+  async function handleReply(postId: string) {
+    const text = replyTexts[postId]?.trim()
+    if (!text) return
+    setSendingReply(postId)
+    try {
+      const res = await fetch('/api/posts/replies', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, content: text }),
+      })
+      if (!res.ok) { toast.error('Failed to reply'); return }
+      const reply = await res.json()
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, replies: [...p.replies, reply] } : p))
+      setReplyTexts(prev => ({ ...prev, [postId]: '' }))
+      toast.success('Reply sent!')
+    } catch { toast.error('Failed') }
+    finally { setSendingReply(null) }
   }
 
-  async function handleDeleteReply(id: string, postId: string) {
-    const res = await fetch('/api/posts/replies', {
-      method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    if (res.ok) {
-      setPosts(prev => prev.map(p =>
-        p.id === postId
-          ? { ...p, replies: p.replies.filter(r => r.id !== id), _count: { ...p._count, replies: p._count.replies - 1 } }
-          : p
-      ))
-    } else toast.error('Failed to delete reply')
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this post?')) return
+    const res = await fetch('/api/posts', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
+    if (res.ok) setPosts(prev => prev.filter(p => p.id !== id))
   }
 
   async function handlePin(id: string, pinned: boolean) {
-    const res = await fetch('/api/posts/pin', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, pinned }),
-    })
+    const res = await fetch('/api/posts/pin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, pinned }) })
     if (res.ok) setPosts(prev => prev.map(p => p.id === id ? { ...p, pinned } : p))
-    else toast.error('Failed to pin')
+  }
+
+  function toggleReplies(postId: string) {
+    setExpandedReplies(prev => {
+      const next = new Set(prev)
+      next.has(postId) ? next.delete(postId) : next.add(postId)
+      return next
+    })
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-5">
+    <div className="relative grid-dots min-h-full">
+      {/* Atmospheric glow */}
+      <div className="fixed bottom-0 right-0 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none z-0" />
 
-      {/* HEADER */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-1">Community</h1>
-          <p className="text-[#a0a0b0] text-sm">Share wins, ask questions, and learn together.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => fetchPosts(true)} disabled={refreshing}
-            className="flex items-center gap-1.5 text-xs text-[#706070] hover:text-[#a0a0b0] border border-white/[0.07] hover:border-white/15 px-3 py-2 rounded-xl transition-all">
-            <RefreshCw className={cn('w-3.5 h-3.5', refreshing && 'animate-spin')} />
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
-          <div className="flex items-center gap-1.5 bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2">
-            <div className="w-2 h-2 rounded-full bg-[#2ed8c3] animate-pulse" />
-            <span className="text-[#2ed8c3] font-semibold text-sm">{memberCount || '—'}</span>
-            <span className="text-[#606070] text-xs hidden sm:inline">members</span>
+      {/* Sticky subheader */}
+      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border-subtle flex justify-between items-center px-0 py-4 mb-6 -mx-4 md:-mx-8 px-4 md:px-8">
+        <div className="flex items-center gap-4 md:gap-6">
+          <h2 className="font-headline-sm text-headline-sm font-bold text-text-primary">Community</h2>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container border border-border-subtle">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="font-label-caps text-label-caps text-text-secondary uppercase hidden sm:inline">
+              {memberCount} Members
+            </span>
+            <span className="font-label-caps text-label-caps text-text-secondary uppercase sm:hidden">
+              {memberCount}
+            </span>
           </div>
         </div>
+        <button onClick={() => fetchPosts(true)} className="p-2 text-text-secondary hover:text-primary transition-colors">
+          <span className="material-symbols-outlined">refresh</span>
+        </button>
       </div>
 
-      {/* COMPOSE */}
-      <ComposeBox currentUser={currentUser} onPost={handleNewPost} />
+      <div className="max-w-[800px] mx-auto relative z-10">
 
-      {/* FILTERS */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {POST_TYPES.map(t => (
-          <button key={t.value} onClick={() => setFilter(t.value)}
-            className={cn('flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-medium transition-all whitespace-nowrap',
-              filter === t.value
-                ? 'bg-[#2ed8c3]/10 border-[#2ed8c3]/20 text-[#2ed8c3]'
-                : 'border-white/[0.07] text-[#706870] hover:border-white/15 hover:text-white')}>
-            <t.icon className="w-3 h-3" />
-            {t.label}
-          </button>
-        ))}
-      </div>
+        {/* ── COMPOSE BOX ─────────────────────────────────────────── */}
+        <section className="glass-surface rounded-xl p-5 md:p-6 mb-6 md:mb-8">
+          <div className="flex gap-3 md:gap-4">
+            <Avatar user={currentUser} size={10} />
+            <div className="flex-1 space-y-4">
+              <textarea
+                value={content}
+                onChange={e => setContent(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handlePost() }}
+                placeholder="Share a win, ask a question, or post an insight..."
+                rows={2}
+                className="w-full bg-transparent border-none focus:ring-0 outline-none font-body-md text-text-primary placeholder:text-text-tertiary resize-none custom-scrollbar"
+              />
+              <div className="flex flex-wrap gap-2 items-center">
+                {/* Post type buttons */}
+                {[
+                  { val: 'question', label: 'QUESTION', color: 'text-[#585de1]',     border: 'border-[#585de1]/30',     bg: 'bg-[#585de1]/5',     hbg: 'hover:bg-[#585de1]/10',    icon: 'help'            },
+                  { val: 'win',      label: 'WIN',      color: 'text-status-amber',   border: 'border-status-amber/30',  bg: 'bg-status-amber/5',  hbg: 'hover:bg-status-amber/10', icon: 'military_tech'   },
+                  { val: 'insight',  label: 'INSIGHT',  color: 'text-primary',        border: 'border-primary/30',       bg: 'bg-primary/5',       hbg: 'hover:bg-primary/10',      icon: 'lightbulb'       },
+                  { val: 'resource', label: 'RESOURCE', color: 'text-purple-400',     border: 'border-purple-500/30',    bg: 'bg-purple-500/5',    hbg: 'hover:bg-purple-500/10',   icon: 'attachment'      },
+                ].map(t => (
+                  <button key={t.val} onClick={() => setPostType(t.val === postType ? 'general' : t.val)}
+                    className={cn(
+                      'flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 py-1.5 rounded-full border font-label-caps text-label-caps transition-colors',
+                      t.color, t.border, t.hbg,
+                      postType === t.val ? t.bg + ' font-bold' : 'bg-transparent'
+                    )}>
+                    <span className="material-symbols-outlined text-sm">{t.icon}</span>
+                    <span className="hidden sm:inline">{t.label}</span>
+                  </button>
+                ))}
 
-      {/* MODULE FILTER */}
-      <select value={moduleFilter} onChange={e => setModuleFilter(e.target.value)}
-        className="bg-white/[0.03] border border-white/[0.07] focus:border-[#2ed8c3]/40 rounded-xl px-3 py-2 text-xs text-[#a0a0b0] outline-none transition-colors w-full sm:w-auto">
-        <option value="" className="bg-[#2c2528]">All modules</option>
-        {ALL_MODULES.map(m => (
-          <option key={m.id} value={m.id} className="bg-[#2c2528]">{m.number} — {m.title}</option>
-        ))}
-      </select>
+                {/* Module tag */}
+                <select value={moduleTag} onChange={e => setModuleTag(e.target.value)}
+                  className="bg-surface-container border border-border-subtle rounded-lg font-label-caps text-label-caps text-text-secondary focus:border-primary focus:ring-0 py-1.5 px-2 text-[10px] outline-none hidden md:block">
+                  <option value="">Module tag...</option>
+                  {ALL_MODULES.map(m => <option key={m.id} value={m.id} className="bg-surface-container">{m.number} — {m.title}</option>)}
+                </select>
 
-      {/* FEED */}
-      {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-[#606070]" />
-        </div>
-      ) : posts.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="text-4xl mb-3">💬</div>
-          <h3 className="font-display text-lg font-bold text-white mb-1">No posts yet</h3>
-          <p className="text-[#706070] text-sm">Be the first to share something with the community.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {posts.map(post => (
-            <PostCard
-              key={post.id}
-              post={post}
-              currentUserId={currentUser.id}
-              isAdmin={isAdmin}
-              onDelete={handleDelete}
-              onReact={handleReact}
-              onReply={handleReply}
-              onPin={handlePin}
-              onDeleteReply={handleDeleteReply}
-            />
+                {/* Post button */}
+                <button onClick={handlePost} disabled={posting || !content.trim()}
+                  className="ml-auto px-4 md:px-6 py-2 bg-primary text-black font-bold rounded-lg text-sm hover:brightness-110 transition-all disabled:opacity-50 flex items-center gap-2">
+                  {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                  Post
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FILTER TABS ─────────────────────────────────────────── */}
+        <nav className="flex gap-5 md:gap-8 mb-6 md:mb-8 border-b border-border-subtle overflow-x-auto whitespace-nowrap pb-1 custom-scrollbar">
+          {POST_TYPES.map(t => (
+            <button key={t.value} onClick={() => setFilter(t.value)}
+              className={cn(
+                'pb-4 border-b-2 font-label-caps tracking-widest uppercase transition-colors flex-shrink-0 text-[10px] md:text-label-caps',
+                filter === t.value
+                  ? 'border-primary text-primary font-bold'
+                  : 'border-transparent text-text-tertiary hover:text-text-secondary font-medium'
+              )}>
+              {t.label}
+            </button>
           ))}
-        </div>
-      )}
+        </nav>
+
+        {/* ── FEED ────────────────────────────────────────────────── */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-6 h-6 animate-spin text-text-tertiary" />
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="text-center py-20 glass-surface rounded-xl">
+            <span className="material-symbols-outlined text-4xl text-text-tertiary block mb-3"
+              style={{ fontVariationSettings: "'FILL' 0" }}>forum</span>
+            <p className="font-headline-sm text-on-surface mb-1">No posts yet</p>
+            <p className="font-body-sm text-text-secondary">Be the first to share something with the community.</p>
+          </div>
+        ) : (
+          <div className="space-y-5 md:space-y-6">
+            {posts.map(post => {
+              const cfg         = TYPE_CONFIG[post.type] || TYPE_CONFIG.general
+              const modName     = post.moduleTag ? ALL_MODULES.find(m => m.id === post.moduleTag)?.title : null
+              const canDelete   = post.userId === currentUser.id || isAdmin
+              const showReplies = expandedReplies.has(post.id)
+
+              return (
+                <article key={post.id}
+                  className={cn(
+                    'glass-surface rounded-xl p-5 md:p-6 transition-all',
+                    post.pinned && 'border-l-4 border-l-primary'
+                  )}>
+
+                  {/* Pinned badge */}
+                  {post.pinned && (
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-2 px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>push_pin</span>
+                        <span className="font-label-caps text-[10px] font-bold tracking-widest uppercase">Pinned by Admin</span>
+                      </div>
+                      <span className="font-label-mono text-label-mono text-text-tertiary uppercase">{timeAgo(post.createdAt)}</span>
+                    </div>
+                  )}
+
+                  {/* Post header */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar user={post.user} size={10} />
+                      <div>
+                        <h4 className="text-text-primary font-bold flex items-center gap-2 flex-wrap">
+                          {post.user.name || 'Member'}
+                          {post.user.role && (
+                            <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold tracking-tight uppercase', ROLE_COLORS[post.user.role] || ROLE_COLORS.other)}>
+                              {post.user.role}
+                            </span>
+                          )}
+                          {isAdmin && (
+                            <button onClick={() => handlePin(post.id, !post.pinned)}
+                              className="text-text-tertiary hover:text-primary transition-colors">
+                              <span className="material-symbols-outlined text-sm"
+                                style={{ fontVariationSettings: post.pinned ? "'FILL' 1" : "'FILL' 0" }}>push_pin</span>
+                            </button>
+                          )}
+                        </h4>
+                        <p className="text-text-tertiary text-xs flex items-center gap-1.5">
+                          {post.user.company && <span>{post.user.company} ·</span>}
+                          <span className="font-label-mono">{timeAgo(post.createdAt)}</span>
+                          {modName && <span className="text-primary ml-1">· {modName}</span>}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className={cn('px-2 py-1 rounded border font-label-caps text-[10px] font-bold uppercase tracking-widest', cfg.color, cfg.bg, cfg.border)}>
+                        {cfg.label}
+                      </div>
+                      {canDelete && (
+                        <button onClick={() => handleDelete(post.id)}
+                          className="text-text-tertiary hover:text-status-red transition-colors">
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Post content */}
+                  <p className={cn(
+                    'mb-4 md:mb-6 leading-relaxed',
+                    post.type === 'win' || post.type === 'question'
+                      ? 'font-headline-sm text-headline-sm text-text-primary italic'
+                      : 'font-body-md text-text-primary'
+                  )}>
+                    {post.content}
+                  </p>
+
+                  {/* Reactions + replies */}
+                  <div className="flex items-center gap-3 md:gap-6">
+                    {REACTIONS.map(r => {
+                      const count   = post.reactions.filter(rx => rx.emoji === r.emoji).length
+                      const reacted = post.reactions.some(rx => rx.emoji === r.emoji && rx.userId === currentUser.id)
+                      return (
+                        <button key={r.emoji} onClick={() => handleReact(post.id, r.emoji)}
+                          className={cn(
+                            'flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-full transition-all',
+                            reacted ? 'bg-primary/10 text-primary' : 'bg-surface-bright/30 text-text-secondary hover:text-primary'
+                          )}>
+                          <span className="material-symbols-outlined text-[16px] md:text-[18px]"
+                            style={{ fontVariationSettings: reacted ? "'FILL' 1" : "'FILL' 0" }}>{r.icon}</span>
+                          {count > 0 && <span className="font-label-mono text-xs">{count}</span>}
+                        </button>
+                      )
+                    })}
+                    <button onClick={() => toggleReplies(post.id)}
+                      className="ml-auto text-primary font-label-caps font-bold hover:underline text-[10px] md:text-label-caps flex items-center gap-1.5">
+                      {post.replies.length > 0 ? `${post.replies.length} ${post.replies.length === 1 ? 'Reply' : 'Replies'}` : 'Reply'}
+                    </button>
+                  </div>
+
+                  {/* Replies thread */}
+                  {showReplies && (
+                    <div className="mt-4 md:mt-5 pt-4 md:pt-5 border-t border-border-subtle space-y-4">
+                      {post.replies.map(reply => (
+                        <div key={reply.id} className="flex gap-3">
+                          <Avatar user={reply.user} size={8} />
+                          <div className="flex-1 bg-surface-container rounded-lg p-3">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-body-sm text-text-primary font-semibold text-sm">{reply.user.name}</span>
+                              <span className="font-label-mono text-[10px] text-text-tertiary">{timeAgo(reply.createdAt)}</span>
+                            </div>
+                            <p className="font-body-sm text-text-secondary leading-relaxed">{reply.content}</p>
+                          </div>
+                        </div>
+                      ))}
+                      {/* Reply input */}
+                      <div className="flex gap-3 mt-2">
+                        <Avatar user={currentUser} size={8} />
+                        <div className="flex-1 flex gap-2">
+                          <input
+                            value={replyTexts[post.id] || ''}
+                            onChange={e => setReplyTexts(prev => ({ ...prev, [post.id]: e.target.value }))}
+                            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleReply(post.id) } }}
+                            placeholder="Write a reply... (Enter to send)"
+                            className="flex-1 bg-surface-container border border-border-subtle focus:border-primary rounded-lg px-3 py-2 font-body-sm text-text-primary placeholder:text-text-tertiary outline-none transition-colors text-sm"
+                          />
+                          <button onClick={() => handleReply(post.id)} disabled={sendingReply === post.id || !replyTexts[post.id]?.trim()}
+                            className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary rounded-lg transition-all disabled:opacity-40">
+                            {sendingReply === post.id
+                              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              : <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </article>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

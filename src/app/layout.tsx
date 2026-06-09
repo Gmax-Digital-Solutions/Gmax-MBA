@@ -6,106 +6,39 @@ import { Providers } from '@/components/providers'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://gmaxmba.com'
 
 export const viewport: Viewport = {
-  width:        'device-width',
-  initialScale:  1,
-  maximumScale:  5,
-  themeColor:   '#241e20',
+  width: 'device-width', initialScale: 1, maximumScale: 5, themeColor: '#171214',
 }
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
-
-  title: {
-    default:  'Gmax MBA — Free Business School for Founders & Builders',
-    template: '%s | Gmax MBA',
-  },
-  description:
-    'A free, self-guided MBA program for developers, engineers, and solo founders. 30 minutes a day. Real business skills — strategy, marketing, sales, finance, and leadership — applied to your actual company.',
-
-  keywords: [
-    'free MBA', 'MBA for founders', 'business education for developers',
-    'startup business skills', 'free business school', 'entrepreneur education',
-    'solo founder MBA', 'business for engineers', 'free business course',
-    'startup strategy', 'marketing for founders', 'financial intelligence',
-    'leadership for founders', 'business fundamentals free',
-    'Gmax MBA', 'Gmax Digital Solutions',
-  ],
-
-  authors:   [{ name: 'Gmax Digital Solutions', url: APP_URL }],
-  creator:   'Gmax Digital Solutions',
-  publisher: 'Gmax Digital Solutions',
-
-  icons: {
-    icon:     [{ url: '/favicon.ico', sizes: 'any' }],
-    apple:    [{ url: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
-    shortcut: '/favicon.ico',
-  },
-
+  title: { default: 'Gmax MBA — Free Business School for Founders & Builders', template: '%s | Gmax MBA' },
+  description: 'A free, self-guided MBA program for developers, engineers, and solo founders. 30 minutes a day.',
+  keywords: ['free MBA', 'MBA for founders', 'business education for developers', 'startup business skills', 'free business school'],
+  authors: [{ name: 'Gmax Digital Solutions', url: APP_URL }],
+  icons: { icon: [{ url: '/favicon.ico' }], apple: [{ url: '/icon-192.png' }] },
   manifest: '/site.webmanifest',
-
-  openGraph: {
-    type:        'website',
-    locale:      'en_US',
-    url:          APP_URL,
-    siteName:    'Gmax MBA',
-    title:       'Gmax MBA — Free Business School for Founders & Builders',
-    description: 'A free, self-guided MBA program for developers, engineers, and solo founders. 30 minutes a day. Strategy, marketing, sales, finance & leadership — applied to your real business.',
-    images: [{
-      url:    '/og-image.png',
-      width:   1200,
-      height:  630,
-      alt:    'Gmax MBA — Free Business School for Founders & Builders',
-    }],
-  },
-
-  twitter: {
-    card:        'summary_large_image',
-    site:        '@GmaxDigital',
-    creator:     '@GmaxDigital',
-    title:       'Gmax MBA — Free Business School for Founders & Builders',
-    description: 'Free MBA-level business education for developers, engineers, and solo founders. 30 minutes a day. No paywalls ever.',
-    images:      ['/og-image.png'],
-  },
-
-  robots: {
-    index:        true,
-    follow:       true,
-    googleBot: {
-      index:                  true,
-      follow:                 true,
-      'max-video-preview':   -1,
-      'max-image-preview':   'large',
-      'max-snippet':         -1,
-    },
-  },
-
-  alternates: {
-    canonical: APP_URL,
-  },
-
+  openGraph: { type: 'website', url: APP_URL, siteName: 'Gmax MBA', title: 'Gmax MBA', description: 'Free MBA for founders and builders.', images: [{ url: '/og-image.png', width: 1200, height: 630 }] },
+  robots: { index: true, follow: true },
   category: 'education',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className="bg-[#241e20] text-[#f0f0f0] antialiased" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
+      <body className="bg-background text-text-primary font-body-md overflow-x-hidden antialiased">
         <Providers>
           {children}
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              style: {
-                background:   '#2c2528',
-                color:        '#f0f0f0',
-                border:       '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '10px',
-                fontSize:     '13px',
-              },
-              success: { iconTheme: { primary: '#2ed8c3', secondary: '#241e20' } },
-              error:   { iconTheme: { primary: '#ef4444', secondary: '#241e20' } },
-            }}
-          />
+          <Toaster position="bottom-right" toastOptions={{
+            style: { background: '#2f282a', color: '#f0f0f0', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', fontSize: '13px', fontFamily: 'Outfit, sans-serif' },
+            success: { iconTheme: { primary: '#2ed8c3', secondary: '#003731' } },
+            error:   { iconTheme: { primary: '#ef4444', secondary: '#1a0000' } },
+          }} />
         </Providers>
       </body>
     </html>
