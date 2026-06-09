@@ -49,11 +49,20 @@ export default function ProfilePage() {
     try {
       const fd = new FormData(); fd.append('file', file)
       const res = await fetch('/api/upload/avatar', { method: 'POST', body: fd })
-      if (!res.ok) { toast.error('Upload failed'); return }
-      const { url } = await res.json()
-      setUser((prev: any) => ({ ...prev, image: url }))
+      const data = await res.json()
+      
+      if (!res.ok) { 
+        console.error('[UPLOAD] Error:', data)
+        toast.error(data.error || 'Upload failed')
+        return 
+      }
+      
+      setUser((prev: any) => ({ ...prev, image: data.url }))
       toast.success('Photo updated!')
-    } catch { toast.error('Upload failed') }
+    } catch (err) { 
+      console.error('[UPLOAD] Exception:', err)
+      toast.error('Upload failed') 
+    }
     finally { setUploading(false) }
   }, [])
 
