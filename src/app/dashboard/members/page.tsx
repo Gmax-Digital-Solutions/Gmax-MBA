@@ -2,24 +2,20 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { MembersClient } from './client'
+import { TOTAL_TASKS } from '@/lib/data/curriculum'
 
 export default async function MembersPage() {
   const session = await getServerSession(authOptions)
 
-  const [members, totalTasks] = await Promise.all([
-    db.user.findMany({
-      select: {
-        id: true, name: true, company: true, role: true, bio: true,
-        image: true, twitter: true, github: true, website: true,
-        enrolledAt: true,
-        _count: { select: { progress: true } },
-        progress: { where: { completed: true }, select: { id: true } },
-      },
-      orderBy: { enrolledAt: 'asc' },
-    }),
-    // total tasks in program for progress %
-    db.progress.groupBy({ by: ['userId'], _count: { id: true } }),
-  ])
+  const members = await db.user.findMany({
+    select: {
+      id: true, name: true, company: true, role: true, bio: true,
+      image: true, twitter: true, github: true, website: true,
+      enrolledAt: true,
+      progress: { where: { completed: true }, select: { id: true } },
+    },
+    orderBy: { enrolledAt: 'asc' },
+  })
 
   return (
     <MembersClient
@@ -35,7 +31,7 @@ export default async function MembersPage() {
         website:   m.website,
         enrolledAt: m.enrolledAt.toISOString(),
         tasksDone: m.progress.length,
-        totalTasks: m._count.progress,
+        totalTasks: TOTAL_TASKS,
       }))}
       currentUserId={session!.user.id}
     />

@@ -243,7 +243,7 @@ export function MembersClient({ members, currentUserId }: { members: Member[]; c
                   </div>
 
                   {/* CTA */}
-                  <Link href={isMe ? '/dashboard/profile' : '#'}
+                  <Link href={isMe ? '/dashboard/profile' : `/dashboard/members/${member.id}`}
                     className="w-full mt-auto py-3 border border-border-subtle rounded-lg text-text-primary font-label-caps text-label-caps hover:bg-primary hover:text-on-primary hover:border-primary transition-all duration-300 text-center block">
                     {isMe ? 'Edit Profile' : 'View Profile'}
                   </Link>
