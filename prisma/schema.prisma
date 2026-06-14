@@ -180,3 +180,20 @@ model PasswordResetToken {
 
   @@index([email])
 }
+
+model BookSummary {
+  id        String   @id @default(cuid())
+  bookId    String
+  bookTitle String
+  dayNumber Int
+  taskId    String
+  title     String
+  readTime  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([dayNumber, taskId])
+  @@index([bookId])
+  @@index([dayNumber])
+}
