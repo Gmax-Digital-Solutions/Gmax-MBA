@@ -23,26 +23,26 @@ const MOODS = [
 // Simple markdown renderer — handles ##, **, -, |table|
 function renderMarkdown(text: string): string {
   return text
-    .replace(/^## (.+)$/gm, '<h2 class="font-headline-sm text-lg text-text-primary mt-6 mb-3 first:mt-0">$1</h2>')
-    .replace(/^### (.+)$/gm, '<h3 class="font-body-md font-bold text-text-primary mt-4 mb-2">$1</h3>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-text-primary">$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em class="italic text-text-secondary">$1</em>')
-    .replace(/`(.+?)`/g, '<code class="font-label-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded text-xs">$1</code>')
+    .replace(/^## (.+)$/gm,   '<h2 class="font-headline-sm text-lg font-bold mt-6 mb-3 first:mt-0" style="color:#58f5df">$1</h2>')
+    .replace(/^### (.+)$/gm,  '<h3 class="font-body-md font-bold mt-4 mb-2" style="color:#f59e0b">$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold" style="color:#ffffff">$1</strong>')
+    .replace(/\*(.+?)\*/g,    '<em class="italic" style="color:#c0c0d0">$1</em>')
+    .replace(/`(.+?)`/g,      '<code class="font-label-mono bg-primary/10 px-1.5 py-0.5 rounded text-xs" style="color:#58f5df">$1</code>')
     .replace(/^\| (.+) \|$/gm, (row) => {
       const cells = row.split('|').filter(c => c.trim() && !c.match(/^[-\s|]+$/))
       if (cells.length === 0) return ''
       const isHeader = cells.every(c => c.trim().startsWith('**'))
       const tag = isHeader ? 'th' : 'td'
-      return `<tr class="border-b border-border-subtle">${cells.map(c => `<${tag} class="px-3 py-2 text-sm text-left ${isHeader ? 'text-text-tertiary font-label-caps text-[10px] uppercase tracking-wider' : 'text-text-secondary'}">${c.trim()}</${tag}>`).join('')}</tr>`
+      return `<tr class="border-b border-border-subtle">${cells.map(c => `<${tag} class="px-3 py-2 text-sm text-left" style="${isHeader ? 'color:#58f5df;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600' : 'color:#e8e2e0'}">${c.trim()}</${tag}>`).join('')}</tr>`
     })
     .replace(/(<tr.*<\/tr>\n?)+/g, (tables) => `<div class="overflow-x-auto my-4"><table class="w-full glass-card rounded-lg">${tables}</table></div>`)
     .replace(/^---+$/gm, '<hr class="border-border-subtle my-4">')
-    .replace(/^\d+\. \*\*(.+?)\*\* — (.+)$/gm, '<div class="flex gap-3 mb-2"><span class="text-primary font-label-mono text-xs mt-1 flex-shrink-0">→</span><div><span class="font-semibold text-text-primary">$1</span> — <span class="text-text-secondary">$2</span></div></div>')
-    .replace(/^- \*\*(.+?)\*\* — (.+)$/gm, '<div class="flex gap-3 mb-2"><span class="text-primary font-label-mono text-xs mt-1 flex-shrink-0">·</span><div><span class="font-semibold text-text-primary">$1</span> — <span class="text-text-secondary">$2</span></div></div>')
-    .replace(/^- (.+)$/gm, '<div class="flex gap-3 mb-2"><span class="text-primary mt-1 flex-shrink-0 text-xs font-label-mono">·</span><span class="text-text-secondary">$1</span></div>')
-    .replace(/^\d+\. (.+)$/gm, '<div class="flex gap-3 mb-2"><span class="text-primary mt-0.5 flex-shrink-0 font-label-mono text-xs">→</span><span class="text-text-secondary">$1</span></div>')
-    .replace(/\n\n/g, '</p><p class="mb-3 text-text-secondary leading-relaxed">')
-    .replace(/^(?!<)(.+)$/gm, '<p class="mb-3 text-text-secondary leading-relaxed">$1</p>')
+    .replace(/^\d+\. \*\*(.+?)\*\* — (.+)$/gm, '<div class="flex gap-3 mb-2"><span class="font-label-mono text-xs mt-1 flex-shrink-0" style="color:#58f5df">→</span><div><span class="font-semibold" style="color:#ffffff">$1</span><span style="color:#e8e2e0"> — $2</span></div></div>')
+    .replace(/^- \*\*(.+?)\*\* — (.+)$/gm,     '<div class="flex gap-3 mb-2"><span class="font-label-mono text-xs mt-1 flex-shrink-0" style="color:#58f5df">·</span><div><span class="font-semibold" style="color:#ffffff">$1</span><span style="color:#e8e2e0"> — $2</span></div></div>')
+    .replace(/^- (.+)$/gm,                      '<div class="flex gap-3 mb-2"><span class="font-label-mono text-xs mt-1 flex-shrink-0" style="color:#58f5df">·</span><span style="color:#e8e2e0">$1</span></div>')
+    .replace(/^\d+\. (.+)$/gm,                  '<div class="flex gap-3 mb-2"><span class="font-label-mono text-xs mt-0.5 flex-shrink-0" style="color:#58f5df">→</span><span style="color:#e8e2e0">$1</span></div>')
+    .replace(/\n\n/g,   '</p><p class="mb-3 leading-relaxed" style="color:#e8e2e0">')
+    .replace(/^(?!<)(.+)$/gm, '<p class="mb-3 leading-relaxed" style="color:#e8e2e0">$1</p>')
 }
 
 export function DailyClient({
@@ -382,9 +382,10 @@ export function DailyClient({
                   </div>
 
                   {/* Summary content */}
-                  <div className="p-5 md:p-6 bg-surface-container/30 max-h-[600px] overflow-y-auto custom-scrollbar">
+                  <div className="p-5 md:p-6 max-h-[600px] overflow-y-auto custom-scrollbar" style={{ backgroundColor: '#1a1618' }}>
                     <div
                       className="prose-gmax text-sm leading-relaxed"
+                      style={{ color: '#e8e2e0' }}
                       dangerouslySetInnerHTML={{ __html: renderMarkdown(summaries[task.id].content) }}
                     />
                   </div>
