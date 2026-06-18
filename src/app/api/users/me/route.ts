@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { getStudentProgress } from '@/lib/student-progress'
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -14,7 +15,20 @@ export async function GET() {
       enrolledAt: true, image: true, onboarded: true,
     },
   })
-  return NextResponse.json(user)
+  if (!user) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  const progress = await getStudentProgress(session.user.id, new Date(user.enrolledAt))
+
+  return NextResponse.json({
+    ...user,
+    // Progress-aware day — picks up where the student left off instead
+    // of auto-advancing purely from calendar time. Prefer this over
+    // deriving a day number from enrolledAt on the client.
+    currentDay: progress.activeDay,
+    calendarDay: progress.calendarDay,
+    isBehindSchedule: progress.isBehind,
+    daysBehind: progress.daysBehind,
+  })
 }
 
 export async function PATCH(req: NextRequest) {

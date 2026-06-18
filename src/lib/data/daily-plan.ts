@@ -365,6 +365,13 @@ export const DAILY_PLAN: DayPlan[] = [
   },
 ]
 
+/**
+ * @deprecated This computes a day purely from calendar time elapsed since
+ * enrollment, with no awareness of whether the student actually completed
+ * any work. It will silently skip a student ahead even if they fell behind.
+ * Use getCalendarDay() + getActiveDayNumber() instead. Kept only so any
+ * remaining old call sites don't break the build; do not call this in new code.
+ */
 export function getTodayPlan(enrolledAt: Date): DayPlan | null {
   const daysElapsed = Math.floor((Date.now() - enrolledAt.getTime()) / 86400000)
   const dayNumber   = daysElapsed + 1
@@ -381,3 +388,52 @@ export function getWeekDays(week: number): DayPlan[] {
 
 export const TOTAL_PLANNED_DAYS = DAILY_PLAN.length
 export const TOTAL_WEEKS        = Math.max(...DAILY_PLAN.map(d => d.week))
+
+/**
+ * The calendar day number — how many days have elapsed since enrollment,
+ * with no regard for progress. This is the UPPER BOUND on which day a
+ * student is allowed to see; it represents "the latest day that exists
+ * for them so far," not "the day they should be working on."
+ *
+ * A student can never be shown a day beyond this number, because that
+ * day's content hasn't "unlocked" yet by the calendar — but they CAN be
+ * held behind it if they haven't finished earlier work.
+ */
+export function getCalendarDay(enrolledAt: Date): number {
+  const daysElapsed = Math.floor((Date.now() - enrolledAt.getTime()) / 86400000)
+  return Math.max(1, daysElapsed + 1)
+}
+
+/**
+ * The day a student should actually land on when they open the app —
+ * the heart of the "no auto-skip" fix.
+ *
+ * Definition: one past the highest day number that has at least one
+ * completed task, clamped so it never exceeds the calendar day (a
+ * student can't be pushed into content that hasn't calendar-unlocked
+ * yet) and never exceeds the last day of the curriculum.
+ *
+ * completedDays should be the distinct set of `day` values for which the
+ * student has at least one DailyTask row with done = true. Passing an
+ * empty set means a brand new student — they land on Day 1.
+ *
+ * Example: enrolled June 1, completed work through Day 10 on June 10,
+ * then skipped 4 days. On June 15 the calendar day is 15, but this
+ * function still returns 11 (pick up right where they left off) — not
+ * 15. Once they complete Day 11's first task, this naturally advances
+ * to 12 the next time it's called.
+ */
+export function getActiveDayNumber(enrolledAt: Date, completedDays: number[]): number {
+  const calendarDay = getCalendarDay(enrolledAt)
+  const highestCompleted = completedDays.length > 0 ? Math.max(...completedDays) : 0
+  const progressDay = highestCompleted + 1
+
+  const activeDay = Math.min(progressDay, calendarDay)
+  return Math.max(1, Math.min(activeDay, TOTAL_PLANNED_DAYS))
+}
+
+/** Convenience wrapper: active day's full DayPlan, or null past the end. */
+export function getActivePlan(enrolledAt: Date, completedDays: number[]): DayPlan | null {
+  const day = getActiveDayNumber(enrolledAt, completedDays)
+  return getPlanByDay(day)
+}

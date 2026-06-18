@@ -38,10 +38,12 @@ export default function CalendarPage() {
       if (!user.enrolledAt) return
       const ea  = new Date(user.enrolledAt)
       setEnrolledAt(ea)
-      const cd  = Math.floor((Date.now() - ea.getTime()) / 86400000) + 1
-      const da  = Math.max(1, Math.floor((Date.now() - ea.getTime()) / 86400000))
-      setCurrentDay(cd)
-      setDaysActive(da)
+      // currentDay now comes straight from /api/users/me, which computes
+      // it from actual task completion (pick up where you left off),
+      // not raw calendar time. daysActive is still calendar tenure, used
+      // only for the "Days Active" tenure stat, never for navigation.
+      setCurrentDay(user.currentDay || 1)
+      setDaysActive(user.calendarDay || 1)
 
       const byDay: Record<number, { total: number; done: number }> = {}
       ;(tasks as any[]).forEach((t: any) => {
@@ -63,6 +65,13 @@ export default function CalendarPage() {
     })
   }, [])
 
+  // Maps a calendar date to "what day-number would this date be in the
+  // program," purely by elapsed time since enrollment. This is intentionally
+  // separate from currentDay (the student's actual active/progress day) —
+  // isFuture below compares this calendar-derived number against the
+  // progress-aware currentDay, which is what correctly keeps days locked
+  // until the student's real progress catches up to them, even if the
+  // calendar date itself has already passed.
   function getDayNumber(date: Date): number | null {
     if (!enrolledAt) return null
     const diff = Math.floor((date.getTime() - enrolledAt.getTime()) / 86400000)

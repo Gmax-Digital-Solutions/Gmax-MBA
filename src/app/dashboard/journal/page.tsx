@@ -35,7 +35,11 @@ export default function JournalPage() {
       const allEntries = Array.isArray(all) ? all : []
       setEntries(allEntries)
       if (todayEnt?.content) { setTodayEntry(todayEnt.content); setTodayMood(todayEnt.mood || '') }
-      if (user?.enrolledAt) {
+      if (user?.currentDay) {
+        setCurrentDay(user.currentDay)
+      } else if (user?.enrolledAt) {
+        // Fallback only — should not normally be hit since /api/users/me
+        // now returns the progress-aware currentDay directly.
         const dayNum = Math.floor((Date.now() - new Date(user.enrolledAt).getTime()) / 86400000) + 1
         setCurrentDay(dayNum)
       }

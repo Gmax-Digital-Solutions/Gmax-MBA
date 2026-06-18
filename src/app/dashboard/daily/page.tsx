@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { getTodayPlan } from '@/lib/data/daily-plan'
+import { getActiveDayPlan } from '@/lib/student-progress'
 import { DailyClient } from './client'
 
 export default async function DailyPage() {
@@ -12,9 +12,12 @@ export default async function DailyPage() {
   })
 
   const enrolledAt = new Date(user!.enrolledAt)
-  const plan       = getTodayPlan(enrolledAt)
-  const today      = new Date().toISOString().split('T')[0]
-  const currentDay = Math.floor((Date.now() - enrolledAt.getTime()) / 86400000) + 1
+  const { plan, activeDay, isBehind, daysBehind } = await getActiveDayPlan(session!.user.id, enrolledAt)
+
+  // The journal date should reflect the actual calendar date the student
+  // is sitting at, not the active day's "would-be" date, so journal
+  // entries always key off the real day they're writing on.
+  const today = new Date().toISOString().split('T')[0]
 
   const [dailyTasks, journalEntry] = await Promise.all([
     db.dailyTask.findMany({ where: { userId: session!.user.id, day: plan?.day || 1 } }),
@@ -29,12 +32,14 @@ export default async function DailyPage() {
       initialDailyTasks={dailyTasks}
       initialJournalEntry={journalEntry}
       today={today}
-      dayNumber={currentDay}
+      dayNumber={activeDay}
       userName={user!.name || 'Friend'}
       isToday={true}
       isPast={false}
       isFuture={false}
-      currentDay={currentDay}
+      currentDay={activeDay}
+      isBehindSchedule={isBehind}
+      daysBehind={daysBehind}
     />
   )
 }

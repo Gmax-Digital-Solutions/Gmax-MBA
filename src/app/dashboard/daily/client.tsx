@@ -48,11 +48,12 @@ function renderMarkdown(text: string): string {
 export function DailyClient({
   plan, initialDailyTasks, initialJournalEntry, today,
   dayNumber, userName, isPast = false, isToday = true,
-  isFuture = false, currentDay,
+  isFuture = false, currentDay, isBehindSchedule = false, daysBehind = 0,
 }: {
   plan: DayPlan | null; initialDailyTasks: any[]; initialJournalEntry: any
   today: string; dayNumber: number; userName: string
   isPast?: boolean; isToday?: boolean; isFuture?: boolean; currentDay?: number
+  isBehindSchedule?: boolean; daysBehind?: number
 }) {
   const [tasks, setTasks]             = useState(initialDailyTasks)
   const [journal, setJournal]         = useState(initialJournalEntry?.content || '')
@@ -164,6 +165,17 @@ export function DailyClient({
           <span className="material-symbols-outlined text-status-amber flex-shrink-0">calendar_today</span>
           <p className="font-body-sm text-text-secondary">
             <span className="text-status-amber font-semibold">Past Day</span> — you can still complete tasks and update your journal.
+          </p>
+        </div>
+      )}
+
+      {/* Welcome back banner — shown on the active day when the student fell behind schedule */}
+      {isToday && isBehindSchedule && (
+        <div className="flex items-center gap-3 bg-primary/8 border border-primary/20 rounded-xl px-4 py-3 mb-5 mt-2">
+          <span className="material-symbols-outlined text-primary flex-shrink-0">redo</span>
+          <p className="font-body-sm text-text-secondary">
+            <span className="text-primary font-semibold">Welcome back</span> — you're picking up right where you left off on Day {plan.day}.
+            {daysBehind > 0 && ` No content was skipped while you were away.`}
           </p>
         </div>
       )}

@@ -2,7 +2,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { CURRICULUM, TOTAL_TASKS, TOTAL_BOOKS } from '@/lib/data/curriculum'
-import { getTodayPlan } from '@/lib/data/daily-plan'
+import { getStudentProgress } from '@/lib/student-progress'
+import { getPlanByDay } from '@/lib/data/daily-plan'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getInitials } from '@/lib/utils'
@@ -39,10 +40,12 @@ export default async function DashboardPage() {
   ])
 
   const enrolledAt   = new Date(userRow!.enrolledAt)
-  const daysActive   = Math.max(1, Math.floor((Date.now() - enrolledAt.getTime()) / 86400000))
-  const currentDay   = daysActive + 1
-  const todayPlan    = getTodayPlan(enrolledAt)
-  const weekNum      = Math.ceil(daysActive / 7)
+  const progress     = await getStudentProgress(userId, enrolledAt)
+  const currentDay   = progress.activeDay
+  const todayPlan    = getPlanByDay(progress.activeDay)
+  const weekNum      = todayPlan?.week ?? Math.ceil(currentDay / 7)
+  const isBehind     = progress.isBehind
+  const daysBehind   = progress.daysBehind
 
   const completedTasks = progressRecords.filter(r => r.type === 'task' && r.completed).length
   const completedBooks = progressRecords.filter(r => r.type === 'book' && r.completed).length
@@ -80,8 +83,13 @@ export default async function DashboardPage() {
       {/* ── HEADER ──────────────────────────────────────────────────── */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 md:mb-12 gap-4">
         <div>
-          <span className="font-label-mono text-label-mono text-primary uppercase tracking-[0.2em] mb-2 block">
-            System Online · Day {daysActive}
+          <span className="font-label-mono text-label-mono text-primary uppercase tracking-[0.2em] mb-2 block flex items-center gap-2">
+            System Online · Day {currentDay}
+            {isBehind && (
+              <span className="font-label-mono text-[10px] text-status-amber bg-status-amber/10 border border-status-amber/20 rounded-full px-2 py-0.5 normal-case tracking-normal">
+                {daysBehind} day{daysBehind > 1 ? 's' : ''} of work waiting — pick up where you left off
+              </span>
+            )}
           </span>
           <h2 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">
             {greeting}, {userRow?.name?.split(' ')[0]}
@@ -161,10 +169,12 @@ export default async function DashboardPage() {
                 style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
             </div>
             <div className="flex items-center gap-4 mb-6">
-              <div className="font-display-lg text-display-lg text-on-surface">{daysActive}</div>
+              <div className="font-display-lg text-display-lg text-on-surface">{progress.completedDays.length}</div>
               <div className="flex flex-col">
-                <span className="font-body-md text-body-md font-bold text-text-primary">Day Streak</span>
-                <span className="font-label-mono text-label-mono text-text-tertiary">Keep building</span>
+                <span className="font-body-md text-body-md font-bold text-text-primary">Days Completed</span>
+                <span className="font-label-mono text-label-mono text-text-tertiary">
+                  {isBehind ? `${daysBehind} day${daysBehind > 1 ? 's' : ''} behind — keep going` : 'On pace, keep building'}
+                </span>
               </div>
             </div>
             {/* Phase bars */}
