@@ -221,10 +221,12 @@ async function main() {
 
   const log = loadLog()
 
-  // Fetch all users who have completed onboarding
+  // Fetch ALL users — not just those with onboarded: true.
+  // Some users may have signed up but skipped the onboarding flow,
+  // meaning onboarded === false even though they're real enrolled students.
   const users = await db.user.findMany({
-    where:  { onboarded: true },
-    select: { id: true, email: true, name: true, enrolledAt: true },
+    where:   {},
+    select:  { id: true, email: true, name: true, enrolledAt: true },
     orderBy: { enrolledAt: 'asc' },
   })
 

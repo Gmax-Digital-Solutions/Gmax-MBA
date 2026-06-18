@@ -190,3 +190,18 @@ button, a { touch-action: manipulation; }
 .fill-icon {
   font-variation-settings: 'FILL' 1;
 }
+
+/* ── JOURNAL TEXTAREA — explicit color override ───────────────────────────────
+   Tailwind's bg/text utilities can be invisible when the browser applies
+   its own light-mode defaults (white background, dark text) or when the
+   dark class isn't present on <html>. These rules use full specificity
+   to guarantee the correct colors regardless of browser or OS theme.     */
+textarea.journal-entry {
+  background-color: #241e20 !important;
+  color:            #f0f0f0 !important;
+  caret-color:      #58f5df;
+}
+textarea.journal-entry::placeholder {
+  color:   #606070;
+  opacity: 1;       /* Firefox reduces opacity on placeholders by default */
+}

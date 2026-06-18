@@ -269,7 +269,8 @@ export function DailyClient({
                   {task.detail && <p className="text-sm text-text-primary mb-3 italic leading-relaxed">"{task.detail}"</p>}
                   <textarea value={journal} onChange={e => setJournal(e.target.value)}
                     placeholder={`Day ${plan.day} — ${plan.title}\n\nType your thoughts here...`}
-                    className="w-full bg-surface-container-lowest border border-border-subtle rounded-lg p-4 font-label-mono text-sm text-text-primary focus:ring-1 focus:ring-status-amber focus:border-status-amber outline-none transition-all h-32 resize-none placeholder:text-text-tertiary custom-scrollbar" />
+                    className="journal-entry w-full border border-border-subtle rounded-lg p-4 font-label-mono text-sm focus:ring-1 focus:ring-status-amber focus:border-status-amber outline-none transition-all h-32 resize-none custom-scrollbar"
+                    style={{ backgroundColor: '#1e1a1c', color: '#f0f0f0', caretColor: '#58f5df' }} />
                 </div>
                 <div className="mt-4 flex justify-end">
                   <button onClick={saveJournal} disabled={savingJournal || !journal.trim()}

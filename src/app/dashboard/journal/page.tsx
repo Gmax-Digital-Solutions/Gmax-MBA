@@ -183,7 +183,12 @@ export default function JournalPage() {
                   value={todayEntry}
                   onChange={e => setTodayEntry(e.target.value)}
                   placeholder="Start writing your reflection here..."
-                  className="w-full h-64 md:h-80 bg-surface-container border border-border-subtle rounded-lg p-5 md:p-6 font-label-mono text-body-md focus:ring-1 focus:ring-status-amber focus:border-status-amber transition-all resize-none custom-scrollbar text-text-primary placeholder:text-text-tertiary outline-none"
+                  className="journal-entry w-full h-64 md:h-80 bg-surface-container border border-border-subtle rounded-lg p-5 md:p-6 font-label-mono text-body-md focus:ring-1 focus:ring-status-amber focus:border-status-amber transition-all resize-none custom-scrollbar outline-none"
+                  style={{
+                    backgroundColor: '#241e20',
+                    color:            '#f0f0f0',
+                    caretColor:       '#58f5df',
+                  }}
                 />
                 <div className="absolute bottom-3 md:bottom-4 right-4 md:right-6 font-label-mono text-label-mono text-text-tertiary">
                   {todayEntry.length.toLocaleString()} chars
