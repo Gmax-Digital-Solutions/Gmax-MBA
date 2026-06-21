@@ -363,6 +363,72 @@ export const DAILY_PLAN: DayPlan[] = [
       { id: 'd30-t4', type: 'reflect', label: 'Journal',      detail: 'What is something counterintuitive about your industry that you could use to reframe how prospects think?', duration: '10 min' },
     ]
   },
+  {
+    day: 31, week: 5, phase: 2, module: 'mod-06',
+    title: 'The E-Myth Revisited — Working On vs. In Your Business',
+    focus: 'The E-Myth Revisited — Ch. 1–6',
+    tasks: [
+      { id: 'd31-t1', type: 'read',    label: 'Morning Read', detail: 'The E-Myth Revisited', chapter: 'Ch. 1–6 — The Fatal Assumption, The Three Personalities & The Stages of Growth (pp. 1–95)', duration: '35 min', moduleId: 'mod-06', progressBookId: 'b-06-1' },
+      { id: 'd31-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Michael Gerber E-Myth working on your business not in it explained', searchQuery: 'Michael Gerber E-Myth work on your business not in it explained', duration: '25 min' },
+      { id: 'd31-t3', type: 'task',    label: 'Evening Task', detail: "Identify the 3 most critical recurring tasks in your business that exist only in your head. Write the first version of a documented system (checklist or script) for one of them — written so a new hire could follow it without asking you a question.", duration: '45 min', moduleId: 'mod-06', progressTaskId: 't-06-1' },
+      { id: 'd31-t4', type: 'reflect', label: 'Journal',      detail: 'Honestly: what percentage of your time this week was spent working IN your business (doing the work) versus ON your business (designing the systems)? What is one thing you will change about that ratio next week?', duration: '15 min' },
+    ]
+  },
+  {
+    day: 32, week: 5, phase: 2, module: 'mod-06',
+    title: 'Traction — The Six Key Components of EOS',
+    focus: 'Traction — Ch. 1–4',
+    tasks: [
+      { id: 'd32-t1', type: 'read',    label: 'Morning Read', detail: 'Traction', chapter: 'Ch. 1–4 — The EOS Model, Letting Go of the Vine, Vision & People (pp. 1–115)', duration: '35 min', moduleId: 'mod-06', progressBookId: 'b-06-2' },
+      { id: 'd32-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Traction EOS Entrepreneurial Operating System six key components explained', searchQuery: 'Gino Wickman Traction EOS six key components explained', duration: '25 min' },
+      { id: 'd32-t3', type: 'task',    label: 'Evening Task', detail: "Fill out the EOS Organizational Checkup — score your business 1-5 on all 20 statements. Identify your single lowest-scoring component (Vision, People, Data, Issues, Process, or Traction) and write 3 specific actions to strengthen it this quarter.", duration: '40 min', moduleId: 'mod-06', progressTaskId: 't-06-2' },
+      { id: 'd32-t4', type: 'reflect', label: 'Journal',      detail: "If you asked every person on your team what your company's vision is, would you get the same answer twice? What's missing from how you communicate it?", duration: '10 min' },
+    ]
+  },
+  {
+    day: 33, week: 5, phase: 2, module: 'mod-06',
+    title: 'The Goal — Theory of Constraints',
+    focus: 'The Goal — Full Novel',
+    tasks: [
+      { id: 'd33-t1', type: 'read',    label: 'Morning Read', detail: 'The Goal', chapter: 'Full Novel — Throughput, Inventory, Operational Expense & The Five Focusing Steps', duration: '40 min', moduleId: 'mod-06', progressBookId: 'b-06-3' },
+      { id: 'd33-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Theory of Constraints The Goal Goldratt bottleneck explained', searchQuery: 'Theory of Constraints The Goal Goldratt bottleneck explained', duration: '25 min' },
+      { id: 'd33-t3', type: 'task',    label: 'Evening Task', detail: "Map your business as a sequence of dependent steps (like the hiking line). Identify your 'Herbie' — the single slowest step that caps your entire throughput. Write down one way to either exploit it (get more out of it without spending money) or elevate it (invest to remove the limit).", duration: '40 min', moduleId: 'mod-06', progressTaskId: 't-06-3' },
+      { id: 'd33-t4', type: 'reflect', label: 'Journal',      detail: 'Where in your business have you been optimizing a step that isn\\t actually your bottleneck? What did that effort actually cost you?', duration: '15 min' },
+    ]
+  },
+  {
+    day: 34, week: 6, phase: 3, module: 'mod-07',
+    title: 'High Output Management — Managerial Leverage',
+    focus: 'High Output Management — Ch. on Managerial Leverage & Task-Relevant Maturity',
+    tasks: [
+      { id: 'd34-t1', type: 'read',    label: 'Morning Read', detail: 'High Output Management', chapter: 'Managerial Leverage & Task-Relevant Maturity (Andy Grove)', duration: '40 min', moduleId: 'mod-07', progressBookId: 'b-07-1' },
+      { id: 'd34-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Andy Grove High Output Management managerial leverage one-on-one meetings explained', searchQuery: 'Andy Grove High Output Management managerial leverage explained', duration: '25 min' },
+      { id: 'd34-t3', type: 'task',    label: 'Evening Task', detail: "List the 5-7 recurring activities that make up your week as a founder/manager. Score each as low, medium, or high leverage using Grove's definition (does it affect many people, affect someone for a long time, or supply unique knowledge that unlocks others' work?). Commit to doing more of your single highest-leverage activity this week.", duration: '40 min', moduleId: 'mod-07', progressTaskId: 't-07-1' },
+      { id: 'd34-t4', type: 'reflect', label: 'Journal',      detail: "Pick one person on your team. What is their task-relevant maturity (TRM) on their current biggest responsibility — low, medium, or high? Are you managing them with the right style for that level, or out of habit?", duration: '15 min' },
+    ]
+  },
+  {
+    day: 35, week: 6, phase: 3, module: 'mod-07',
+    title: 'Leaders Eat Last — Why Some Teams Pull Together',
+    focus: 'Leaders Eat Last — The Circle of Safety',
+    tasks: [
+      { id: 'd35-t1', type: 'read',    label: 'Morning Read', detail: 'Leaders Eat Last', chapter: 'The Circle of Safety, Cortisol vs. Oxytocin, and Why Some Teams Pull Together', duration: '40 min', moduleId: 'mod-07', progressBookId: 'b-07-2' },
+      { id: 'd35-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Simon Sinek Leaders Eat Last Circle of Safety explained', searchQuery: 'Simon Sinek Leaders Eat Last Circle of Safety explained', duration: '25 min' },
+      { id: 'd35-t3', type: 'task',    label: 'Evening Task', detail: "Identify one source of chronic, low-grade stress (cortisol) on your team right now — unclear priorities, fear of blame, inconsistent leadership behavior, etc. Write down one specific, concrete action you can take this week to extend the Circle of Safety around your team instead of leaving them exposed to it.", duration: '40 min', moduleId: 'mod-07', progressTaskId: 't-07-2' },
+      { id: 'd35-t4', type: 'reflect', label: 'Journal',      detail: 'Do the people on your team feel safe enough to tell you bad news immediately, or do they sit on it? What have you done, even unintentionally, that shaped that answer?', duration: '15 min' },
+    ]
+  },
+  {
+    day: 36, week: 6, phase: 3, module: 'mod-07',
+    title: 'An Everyone Culture — Becoming a Deliberately Developmental Organization',
+    focus: 'An Everyone Culture — Edge, Home & Groove',
+    tasks: [
+      { id: 'd36-t1', type: 'read',    label: 'Morning Read', detail: 'An Everyone Culture', chapter: "The 'Second Job', Edge/Home/Groove, and the Deliberately Developmental Organization (Kegan & Lahey)", duration: '40 min', moduleId: 'mod-07', progressBookId: 'b-07-3' },
+      { id: 'd36-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Robert Kegan An Everyone Culture Deliberately Developmental Organization explained', searchQuery: 'Robert Kegan An Everyone Culture Deliberately Developmental Organization explained', duration: '25 min' },
+      { id: 'd36-t3', type: 'task',    label: 'Evening Task', detail: "Write down the 'second job' you personally do at work — the energy you spend covering weaknesses or managing how you're perceived instead of doing real work. Then write one structural change (not a personality change) you could make to your team's culture that would make admitting a mistake or a weakness lower-risk than hiding it.", duration: '40 min', moduleId: 'mod-07', progressTaskId: 't-07-3' },
+      { id: 'd36-t4', type: 'reflect', label: 'Journal',      detail: "Think about the last real mistake you made at work. Was it safe to admit it openly, or did you find yourself managing how it looked? What does your honest answer tell you about your own team's culture?", duration: '15 min' },
+    ]
+  },
 ]
 
 /**
