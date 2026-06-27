@@ -393,7 +393,7 @@ export const DAILY_PLAN: DayPlan[] = [
       { id: 'd33-t1', type: 'read',    label: 'Morning Read', detail: 'The Goal', chapter: 'Full Novel — Throughput, Inventory, Operational Expense & The Five Focusing Steps', duration: '40 min', moduleId: 'mod-06', progressBookId: 'b-06-3' },
       { id: 'd33-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Theory of Constraints The Goal Goldratt bottleneck explained', searchQuery: 'Theory of Constraints The Goal Goldratt bottleneck explained', duration: '25 min' },
       { id: 'd33-t3', type: 'task',    label: 'Evening Task', detail: "Map your business as a sequence of dependent steps (like the hiking line). Identify your 'Herbie' — the single slowest step that caps your entire throughput. Write down one way to either exploit it (get more out of it without spending money) or elevate it (invest to remove the limit).", duration: '40 min', moduleId: 'mod-06', progressTaskId: 't-06-3' },
-      { id: 'd33-t4', type: 'reflect', label: 'Journal',      detail: 'Where in your business have you been optimizing a step that isn\\t actually your bottleneck? What did that effort actually cost you?', duration: '15 min' },
+      { id: 'd33-t4', type: 'reflect', label: 'Journal',      detail: 'Where in your business have you been optimizing a step that isn\'t actually your bottleneck? What did that effort actually cost you?', duration: '15 min' },
     ]
   },
   {
@@ -429,6 +429,114 @@ export const DAILY_PLAN: DayPlan[] = [
       { id: 'd36-t4', type: 'reflect', label: 'Journal',      detail: "Think about the last real mistake you made at work. Was it safe to admit it openly, or did you find yourself managing how it looked? What does your honest answer tell you about your own team's culture?", duration: '15 min' },
     ]
   },
+  {
+    day: 37, week: 6, phase: 3, module: 'mod-08',
+    title: 'Zero to One — Why Competition Is for Losers',
+    focus: 'Zero to One — Monopoly & The Four Characteristics',
+    tasks: [
+      { id: 'd37-t1', type: 'read',    label: 'Morning Read', detail: 'Zero to One', chapter: 'Monopoly, the Ideology of Competition & the Four Characteristics of Monopoly (Peter Thiel)', duration: '40 min', moduleId: 'mod-08', progressBookId: 'b-08-1' },
+      { id: 'd37-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Peter Thiel Zero to One monopoly competition is for losers explained', searchQuery: 'Peter Thiel Zero to One monopoly competition is for losers explained', duration: '25 min' },
+      { id: 'd37-t3', type: 'task',    label: 'Evening Task', detail: "Answer Thiel's interview question for your own business: what important truth about your market do very few people agree with you on? Then identify which of the four monopoly characteristics (proprietary technology, network effects, economies of scale, branding) is most realistic for you to build, and write one concrete step toward it.", duration: '40 min', moduleId: 'mod-08', progressTaskId: 't-08-1' },
+      { id: 'd37-t4', type: 'reflect', label: 'Journal',      detail: 'Are you describing your market like a monopolist (downplaying your dominance) or like a competitor (narrowing your market until you appear to dominate it by definition)? Which is actually true?', duration: '15 min' },
+    ]
+  },
+  {
+    day: 38, week: 6, phase: 3, module: 'mod-08',
+    title: "The Innovator's Dilemma — Why Good Companies Fail",
+    focus: "The Innovator's Dilemma — Sustaining vs. Disruptive Technology",
+    tasks: [
+      { id: 'd38-t1', type: 'read',    label: 'Morning Read', detail: "The Innovator's Dilemma", chapter: 'Sustaining vs. Disruptive Technologies & Why Good Management Can Lead to Failure (Clayton Christensen)', duration: '40 min', moduleId: 'mod-08', progressBookId: 'b-08-2' },
+      { id: 'd38-t2', type: 'watch',   label: 'Lunch Watch',  detail: "Clayton Christensen Innovator's Dilemma disruptive technology explained", searchQuery: "Clayton Christensen Innovator's Dilemma disruptive technology explained", duration: '25 min' },
+      { id: 'd38-t3', type: 'task',    label: 'Evening Task', detail: "Identify one 'good enough' alternative in your industry that your best customers currently dismiss as inferior. Map whether its trajectory of improvement is rising faster than what the mainstream market actually needs — and write down what it would look like for your business to respond to it with a separate, appropriately-sized team rather than your main organization.", duration: '40 min', moduleId: 'mod-08', progressTaskId: 't-08-2' },
+      { id: 'd38-t4', type: 'reflect', label: 'Journal',      detail: 'Are you overshooting your own market — still competing on dimensions of performance your customers stopped caring about years ago? Where might a simpler, cheaper alternative already be "good enough"?', duration: '15 min' },
+    ]
+  },
+  {
+    day: 39, week: 6, phase: 3, module: 'mod-08',
+    title: 'Crossing the Chasm — The Gap That Kills Most New Products',
+    focus: 'Crossing the Chasm — Technology Adoption Life Cycle & The D-Day Strategy',
+    tasks: [
+      { id: 'd39-t1', type: 'read',    label: 'Morning Read', detail: 'Crossing the Chasm', chapter: 'The Technology Adoption Life Cycle, the Chasm & the D-Day Niche Strategy (Geoffrey Moore)', duration: '40 min', moduleId: 'mod-08', progressBookId: 'b-08-3' },
+      { id: 'd39-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Geoffrey Moore Crossing the Chasm technology adoption life cycle explained', searchQuery: 'Geoffrey Moore Crossing the Chasm technology adoption life cycle explained', duration: '25 min' },
+      { id: 'd39-t3', type: 'task',    label: 'Evening Task', detail: "Define your single beachhead niche market — one narrowly bounded segment, not three. Write out what the complete 'whole product' (every supporting service, integration, and guarantee) would need to include to fully satisfy a pragmatist buyer in that niche, not just an early adopter.", duration: '40 min', moduleId: 'mod-08', progressTaskId: 't-08-3' },
+      { id: 'd39-t4', type: 'reflect', label: 'Journal',      detail: "Honestly: is your company market-driven or sales-driven right now? Are you chasing every opportunity that presents itself, or concentrating on one beachhead the way the D-Day strategy demands?", duration: '15 min' },
+    ]
+  },
+  {
+    day: 40, week: 7, phase: 3, module: 'mod-09',
+    title: 'Influence — The Six Weapons of Persuasion',
+    focus: 'Influence — Reciprocation, Commitment, Social Proof & Scarcity',
+    tasks: [
+      { id: 'd40-t1', type: 'read',    label: 'Morning Read', detail: 'Influence: The Psychology of Persuasion', chapter: 'Reciprocation, Commitment & Consistency, Social Proof, and Scarcity (Robert Cialdini)', duration: '40 min', moduleId: 'mod-09', progressBookId: 'b-09-1' },
+      { id: 'd40-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Robert Cialdini Influence six principles of persuasion explained', searchQuery: 'Robert Cialdini Influence six principles of persuasion explained', duration: '25 min' },
+      { id: 'd40-t3', type: 'task',    label: 'Evening Task', detail: "Audit your own sales or marketing materials against the six principles (reciprocity, commitment/consistency, social proof, liking, authority, scarcity). Identify which ONE principle is most absent from your current customer journey, and write one concrete, ethical way to incorporate it this week.", duration: '40 min', moduleId: 'mod-09', progressTaskId: 't-09-1' },
+      { id: 'd40-t4', type: 'reflect', label: 'Journal',      detail: 'Think of a recent purchase decision you made that you now regret. Which of the six weapons of influence was used on you, and how did it work?', duration: '15 min' },
+    ]
+  },
+  {
+    day: 41, week: 7, phase: 3, module: 'mod-09',
+    title: 'The Trusted Advisor — The Trust Equation',
+    focus: 'The Trusted Advisor — Credibility, Reliability, Intimacy & Self-Orientation',
+    tasks: [
+      { id: 'd41-t1', type: 'read',    label: 'Morning Read', detail: 'The Trusted Advisor', chapter: 'The Trust Equation and the Five Stages of Trust-Building (Maister, Green & Galford)', duration: '40 min', moduleId: 'mod-09', progressBookId: 'b-09-2' },
+      { id: 'd41-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'The Trusted Advisor trust equation Maister explained', searchQuery: 'The Trusted Advisor trust equation Maister explained', duration: '25 min' },
+      { id: 'd41-t3', type: 'task',    label: 'Evening Task', detail: "Score yourself 1-10 on each of the four components of the Trust Equation (Credibility, Reliability, Intimacy, Self-Orientation) as your most important client or stakeholder relationship would honestly rate you. Identify your lowest score and write one specific action to improve it this week.", duration: '40 min', moduleId: 'mod-09', progressTaskId: 't-09-2' },
+      { id: 'd41-t4', type: 'reflect', label: 'Journal',      detail: 'Of the four trust components, which do you most often neglect under pressure — credibility, reliability, intimacy, or keeping your self-orientation low? Why that one?', duration: '15 min' },
+    ]
+  },
+  {
+    day: 42, week: 7, phase: 3, module: 'mod-09',
+    title: 'Pitch Anything — Frame Control and the Croc Brain',
+    focus: 'Pitch Anything — The STRONG Method',
+    tasks: [
+      { id: 'd42-t1', type: 'read',    label: 'Morning Read', detail: 'Pitch Anything', chapter: 'Frame Control, the Croc Brain, and the STRONG Method (Oren Klaff)', duration: '40 min', moduleId: 'mod-09', progressBookId: 'b-09-3' },
+      { id: 'd42-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Oren Klaff Pitch Anything frame control STRONG method explained', searchQuery: 'Oren Klaff Pitch Anything frame control STRONG method explained', duration: '25 min' },
+      { id: 'd42-t3', type: 'task',    label: 'Evening Task', detail: "Outline your next important pitch using the STRONG method: Setting the frame, Telling the story, Revealing the intrigue, Offering the prize, Nailing the hookpoint, Getting a decision. Write one sentence for each step.", duration: '40 min', moduleId: 'mod-09', progressTaskId: 't-09-3' },
+      { id: 'd42-t4', type: 'reflect', label: 'Journal',      detail: 'Think of the last time someone took control of a meeting or negotiation away from you. What kind of frame were they using (power, time, analyst), and what could you have done differently?', duration: '15 min' },
+    ]
+  },
+  /*
+   * NOTE: Days 43-48 (Module 10 — Corporate Finance & Business Valuation,
+   * and Module 11 — Venture Capital, M&A & Deal-Making) are intentionally
+   * left as a gap here. Module 12 below was seeded ahead of those two
+   * modules at the user's request. When Modules 10 and 11 are ready,
+   * insert their day entries here (Days 43-48) without renumbering
+   * anything below — Module 12 was deliberately pinned to Days 49-51
+   * to preserve correct sequential numbering once the gap is filled.
+   */
+  {
+    day: 49, week: 8, phase: 4, module: 'mod-12',
+    title: 'Basic Economics — Prices, Scarcity & Why Good Intentions Are Not Enough',
+    focus: 'Basic Economics — The Role of Prices & Price Controls',
+    tasks: [
+      { id: 'd49-t1', type: 'read',    label: 'Morning Read', detail: 'Basic Economics', chapter: 'What Is Economics?, The Role of Prices & Price Controls (Thomas Sowell)', duration: '40 min', moduleId: 'mod-12', progressBookId: 'b-12-1' },
+      { id: 'd49-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Thomas Sowell Basic Economics prices scarcity explained', searchQuery: 'Thomas Sowell Basic Economics prices and scarcity explained', duration: '25 min' },
+      { id: 'd49-t3', type: 'task',    label: 'Evening Task', detail: "Identify one price control, subsidy, or artificial price constraint that affects your business or industry directly (minimum wage, rent control, tariffs, price caps). Trace through Sowell's logic: who gains in the short term, who bears the hidden cost, and what shortage or surplus does it eventually create?", duration: '40 min', moduleId: 'mod-12', progressTaskId: 't-12-1' },
+      { id: 'd49-t4', type: 'reflect', label: 'Journal',      detail: 'Where in your own business have you judged a decision by its intentions rather than its actual incentives and consequences? What did that cost you?', duration: '15 min' },
+    ]
+  },
+  {
+    day: 50, week: 8, phase: 4, module: 'mod-12',
+    title: 'The Wealth of Nations — Division of Labour and the Invisible Hand',
+    focus: 'The Wealth of Nations — Book I, Chapters I-II & Book IV',
+    tasks: [
+      { id: 'd50-t1', type: 'read',    label: 'Morning Read', detail: 'The Wealth of Nations (Abridged)', chapter: 'Of the Division of Labour & Of the Principle Which Gives Occasion to It (Adam Smith)', duration: '40 min', moduleId: 'mod-12', progressBookId: 'b-12-2' },
+      { id: 'd50-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Adam Smith Wealth of Nations division of labour invisible hand explained', searchQuery: 'Adam Smith Wealth of Nations division of labour invisible hand explained', duration: '25 min' },
+      { id: 'd50-t3', type: 'task',    label: 'Evening Task', detail: "Map your own business like Smith's pin factory: list every distinct step currently required to deliver your product or service. Identify one step that could be further divided or specialized to multiply output the way the ten pin-makers multiplied theirs.", duration: '40 min', moduleId: 'mod-12', progressTaskId: 't-12-2' },
+      { id: 'd50-t4', type: 'reflect', label: 'Journal',      detail: "Smith argued we get more from others by appealing to their self-interest than their benevolence. Where in your own sales or hiring approach are you currently appealing to goodwill when you could instead appeal to genuine mutual benefit?", duration: '15 min' },
+    ]
+  },
+  {
+    day: 51, week: 8, phase: 4, module: 'mod-12',
+    title: 'Principles — Radical Truth, Radical Transparency & the 5-Step Process',
+    focus: 'Principles — Life Principles & Work Principles',
+    tasks: [
+      { id: 'd51-t1', type: 'read',    label: 'Morning Read', detail: 'Principles', chapter: 'The 5-Step Process & Building an Idea Meritocracy (Ray Dalio)', duration: '40 min', moduleId: 'mod-12', progressBookId: 'b-12-3' },
+      { id: 'd51-t2', type: 'watch',   label: 'Lunch Watch',  detail: 'Ray Dalio Principles 5-Step Process idea meritocracy explained', searchQuery: 'Ray Dalio Principles 5-Step Process idea meritocracy explained', duration: '25 min' },
+      { id: 'd51-t3', type: 'task',    label: 'Evening Task', detail: "Run one current challenge in your business through Dalio's 5-Step Process explicitly and in order: (1) state the goal clearly, (2) identify the specific problem blocking it, (3) diagnose its root cause, (4) design a plan around it, (5) write the specific action you'll take this week to push it through.", duration: '40 min', moduleId: 'mod-12', progressTaskId: 't-12-3' },
+      { id: 'd51-t4', type: 'reflect', label: 'Journal',      detail: "Dalio says most people react emotionally to problems instead of diagnosing them calmly. Think of your last real setback — did you move straight to diagnosis, or did you skip straight to blame or excuses?", duration: '15 min' },
+    ]
+  },
 ]
 
 /**
@@ -452,7 +560,16 @@ export function getWeekDays(week: number): DayPlan[] {
   return DAILY_PLAN.filter(d => d.week === week)
 }
 
-export const TOTAL_PLANNED_DAYS = DAILY_PLAN.length
+/**
+ * The highest day NUMBER that exists in the curriculum — not the array
+ * length. These can differ on purpose: when a module's content hasn't
+ * been written yet, its day numbers are deliberately left as a gap (see
+ * the note above Day 49) so that later modules can be slotted in at
+ * their correct numbers without a renumbering migration. Using
+ * DAILY_PLAN.length here instead of the max day would under-count the
+ * real upper bound and incorrectly clamp active-day calculations.
+ */
+export const TOTAL_PLANNED_DAYS = Math.max(...DAILY_PLAN.map(d => d.day))
 export const TOTAL_WEEKS        = Math.max(...DAILY_PLAN.map(d => d.week))
 
 /**
@@ -471,13 +588,33 @@ export function getCalendarDay(enrolledAt: Date): number {
 }
 
 /**
+ * Given any day number — including one that falls inside a gap where no
+ * DayPlan exists yet (e.g. Days 43-48 before Modules 10-11 are added) —
+ * returns the nearest day number at or after it that actually has
+ * content. This is what keeps getActiveDayNumber/getActivePlan safe
+ * against gaps: a student's progress is never pointed at a day with no
+ * DayPlan to show.
+ */
+function nearestExistingDayAtOrAfter(day: number): number {
+  const existingDays = DAILY_PLAN.map(d => d.day).sort((a, b) => a - b)
+  for (const d of existingDays) {
+    if (d >= day) return d
+  }
+  // day is past the end of all defined content — fall back to the last
+  // real day rather than a number with nothing behind it.
+  return existingDays[existingDays.length - 1]
+}
+
+/**
  * The day a student should actually land on when they open the app —
  * the heart of the "no auto-skip" fix.
  *
  * Definition: one past the highest day number that has at least one
  * completed task, clamped so it never exceeds the calendar day (a
  * student can't be pushed into content that hasn't calendar-unlocked
- * yet) and never exceeds the last day of the curriculum.
+ * yet) and never exceeds the last day of the curriculum. If that lands
+ * inside a gap with no content yet, it's nudged forward to the nearest
+ * day that actually has a DayPlan.
  *
  * completedDays should be the distinct set of `day` values for which the
  * student has at least one DailyTask row with done = true. Passing an
@@ -495,7 +632,8 @@ export function getActiveDayNumber(enrolledAt: Date, completedDays: number[]): n
   const progressDay = highestCompleted + 1
 
   const activeDay = Math.min(progressDay, calendarDay)
-  return Math.max(1, Math.min(activeDay, TOTAL_PLANNED_DAYS))
+  const clamped   = Math.max(1, Math.min(activeDay, TOTAL_PLANNED_DAYS))
+  return nearestExistingDayAtOrAfter(clamped)
 }
 
 /** Convenience wrapper: active day's full DayPlan, or null past the end. */

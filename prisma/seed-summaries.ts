@@ -1,17 +1,19 @@
 /**
- * seed-module-07.ts
+ * seed-module-12.ts
  * -------------------
- * Combined seed file for Module 07 — Leadership & Organizational Behavior:
- *   Day 34 — High Output Management (Andy Grove)
- *   Day 35 — Leaders Eat Last (Simon Sinek)
- *   Day 36 — An Everyone Culture (Kegan & Lahey)
+ * Combined seed file for Module 12 — Economics, Macro & Global Markets:
+ *   Day 49 — Basic Economics (Thomas Sowell)
+ *   Day 50 — The Wealth of Nations (Adam Smith)
+ *   Day 51 — Principles (Ray Dalio)
  *
- * PREREQUISITE: Days 34-36 must exist in daily-plan.ts before running this.
- * They were added directly after Day 33 (The Goal), opening Phase 3 of the
- * curriculum (Advanced Strategy & Leadership) and completing Module 07.
+ * PREREQUISITE: Days 49-51 must exist in daily-plan.ts before running this.
+ * They were seeded ahead of Modules 10 and 11 at the user's request — Days
+ * 43-48 (Corporate Finance & Business Valuation, and Venture Capital, M&A
+ * & Deal-Making) are intentionally left as a gap in daily-plan.ts to be
+ * filled in later without needing to renumber Module 12.
  *
  * Run with:
- *   npx tsx prisma/seed-module-07.ts
+ *   npx tsx prisma/seed-module-12.ts
  *
  * Uses a fresh PrismaClient connection and a short delay between each
  * book to avoid the Supabase pgBouncer "prepared statement does not
@@ -40,287 +42,178 @@ async function upsertSummaries(db: PrismaClient, summaries: Summary[]) {
   }
 }
 
-// ─── Book 1: High Output Management (Day 34) ──────────────────────────────────
-const highOutputManagementSummaries = [
+// ─── Book 1: Basic Economics (Day 49) ─────────────────────────────────────────
+const basicEconomicsSummaries = [
   {
-    bookId:    'high-output-management',
-    bookTitle: 'High Output Management',
-    dayNumber: 34,
-    taskId:    'd34-t1',
-    title:     'High Output Management — The Equation Every Manager Should Know',
+    bookId:    'basic-economics',
+    bookTitle: 'Basic Economics',
+    dayNumber: 49,
+    taskId:    'd49-t1',
+    title:     'Basic Economics — Why Good Intentions Are Not Enough',
     readTime:  '8 min read',
-    content:   `## The Single Most Important Sentence in the Book
+    content:   `## No Graphs, No Equations, No Excuses
 
-Andy Grove ran Intel through the most brutal competitive period in its history — fighting off the Japanese DRAM onslaught in the 1980s, eventually rebuilding the company around microprocessors, and turning it into the most valuable semiconductor company in the world. Along the way he wrote what Ben Horowitz calls, in the foreword, the single best book on management ever written.
+Thomas Sowell wrote Basic Economics with a deliberate constraint: no graphs, no equations, no jargon. His argument for why this matters goes beyond accessibility. Every voter and every politician they elect affects economic policy whether they understand economics or not — there's no opting out. The only choice is whether you're informed, uninformed, or misinformed when those decisions get made. This book exists to move people from the second or third category into the first, using real historical examples instead of abstract models.
 
-Grove states the book's central idea in one sentence, and asks readers to treat it as the foundation for everything else:
+## What Economics Actually Is
 
-> **The output of a manager is the output of the organizational units under his or her supervision or influence.**
+Sowell starts from a definition borrowed from economist Lionel Robbins: **economics is the study of the use of scarce resources which have alternative uses.** Every word in that definition is load-bearing.
 
-This sounds obvious until you actually sit with it. It means a manager's personal productivity — how many emails she answers, how many hours she works, how polished her own individual work is — is *not* her output. Her output is what her team, and the people she influences beyond her direct team, actually produce.
+"Scarce" doesn't mean rare in some absolute sense — it means that what everybody wants, added together, exceeds what exists. Sowell illustrates this with a *New York Times* feature on a middle-class American family, photographed beside their own swimming pool, under the headline "The American Middle, Just Getting By." A Harvard sociologist is quoted describing how "budget-constrained" they are. Sowell's point is sharp: it's not a budget constraining them. **It's reality.** Even some of the most prosperous people who have ever lived face the same underlying condition every human society has always faced — there has never been enough to satisfy everyone completely. That's scarcity, and no economic system, capitalist, socialist, or otherwise, makes it disappear. Different systems are just different ways of making the unavoidable trade-offs.
 
-This reframes the entire job. The question stops being "am I working hard?" and becomes "is the output of my organization increasing because of what I do?"
+"Alternative uses" is the other half of the definition, and it's why economics is genuinely difficult rather than mechanical. Water can become ice, steam, or a thousand industrial compounds. Petroleum becomes gasoline, but also plastics, asphalt, and Vaseline. Every economy, regardless of ideology, has to decide how much of each scarce resource goes toward which of its competing uses — and that decision, made well or badly, directly shapes the standard of living of everyone in it.
 
-## A Manager Is Not Defined by Activities
+## Resources Don't Create Wealth — Decisions Do
 
-Grove asked a room of middle managers what a manager's output is. Their answers: judgments, opinions, direction, resource allocation, mistakes detected, people trained. He rejects all of them — not because they're wrong, but because they're **activities**, not output.
+One of Sowell's most counterintuitive data points: the value of natural resources per capita in Uruguay and Venezuela is several times higher than in Japan or Switzerland. Yet real income per capita in Japan and Switzerland is more than double Uruguay's, and several times Venezuela's. Resource abundance and prosperity aren't the same thing — **what matters is how efficiently inputs get turned into outputs**, and that's a function of decisions and institutions, not geology.
 
-A surgeon's activities are scrubbing, cutting, and suturing. His output is a healed patient. A manager's activities are meetings, reviews, emails, and conversations. Her output is what her team — and the "neighboring organizations" she influences without direct authority — actually produces.
+The Soviet Union is Sowell's starkest illustration: a country so rich in natural resources it remains one of the few industrial nations that produces more oil than it consumes, yet its industries used *more* electricity than American industries while producing *less* total output. Abundant resources, badly allocated, still produce scarcity in the form people actually experience — a lower standard of living than the raw materials alone would predict.
 
-This distinction matters because it stops managers from confusing busyness with effectiveness. Grove tracked his own day hour by hour and found it looked chaotic — dozens of short, disconnected activities, two-thirds of it in meetings. The chaos isn't the problem. The question is whether each activity, however brief, contributed to the output of the organizations under his influence.
+## The Real Lesson: Incentives, Not Intentions
 
-## The Leverage Equation
+Sowell's central methodological point, repeated throughout the book: **the test of an economic policy is its consequences, not its stated goals.** Good intentions, without an understanding of how an economy actually responds to incentives, routinely produce disastrous results — and most economic disasters in history were the product of policies that were *meant* to help.
 
-Grove introduces the concept that gives the chapter its name and gives this whole philosophy its operating logic:
+The book treats this as a matter of cause and effect, not opinion. Sowell points out that a Marxist economist analyzing supply and demand uses fundamentally the same analytical method as a free-market economist — the disagreements that exist in economics are about values and predictions, not about whether cause-and-effect relationships exist at all.
 
-**Managerial Output = L₁ × A₁ + L₂ × A₂ + …**
+## Why Prices Move — And What Happens When You Stop Them
 
-Every activity (A) a manager performs has a leverage factor (L) attached to it — the degree to which that activity multiplies into organizational output. A manager's total output is the sum of all her activities, each weighted by its leverage.
+Sowell's clearest demonstration of consequences-over-intentions is rent control, examined in depth in the chapter on price controls. The logic of free prices is simple: prices rise when the amount people want exceeds the amount available at the current price; they fall when supply exceeds demand. A "shortage" and a "surplus" are both, by definition, *price-dependent* conditions — not fixed facts about how much of something physically exists.
 
-This means managerial productivity can be increased in exactly three ways:
-1. **Work faster** — speed up the activities you already do
-2. **Increase the leverage of activities** — find ways to make the same activity matter more
-3. **Shift your time toward high-leverage activities and away from low-leverage ones**
+During and after World War II, the United States had a severe housing shortage — even though both population and housing supply had each grown by roughly 10% from prewar levels, meaning the actual ratio of housing to people hadn't worsened at all. The shortage was real and painful anyway, because wartime rent control laws held prices artificially below where supply and demand would have settled them. At that artificially low price, more people wanted more housing than before: young adults moved out of their parents' homes sooner, childless couples kept larger apartments than they needed, and — in one of Sowell's sharper details — some people kept rent-controlled apartments in cities they didn't even live in, purely because the price was too good to give up. Hollywood stars kept empty rent-controlled apartments in New York; a couple living in Hawaii kept one in San Francisco.
 
-Of the three, the third is by far the most powerful, and it's the one most managers neglect because it requires honestly auditing how they spend their time — not just trying to do more of everything.
+When rent control ended after the war, the shortage dissolved almost immediately — *before any new housing was built.* Couples who no longer needed four bedrooms at an artificially cheap price downsized voluntarily. Young adults waited a bit longer before moving out. The same physical housing stock simply got reallocated toward people with more urgent needs, the moment prices were allowed to do the job they exist to do: **communicating real scarcity and letting people respond to it.**
 
-## Three Ways an Activity Becomes High-Leverage
-
-**1. When many people are affected by one action.** Grove's example: Robin, an Intel finance manager, spends time in advance defining exactly what information needs to be gathered at each stage of the annual planning process. That work, done once, removes confusion for roughly two hundred people who participate in planning. The same hour of work has wildly different leverage depending on *when* it happens — done in advance, it prevents confusion for hundreds; done reactively after confusion has already spread, it merely cleans up a mess that high-leverage work would have prevented.
-
-**2. When a brief, well-focused action affects someone's behavior over a long time.** A performance review takes a manager a few hours to prepare and deliver, but it can shape a subordinate's effort and direction for months. A "tickler file" — a simple system to track follow-ups — takes minutes to set up but improves a manager's productivity indefinitely. The leverage isn't in the time spent; it's in the duration of the effect.
-
-**3. When one person's unique knowledge unlocks the work of many others.** A pricing analyst who sets prices too high or too low affects every salesperson trying to sell the product. A development engineer with uniquely detailed knowledge of a manufacturing process effectively controls how dozens of other engineers can use it. Grove calls this the "know-how manager" — someone whose specialized knowledge gives them enormous leverage even without direct supervisory authority over anyone.
-
-## Negative Leverage Is Just as Real
-
-Leverage cuts both ways, and Grove is explicit that the negative version is common and often invisible to the person causing it.
-
-**Showing up unprepared to a meeting** doesn't just waste your own time — it wastes everyone else's, and denies them the chance to use that time elsewhere. **A manager's visible depression or discouragement** after bad news spreads through a team faster than almost anything else, and is far harder to "retrain" away than a bad sales pitch. **Waffling** — failing to make a decision — is functionally identical to making a *negative* decision, because the absence of a green light is a red light; the whole organization can stall waiting for a call that never comes.
-
-**Managerial meddling** is Grove's sharpest example. When a manager uses superior knowledge or experience to step in and dictate exactly what a subordinate should do — rather than letting them work through the problem — the immediate problem may get solved faster. But the subordinate learns, over repeated instances, to bring every decision upward rather than develop their own judgment. The organization's output shrinks in the long run, even though each individual instance of meddling looked like "helping."
-
-## Task-Relevant Maturity — Why One Management Style Doesn't Work for Everyone
-
-Grove dismantles the search for a single "best" leadership style with a finding that should reshape how every manager thinks about delegation: the right approach depends entirely on the **Task-Relevant Maturity (TRM)** of the person doing the work — not on their general experience or seniority, but specifically on their readiness for *this particular task*.
-
-Grove gives a vivid example: Intel moved an outstanding sales manager into a factory role of comparable size and scope. His performance collapsed — not because he'd become less capable as a person, but because his TRM for *this specific job* was low. He'd never run a manufacturing unit before. Over time, as he learned the role, his performance climbed back toward his earlier excellence. **The mistake was confusing general competence with task-specific readiness.**
-
-TRM is also highly situational — it can be high in one context and collapse the moment conditions shift. Grove compares it to an experienced driver on quiet country roads suddenly thrown onto a crowded metropolitan freeway: the years of driving experience didn't disappear, but the TRM for *this specific driving task* dropped sharply.
-
-## Matching Management Style to TRM
-
-| TRM Level | Effective Management Style |
-|---|---|
-| Low | Structured and task-oriented — tell them exactly what, when, and how |
-| Medium | Individual-oriented — two-way communication, support, mutual reasoning |
-| High | Minimal involvement — agree on objectives, then monitor without micromanaging |
-
-Grove draws a direct parallel to parenting: you don't let a toddler near a busy street without explicit rules, but you don't recite the same rules to a teenager who has internalized them. **As TRM increases, structure doesn't disappear — it moves from being externally imposed to being internally held.** This is the entire goal of developing someone: not removing structure, but helping them carry it themselves so a manager's direct involvement can shrink without risk increasing.
-
-One important caution: regardless of TRM level, Grove insists a manager must always monitor closely enough to avoid surprises. The difference between delegating a task and abandoning it is exactly this — continued monitoring at a level appropriate to the person's maturity, never zero.
-
-## Why Raising TRM Is a Manager's Best Long-Term Investment
-
-The practical payoff of all this: the appropriate management style for someone with high TRM takes dramatically less of a manager's time than the structured approach low TRM requires. Every hour spent deliberately developing a subordinate's task-relevant maturity is an hour that compounds — it converts a relationship that requires constant structured input into one that requires only periodic monitoring, freeing the manager's leverage for other high-value activities.
-
-This is why training, in Grove's view (the subject of an entire chapter titled "Why Training Is the Boss's Job"), isn't HR's responsibility delegated away from managers — it's one of the highest-leverage activities a manager can personally perform, precisely because of this compounding effect on TRM.
+This is Sowell's recurring move throughout the book: take a policy with an obviously sympathetic goal — affordable housing, protecting jobs, helping struggling businesses — and trace what actually happens once people respond to the *changed incentives*, not the *stated intentions*, of the policy.
 
 ## Apply This Today
 
-Run Grove's leverage audit on your own week:
+Sowell's lens works on far more than government policy — it applies to any situation where you're tempted to judge a decision by what it was meant to accomplish rather than what it will actually cause people to do.
 
-1. **List your 5–7 most time-consuming recurring activities** as a founder or manager.
-2. **Score each one** using the three high-leverage tests: does it affect many people? Does it affect someone's behavior over a long period from a brief action? Does it transfer unique knowledge that unlocks others' work?
-3. **Identify your negative-leverage habits.** Are you meddling in decisions your team should be making themselves? Are you waffling on calls that are stalling other people's work?
-4. **Pick one person and assess their TRM** on their current biggest responsibility. Are you managing them with a style suited to their actual readiness level, or out of habit — too hands-on for someone ready to be trusted, or too hands-off for someone who actually needs more structure right now?
+1. **Find a price control or constraint that touches your own business or industry directly** — a minimum wage, a rent cap, a tariff, a subsidy, a price ceiling somewhere in your supply chain. Trace it the way Sowell traces rent control: who benefits in the short term, who bears the cost that doesn't show up in the headline, and what shortage or surplus does it eventually create?
 
-The output of your business this quarter is not a function of how hard you personally worked. It's a function of where your leverage actually went.`,
+2. **Look at one internal policy in your own company through the same lens.** A rule meant to prevent one bad outcome often quietly creates incentives nobody intended — free unlimited PTO that nobody feels safe using, a "no questions asked" return policy that gets systematically abused, a flat bonus structure that rewards the wrong behavior. Good intentions are not a substitute for tracing where the incentives actually point.
+
+3. **Ask the consequence question before the intention question.** Not "what is this rule trying to accomplish?" but "given how people actually respond to incentives, what is this rule going to cause?" Sowell's entire body of work rests on the gap between those two questions — and how often the gap is wider than anyone expects.`,
   },
 ]
 
-// ─── Book 2: Leaders Eat Last (Day 35) ─────────────────────────────────────────
-const leadersEatLastSummaries = [
+// ─── Book 2: The Wealth of Nations (Day 50) ────────────────────────────────────
+const wealthOfNationsSummaries = [
   {
-    bookId:    'leaders-eat-last',
-    bookTitle: 'Leaders Eat Last',
-    dayNumber: 35,
-    taskId:    'd35-t1',
-    title:     'Leaders Eat Last — The Circle of Safety and Why Some Teams Pull Together',
-    readTime:  '8 min read',
-    content:   `## Why Marines Eat Last
+    bookId:    'wealth-of-nations',
+    bookTitle: 'The Wealth of Nations',
+    dayNumber: 50,
+    taskId:    'd50-t1',
+    title:     'The Wealth of Nations — The Pin Factory and the Invisible Hand',
+    readTime:  '7 min read',
+    content:   `## The Book That Founded an Entire Discipline
 
-In the United States Marine Corps, when a unit gathers to eat, the most junior members are served first. The most senior — the officers, the leaders — eat last. No order is ever given. Marines simply do it.
+Published in 1776, Adam Smith's *An Inquiry into the Nature and Causes of the Wealth of Nations* is the founding text of modern economics. Two and a half centuries later, two of its core ideas — the division of labour and the invisible hand — are still the starting point for understanding how markets actually create wealth, and they remain just as counterintuitive to most people today as they were to Smith's contemporaries.
 
-At the heart of this small, wordless ritual is the entire thesis of Simon Sinek's book: **the true price of leadership is the willingness to place the needs of others above your own.** Leadership is not a rank. It's not a title, a corner office, or a bigger paycheck. It's a responsibility — and the organizations that thrive long-term are the ones whose leaders actually understand and live this distinction.
+## Ten Men, Forty-Eight Thousand Pins
 
-## Johnny Bravo and the Cost of Caring
+Smith opens his case for the division of labour with what he deliberately calls "a very trifling manufacture" — the trade of the pin-maker. A single worker, untrained and unfamiliar with the specialized tools of the trade, could scarcely make one pin a day, Smith argues, and certainly not twenty. But in a proper pin manufactory, the work is divided into roughly eighteen distinct operations: one man draws out the wire, another straightens it, a third cuts it, a fourth points it, a fifth grinds the top to receive the head — and making the head alone requires two or three further separate operations.
 
-In August 2002, an Air Force pilot with the call sign Johnny Bravo was circling above a valley in Afghanistan in his A-10 Warthog. Below him, twenty-two Special Operations soldiers were pinned down by enemy fire in pitch darkness. He wasn't ordered to descend through the dangerous cloud cover into a mountain valley with old Soviet maps and degraded visibility. If anything, the safer order would have been to hold position.
+Smith had personally observed a small workshop of this kind employing just ten men, some of whom performed two or three of the eighteen operations each. Poorly equipped and modestly resourced as they were, those ten workers together produced about twelve pounds of pins a day. At roughly 4,000 pins per pound, that's upward of **48,000 pins a day** — about 4,800 pins per person. Had each of those ten men worked separately, with no division of labour and no specialized training, Smith estimates they could not have made twenty pins a day each, and quite possibly not even one. The division of labour, in this single trifling example, multiplied output by a factor of hundreds.
 
-He went down anyway. He made pass after pass, firing on the enemy positions, counting seconds aloud to avoid slamming into the unseen mountain walls. When he ran out of ammunition, he brought his wingman down too. All twenty-two men went home alive that night.
+**The principle generalizes far beyond pins.** Smith's claim is that this same multiplication — proportionate increases in productive power through specialization — shows up in every trade and manufacture where division of labour can be introduced, even when the work can't be subdivided as neatly as pin-making. The reason wealthy, industrially advanced nations look the way they do, with farmers who are only farmers and manufacturers who are only manufacturers, rather than everyone doing a little of everything, is this same principle operating at the scale of an entire economy.
 
-Why did he do it? Not for a bonus, a promotion, or recognition. Sinek's answer, drawn directly from Johnny Bravo's own words: empathy. *"Because they would have done it for me."* This is the emotional foundation the entire book is built on — and Sinek argues that the conditions that produce a Johnny Bravo aren't a matter of rare personal heroism. They're a matter of organizational design. Put people in the right environment, and this kind of selflessness becomes the norm rather than the exception.
+## Why We Divide Labour at All
 
-## The Day the Bells Stopped Ringing
+What causes this division to happen in the first place? Smith locates the answer not in any deliberate plan or far-sighted policy, but in something much more basic: **a fundamental human propensity to truck, barter, and exchange one thing for another.** Nobody designed the division of labour to produce general prosperity — it emerged gradually and almost accidentally, as people who were good at one thing realized they could trade their surplus for things other people were good at producing.
 
-Sinek's other foundational story is less dramatic but just as instructive. Bob Chapman, CEO of the manufacturing company Barry-Wehmiller, acquired a struggling factory called HayssenSandiacre. Rather than bringing in consultants with a turnaround strategy, Chapman started by listening.
+This is the seed of one of Smith's most quoted and most misunderstood observations, found later in the same chapter:
 
-One factory veteran, Ron Campbell, finally admitted what was really going on: factory workers punched a time clock and waited for bells to tell them when they could take a break, use the bathroom, or go to lunch — while office employees, walking through the very same door each morning, were trusted to manage their own time freely. The factory floor and the office were, in every meaningful way, two different companies under one roof, and the difference was trust.
+> *"It is not from the benevolence of the butcher, the brewer, or the baker, that we expect our dinner, but from their regard to their own interest. We address ourselves, not to their humanity but to their self-love, and never talk to them of our own necessities but of their advantages."*
 
-Chapman's response: remove the time clocks. Remove the bells. Take down the locked cage around spare parts, which existed to prevent theft but communicated, every single day, that management didn't trust its own people. Make company phones available to everyone, no permission required.
+This is not a claim that self-interest is good or noble. It's a claim about **what actually moves people to cooperate reliably, at scale, with strangers they will never personally know.** Begging works occasionally and unpredictably; even a beggar, Smith notes, doesn't depend on charity entirely. But trade — proposing "give me what I want, and you shall have this which you want" — works dependably, every day, between people with no personal relationship at all, because it appeals to something present in essentially everyone: regard for their own advantage. Smith's insight isn't cynicism about human nature; it's a structural observation about which motive scales reliably across millions of anonymous transactions, and which one doesn't.
 
-None of this was about being "nicer." It was a structural decision about where leadership chooses to extend trust — and that decision, multiplied across thousands of small moments, is what determines whether an organization's culture pulls people together or quietly tears them apart.
+## The Invisible Hand
 
-## The Circle of Safety
+The phrase Smith is most famous for appears, somewhat surprisingly, just once in the entire book — in a passage about why individuals investing capital tend to favor domestic industry over foreign industry, given equal returns. But the underlying logic of that single passage became the most influential idea in the history of economics:
 
-Sinek's central organizing concept ties both stories together. Every organization faces two categories of danger:
+> *"By directing that industry in such a manner as its produce may be of the greatest value, he intends only his own gain, and he is in this, as in many other cases, led by an invisible hand to promote an end which was no part of his intention... By pursuing his own interest he frequently promotes that of the society more effectually than when he really intends to promote it."*
 
-**External dangers** — competitors, market shifts, economic downturns, new technology that makes your business model obsolete overnight. These are constant, real, and entirely outside your control. They will never go away.
+The mechanism Smith describes: every individual, in choosing how to deploy their own capital, naturally tries to use it where they judge the return will be highest — because that judgment serves their own gain. They are not trying to maximize national output, and most have no idea how much they're contributing to it. Yet the aggregate effect of millions of individuals each making self-interested judgments about their own best use of their own resources is that the nation's total output tends toward being higher than it would be under any centralized attempt to direct it.
 
-**Internal dangers** — office politics, layoffs, humiliation, isolation, fear of looking incompetent, fear of being blamed. Unlike external dangers, these are entirely within an organization's control. And unlike external dangers, they can be eliminated.
+Smith's argument against centralized direction is not just practical but specifically epistemic: **the individual, in his own local situation, can judge what's the most valuable use of his own capital far better than any statesman or lawgiver could judge it for him.** A central planner attempting to direct millions of individual capital decisions would need knowledge no single person or institution could possibly possess — not just data, but the kind of local, particular, constantly shifting knowledge that exists only in the heads of the people actually making each decision, in their own specific circumstances.
 
-The **Circle of Safety** is what leaders build when they deliberately remove internal danger from their people's daily experience. When people feel genuinely protected from threats *inside* the organization, they redirect all the energy they would have spent on self-protection — political maneuvering, hiding mistakes, guarding information — toward facing the dangers *outside* the organization instead.
+This is the deepest version of Smith's claim: it isn't that self-interest is morally superior to benevolence as a motive. It's that **a system built on dispersed self-interested decision-making, coordinated through prices and voluntary exchange, can productively use a kind of localized knowledge that no centralized system can ever fully collect or act on.**
 
-Sinek borrows the metaphor of the Spartan shield: a Spartan soldier carried his helmet and breastplate for his own protection, but his shield for the safety of the entire battle line. Losing your shield in battle, unlike losing a helmet, was the single greatest disgrace a Spartan could commit — because the shield wasn't about you. It was about everyone beside you.
+## Why These Two Ideas Belong Together
 
-**The leader's job is to be the shield.** Not to protect their own position, but to extend protection to everyone inside the Circle — and the size of that Circle is a direct, measurable reflection of leadership quality. Weak leaders extend the Circle of Safety only to a small inner circle of fellow executives, leaving everyone else to fend for themselves, form silos, hide mistakes, and protect their own turf. Strong leaders extend the Circle to include every single person in the organization.
+The division of labour and the invisible hand aren't separate insights — they're two views of the same underlying mechanism. The division of labour explains how specialization multiplies what a society can produce. The invisible hand explains *why specialization happens in the right places without anyone planning it that way* — because self-interested individuals, each pursuing their own gain through voluntary exchange, end up allocating labour and capital toward their most valuable uses, guided by nothing more than the price signals and trading opportunities directly in front of them.
 
-## The Whitehall Studies — Stress Isn't About Workload
-
-A series of landmark British studies, known as the Whitehall Studies, set out to confirm what everyone assumed: that executives at the top of an organization suffer the most stress, given their immense responsibility.
-
-The actual finding inverted the assumption entirely. **Stress was not driven by the demands of the job or the level of responsibility.** It was driven by how much control a person felt they had over their work, and by the imbalance between the effort they put in and the reward — recognition, respect, security — they received back. Lower-ranking employees, who often have the least control and the least recognition, showed the highest stress-related health risks. The senior leaders, despite carrying more formal responsibility, often had *lower* stress, because they typically had more autonomy.
-
-A related 2011 Australian study found something equally striking: people in jobs they hated showed depression and anxiety levels equal to or worse than people who were unemployed entirely. And a 2013 Gallup poll found that when bosses completely ignore their employees, 40% actively disengage from their work — but if a boss criticizes them regularly, only 22% disengage, because even harsh attention beats indifference. When a boss recognizes just one of an employee's strengths, disengagement drops to just 1%.
-
-The lesson for any founder or manager: the absence of recognition is more corrosive than almost anything else you could do. People don't need constant praise. They need to know someone sees them.
-
-## The Four Chemicals That Run Your Culture
-
-Sinek grounds the entire Circle of Safety concept in basic human neurochemistry — four chemicals he summarizes with the acronym **E.D.S.O.**
-
-**Endorphins** mask physical pain with pleasure — the "runner's high." Evolutionarily, they rewarded our ancestors for the physical endurance required to hunt and gather over long distances. In modern organizations, endorphins show up as the satisfaction of pushing through genuinely hard, demanding work.
-
-**Dopamine** rewards us for making progress toward a goal — the small hit of satisfaction every time we cross something off a to-do list, hit a milestone, or close a deal. This is why specific, visible, measurable goals motivate people far more effectively than vague aspirations like "be the best." But dopamine has a dark side: it's highly addictive, and organizations that reward *only* hitting numbers — with no attention to how people feel along the way — risk creating a culture of dopamine addicts who will eventually burn out or cut corners to keep getting the hit.
-
-Endorphins and dopamine are what Sinek calls the **"selfish" chemicals** — they evolved to drive individual survival, individual achievement, individual progress.
-
-**Serotonin** is the chemical of pride and status — the feeling of being respected and valued by people whose opinion matters to you. It's why an award means more in front of an audience than received by email alone, and why the first thing people do when they win something is thank the people who supported them. Serotonin reinforces the bond between leader and follower, parent and child, coach and player.
-
-**Oxytocin** is the chemical of trust, friendship, and love — released through generosity, physical touch, and acts of genuine human connection. It's the chemical most responsible for the feeling that we belong, that we're safe, that the people around us have our backs.
-
-Serotonin and oxytocin are the **"selfless" chemicals** — they evolved specifically to make cooperation and group loyalty feel good, because a species that couldn't cooperate couldn't have survived the dangers of the natural world.
-
-## Why This Matters for How You Lead
-
-A strong Circle of Safety depends on serotonin and oxytocin flowing freely — recognition given generously, trust extended deliberately, genuine care for people's wellbeing expressed regularly. A culture run purely on dopamine — hit the number, get the bonus, nothing else discussed — will produce short bursts of performance and long-term burnout, because it never engages the chemicals that make people actually want to stay, actually want to look out for each other, actually want to sacrifice for the team the way Johnny Bravo did.
-
-The leader's actual job, in Sinek's framing, isn't to be the smartest person in the room or to have all the answers. It's to control the conditions inside the organization so that the four chemicals work *for* the culture instead of against it — extending trust, removing arbitrary internal threats, recognizing effort visibly, and building an environment where people feel safe enough to bring their full energy to facing the very real dangers outside.
+Smith's deeper point, threading through both ideas: **a vast, productive, coordinated economic order can emerge from nobody's master plan** — assembled instead from millions of small, self-interested decisions, none of which were intended to produce that order, all of which nonetheless add up to it.
 
 ## Apply This Today
 
-1. **Map your Circle of Safety.** Who in your organization currently feels fully protected and trusted? Who is still operating in survival mode — guarding information, afraid to admit mistakes, unsure where they stand? Be honest about where the boundary of your Circle actually sits today, not where you wish it sat.
+Two exercises drawn directly from Smith's own method — starting from a concrete, almost trivial example and reasoning up to the general principle:
 
-2. **Find one bell or time clock.** What's one structural, low-trust policy or practice in your business — something that exists "just in case" but quietly signals distrust — that you could remove this week, the way Chapman removed the factory bells?
+1. **Map your own "pin factory."** List every distinct step currently required to deliver your product or service from start to finish, the way Smith mapped the eighteen operations of pin-making. Is there a single step still being handled by one generalist that could instead be split into specialized, repeatable parts — the way drawing the wire, cutting it, and pointing it became three separate jobs instead of one? Where would dividing it multiply your output the way it multiplied the pin-makers'?
 
-3. **Audit your recognition habits.** Given the Gallup finding that even criticism beats silence, who on your team have you gone the longest without acknowledging? A specific, genuine note about something they did well costs you five minutes and may be the single highest-leverage thing you do this week.
-
-The companies that win long-term aren't the ones with the smartest strategy or the most resources. They're the ones whose people trust each other enough to stop protecting themselves from each other — and start protecting the mission together.`,
+2. **Find a place where you're appealing to benevolence instead of mutual interest.** Smith's insight about the butcher and the baker applies directly to sales, hiring, and partnerships: relationships built on asking people to be generous or understanding scale poorly and unpredictably. Relationships built on genuine, clearly demonstrated mutual advantage scale reliably, because they don't depend on anyone's goodwill holding up under pressure. Where in your current pitch, offer, or ask are you quietly relying on someone's charity rather than making the case for their own clear self-interest?`,
   },
 ]
 
-// ─── Book 3: An Everyone Culture (Day 36) ──────────────────────────────────────
-const everyoneCultureSummaries = [
+// ─── Book 3: Principles (Day 51) ───────────────────────────────────────────────
+const principlesSummaries = [
   {
-    bookId:    'an-everyone-culture',
-    bookTitle: 'An Everyone Culture',
-    dayNumber: 36,
-    taskId:    'd36-t1',
-    title:     'An Everyone Culture — The Second Job You\'re Not Getting Paid For',
+    bookId:    'principles',
+    bookTitle: 'Principles',
+    dayNumber: 51,
+    taskId:    'd51-t1',
+    title:     'Principles — The 5-Step Process and the Idea Meritocracy',
     readTime:  '8 min read',
-    content:   `## The Single Biggest Waste of Resources in Business
+    content:   `## "I'm a Dumb Shit Who Doesn't Know Much"
 
-Robert Kegan and Lisa Lahey, both developmental psychologists at Harvard, open with a claim that sounds extreme until you actually sit with it: in nearly every ordinary organization, **almost everyone is doing a second job no one is paying them for.**
+Ray Dalio opens *Principles* with a line that sounds like false modesty from the founder of the world's largest hedge fund, but he means it literally: whatever success he's had has come less from what he knows and more from **knowing how to deal with what he doesn't know.** That single reframe — from "I know I'm right" to "how do I know I'm right?" — is the foundation everything else in the book is built on.
 
-That second job is hiding. Covering up weaknesses. Managing other people's impressions of you. Showing yourself to your best advantage. Hiding uncertainty. Hiding inadequacy. Hiding limitations.
+Dalio built Bridgewater Associates from a two-bedroom apartment into, by his account, the fifth most important private company in the U.S. according to Fortune. The principles in this book are his attempt to extract the *transferable logic* behind that outcome — not a memoir of what happened, but a set of decision-making tools meant to work for anyone, in any domain, regardless of whether they ever manage a dollar of anyone else's money.
 
-This isn't an occasional behavior reserved for bad days — Kegan and Lahey argue it's the default operating mode of most professionals in most organizations, all day, every day. And the cost is staggering: you are paying a full-time wage for what amounts to part-time work, because a meaningful fraction of every employee's energy is being spent on self-protection rather than on the actual job.
+## Principles Are Recipes, Not Rules Handed Down From Above
 
-Consider it from the employee's side too. What does it cost *you* to live a double life at work every day — to know, underneath the professional performance, that you're not quite the person you're presenting yourself to be? Research on workplace burnout backs this up directly: the single biggest cause of burnout isn't work overload. It's working for a long time without experiencing genuine personal development.
+Dalio's definition: **principles are fundamental truths that serve as the foundation for behavior that gets you what you want out of life**, and they work because they let you classify situations into types you've encountered before, rather than reacting to every new problem as if it's never happened to anyone. "Having a good set of principles," he writes, "is like having a good collection of recipes for success."
 
-## What If an Organization Was Built Differently?
+Crucially, Dalio is explicit that he does not want readers to adopt his principles wholesale. The point of the book is to prompt you to discover and write down your *own* — ideally in writing, because writing forces the kind of precision that vague mental rules never achieve. A principle you can't clearly explain isn't really a principle yet; it's just an instinct you haven't examined.
 
-Kegan and Lahey spent years studying a small number of companies where this dynamic essentially doesn't exist — organizations where people genuinely, visibly come out of hiding. They call these **Deliberately Developmental Organizations (DDOs)**.
+## Believability-Weighted Decision Making
 
-A DDO isn't a company with a generous benefits package, a wellness program, or a "people-first" mission statement bolted onto business as usual. It's something structurally different: an organization built from the ground up on the conviction that the company's business success and its people's personal growth are not two separate goals — they're the same goal, pursued through the same daily mechanisms.
+Dalio's core epistemic move, the one that shapes almost everything else in the book, came from a brutal early-career lesson: making a famously wrong, highly public bet on the markets in 1982 that nearly destroyed his firm. The experience shifted him permanently from a posture of "I know I'm right" to "how do I know I'm right?" — and that shift produced a specific practical habit: **seek out the smartest people who disagree with you, and try to genuinely understand their reasoning before assuming you're correct.**
 
-The three companies the authors studied in depth — Bridgewater Associates (the world's largest hedge fund), Decurion (a movie theater and senior living company), and Next Jump (a tech company) — had never heard of each other and operate in wildly different industries. Yet independently, all three arrived at strikingly similar cultural architectures.
+This evolved into what Dalio calls **believability-weighted decision making** — instead of treating every opinion as equally valid (pure democracy) or deferring entirely to whoever's in charge (pure autocracy), you weigh people's input according to their track record and demonstrated reasoning ability on the specific question at hand. Bridgewater is built, in Dalio's words, as **an idea meritocracy** — not a system where he leads and everyone follows, and not a system where every vote counts equally, but one that explicitly weighs opinions in proportion to their merit. The goal, as he puts it bluntly: "I just want to be right — I don't care if the right answer comes from me."
 
-## The Twentieth-Century Answer Was Always "Something Extra"
+## The 5-Step Process
 
-To understand what makes a DDO different, it helps to see what it's reacting against. Executive coaching, leadership retreats, mentoring programs, corporate universities — these are the standard twentieth-century tools for developing people, and Kegan and Lahey identify four problems common to all of them:
+The single most actionable framework in the book is what Dalio calls the **5-Step Process** — his model for how anyone moves from where they are to where they want to be, applicable to a single decision or an entire life:
 
-1. **They're punctuated, not continuous.** A weekend retreat or a once-a-year off-site is too thin an intervention to produce fundamental change.
-2. **They're "something extra."** They sit outside the normal flow of work, which raises the question of whether anything learned actually transfers back to the day-to-day job.
-3. **They're reserved for the few.** Most companies funnel development resources toward the 5–10% identified as "high potential," implicitly writing off the other 90%.
-4. **The individual, not the organization, is the point of intervention.** The assumption is always: give the person a coach, a course, a mentor — some additive — while the organization itself stays exactly the same.
+**1. Have clear goals.** Dalio's first warning here is about prioritization: you can have virtually anything you want, but not everything you want, and many people fail before they even start by refusing to choose between good alternatives. He also draws a sharp distinction between goals and desires — a goal is something you genuinely need to achieve; a desire (his example: wanting good-tasting but unhealthy food when your goal is fitness) is often the very thing standing between you and your goal. Don't mistake the trappings of success — the expensive car, the recognition — for success itself; people chasing trappings rather than goals are rarely satisfied even when they get them.
 
-A DDO inverts all four. Development isn't an extra program — it's baked into the daily operating rhythm of the business itself. And it isn't reserved for high-potentials — it's for everyone. Hence the book's title.
+**2. Identify and don't tolerate the problems that stand in the way.** Dalio's instruction here cuts against instinct: view painful problems as improvements screaming at you, not as threats to your ego. Most people avoid surfacing problems precisely because doing so exposes their own weaknesses — but acknowledging a weakness is the first step toward overcoming it, not a surrender to it. Critically, **be specific.** "I can't get enough sleep" is not a problem — it's a possible cause of one. The actual problem might be "I'm performing poorly at work," and you can't accurately diagnose that until you've named it precisely rather than naming a symptom next to it.
 
-## Edge, Home, and Groove — The Architecture of a DDO
+**3. Diagnose problems to get at their root cause.** Dalio insists on separating "what is" from "what to do about it" — diagnosing thoroughly before jumping to solutions, because premature solution-jumping is one of the most common ways people solve the wrong problem entirely. This step asks specifically *why* a problem exists, not just *what* the problem is — and the two questions require genuinely different thinking, done one at a time rather than blended together.
 
-Kegan and Lahey describe the conceptual structure of a DDO using three intersecting dimensions, like three legs of a stool — remove any one and the whole thing collapses.
+**4. Design plans that will get you around the problems.** Only once the root cause is genuinely understood does Dalio move to designing a path around it — and he's explicit that the steps must be done in order. Designing solutions before diagnosis is complete leads to fixing symptoms instead of causes.
 
-**Edge: Developmental Aspiration**
+**5. Push the designs through to results.** The final step is simply execution — doing what's necessary, consistently, to convert the plan into an actual outcome. Dalio frames the whole process as a loop: you push through to results, then look at those results and start the cycle again, ideally setting your goals successively higher each time.
 
-Every DDO is organized around the explicit, structural belief that **adults can grow** — not just children, not just "high potentials," but every single person, continuously, throughout their career. This sounds obvious stated aloud, but almost no organization is actually *designed* from the ground up to support it.
+His blunt instruction for the discipline this requires: do each step **one at a time, in order.** When you're setting goals, just set goals — don't simultaneously worry about how you'll achieve them. When you're diagnosing, just diagnose — don't jump to solving. Blurring the steps together, in Dalio's experience, is one of the most reliable ways to arrive at a worse answer than doing them sequentially and rigorously.
 
-At Next Jump, this shows up in a formula employees recite: **Better Me + Better You = Better Us.** Half of every employee's compensation is tied to *culture* — specifically, to how much they're working on their own growth and helping others do the same — not just to revenue performance. You can be a revenue superstar at Next Jump and still take a smaller bonus if you're not actively working on yourself.
+## Radical Truth and Radical Transparency
 
-Tied directly to this is the second edge principle: **weakness is a potential asset, and error is an opportunity** — not something to be hidden, but something to be surfaced, examined, and worked on publicly. At Bridgewater, every employee is required to log mistakes and failures — their own and others' — in a company-wide "Issues Log." Failing to log a mistake is treated as a more serious breach than the mistake itself. Founder Ray Dalio's mantra, "Pain + Reflection = Progress," is operationalized into an actual daily practice, not just a poster on the wall.
+The cultural principle underneath the idea meritocracy is what Dalio calls **radical truth and radical transparency** — an operating norm at Bridgewater where people are expected to say what they really think, even when it's uncomfortable, and where as much information as possible is made visible to as many people as possible, rather than filtered through hierarchy.
 
-**Home: Developmental Community**
-
-None of this works without psychological safety. Kegan and Lahey are explicit that working at one's growing edge requires shared vulnerability inside a genuinely trustworthy community — and that takes deliberate design, not good intentions.
-
-Inside a DDO's "home," rank does not carry its usual privileges when it comes to development — a senior executive's weaknesses get examined with the same rigor as a junior employee's. Everyone, regardless of title, is expected to do active "people development" work on others, not just receive it from above. And critically: everyone needs a "crew" — a trusted small group who knows your specific growing edge and is actively invested in helping you work through it, rather than simply watching you struggle alone.
-
-**Groove: Developmental Practices**
-
-Aspiration and community alone produce good intentions, not change. The "groove" is the set of sustained, repeated practices that actually anchor development in daily behavior. At Next Jump, this takes the form of weekly "situational workshops" — structured group sessions where an employee brings a real, current struggle, and the group's job isn't to solve the situation itself, but to help that person see the deeper pattern in themselves that keeps producing similar situations. The tone, deliberately, is never "gotcha" — it's closer to tending a plant that needs regular attention to grow.
-
-## The Fixed Mind-Set Trap
-
-Kegan and Lahey connect this directly to psychologist Carol Dweck's well-known distinction between a "fixed" mind-set (success comes from innate talent) and a "growth" mind-set (success comes from sustained effort through expected setbacks). Their honest admission: even the authors themselves, despite decades of studying human development, still catch traces of fixed-mind-set thinking in themselves.
-
-The trap for high performers specifically: many arrive at a DDO assuming their development simply means getting *even better* at what they're already good at — a fuller expression of talents they already possess. They're in for a surprise. Real growth, Kegan and Lahey argue, requires first experiencing some genuine limitation at your *core* — not at the edges of your skill set, but in some fundamental, taken-for-granted assumption about yourself. Until that happens, you haven't actually engaged with what a DDO offers.
-
-This is also why DDOs are not comfortable places to work, and the authors are honest about it. People describe the experience in nearly identical terms across all three companies: "It's not always fun. It can be painful. And it's the most exhilarating place I've ever worked, and I'd never want to work anywhere else." It's also normal for DDOs to see higher-than-typical turnover in an employee's first twelve to eighteen months — the environment isn't for everyone, and the companies don't pretend otherwise.
-
-## Run on Developmental Principles, Not Slogans
-
-Most organizations have mission statements, mottos, and stated values — "the client comes first," "progress is our most important product." Kegan and Lahey's pointed observation: without an entire supporting ecology of structures, daily practices, tools, and shared language to actually embody those words, they remain slogans rather than forces that genuinely shape behavior.
-
-A DDO is run, instead, by a small set of deeply held principles that visibly shape decisions at every scale — from the smallest daily interaction to the most strategic company-wide choice. Decurion describes its purpose simply as providing "places for people to flourish" — and that principle shows up concretely in something as small as a movie theater crew member starting his shift by consciously connecting his specific tasks that day to his own deeper sense of purpose as a person, not just running through a checklist.
-
-## Why This Is "Strictly Business" and Not Just Nice-to-Have
-
-It would be easy to dismiss all of this as soft, feel-good HR philosophy with no real business case. Kegan and Lahey devote real attention to refuting that — pointing to measurable outcomes across the three DDOs they studied: increases in profitability and employee retention, faster paths to promotion, more candid internal communication, better detection of operational and strategic errors before they become costly, more effective delegation, and stronger accountability throughout the organization.
-
-The mechanism behind all of it traces back to the opening diagnosis: if hiding weaknesses is the default mode in a normal organization, and that hiding consumes a meaningful fraction of every employee's energy and attention every single day, then an organization that successfully eliminates the need to hide has just recovered an enormous amount of previously wasted human capacity — redirected toward the actual work, the actual mission, and each other.
+Dalio's reasoning is structural, not merely cultural: an idea meritocracy cannot actually function unless disagreements are surfaced openly and resolved through genuine reasoning rather than suppressed out of politeness or deference to seniority. A culture of radical transparency makes it far harder for bad ideas — including the leader's own — to survive simply because no one wanted to be the one to point out the problem.
 
 ## Apply This Today
 
-This isn't a framework you implement by issuing a memo. But you can start testing where you stand:
+Three concrete moves to start applying Dalio's framework immediately:
 
-1. **Name your own "second job."** Be specific: where, this week, did you spend energy managing how you looked instead of doing the actual work — smoothing over a mistake, avoiding a hard conversation, performing confidence you didn't actually feel?
+1. **Run one real, current challenge through the full 5-Step Process, in writing, in order.** State the goal in one sentence. Identify the specific problem blocking it — not a symptom of the problem, the problem itself. Diagnose its root cause before letting yourself think about solutions at all. Only then design a plan. Only then commit to one specific action this week to push it through.
 
-2. **Find one structural change, not a personality change.** The goal isn't to tell your team to "be more open" — that's exactly the kind of slogan Kegan and Lahey warn against. What's one concrete mechanism — a regular practice, a changed incentive, a new ritual — that would make admitting a mistake measurably lower-risk than hiding it, the way Bridgewater's Issues Log does?
+2. **Find one person who disagrees with your current approach to something important — and seek them out deliberately.** Not to be persuaded automatically, and not to dismiss them automatically, but to genuinely understand their reasoning the way Dalio describes doing after his 1982 mistake. Ask yourself afterward: did weighing their view change how confident you are in your original position?
 
-3. **Identify your "crew" question.** Is there at least one person at work who knows your specific current growing edge and is actively invested in helping you work through it — not just your manager evaluating your performance, but someone genuinely on your side in that struggle? If the honest answer is no, that absence is itself useful information about your current culture.
-
-The promise Kegan and Lahey make is not modest: that the culture you build *is* your strategy, and that the organizations capable of developing everyone — not just the chosen few — are the ones that will out-think, out-adapt, and out-last everyone still paying full-time wages for half-time work.`,
+3. **Audit one decision-making process in your own team or business for radical transparency.** Is there a disagreement currently being smoothed over rather than surfaced and resolved? Dalio's claim is that the discomfort of surfacing it is almost always smaller than the long-term cost of letting a bad idea survive because nobody wanted to be the one to say so.`,
   },
 ]
 
@@ -328,12 +221,12 @@ The promise Kegan and Lahey make is not modest: that the culture you build *is* 
 
 async function main() {
   const books: { label: string; data: Summary[] }[] = [
-    { label: 'High Output Management (Day 34)', data: highOutputManagementSummaries },
-    { label: 'Leaders Eat Last (Day 35)',        data: leadersEatLastSummaries },
-    { label: 'An Everyone Culture (Day 36)',      data: everyoneCultureSummaries },
+    { label: 'Basic Economics (Day 49)',      data: basicEconomicsSummaries },
+    { label: 'The Wealth of Nations (Day 50)', data: wealthOfNationsSummaries },
+    { label: 'Principles (Day 51)',            data: principlesSummaries },
   ]
 
-  console.log('\n🚀 Seeding Module 07 — Days 34–36...\n')
+  console.log('\n🚀 Seeding Module 12 — Days 49–51...\n')
 
   for (const book of books) {
     console.log(`📖 ${book.label}`)
@@ -350,7 +243,7 @@ async function main() {
     await new Promise(r => setTimeout(r, 300))
   }
 
-  console.log('🎉 Module 07 (Days 34–36) seeded successfully!')
+  console.log('🎉 Module 12 (Days 49–51) seeded successfully!')
 }
 
 main().catch(e => {
