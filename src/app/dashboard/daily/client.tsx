@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { DayPlan, DayTask } from '@/lib/data/daily-plan'
+import { VideoPlayer } from '@/components/VideoPlayer'
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -64,6 +65,7 @@ export function DailyClient({
   const [summaries, setSummaries]     = useState<Record<string, any>>({})
   const [summaryOpen, setSummaryOpen] = useState<string | null>(null)
   const [loadingSummary, setLoadingSummary] = useState<string | null>(null)
+  const [openVideos, setOpenVideos] = useState<Record<string, boolean>>({})
 
   // Load summaries for this day
   useEffect(() => {
@@ -225,6 +227,8 @@ export function DailyClient({
           const hasSummary = !!summaries[task.id] || task.type === 'read'
           const isSummaryOpen = summaryOpen === task.id
           const isJournal = task.type === 'reflect'
+          const hasVideo  = task.type === 'watch' && !!task.videoId
+          const isVideoOpen = !!openVideos[task.id]
 
           if (isJournal) return (
             <div key={task.id} className={cn('glass-card rounded-xl p-5 transition-all', done ? 'border-primary/20' : 'border-status-amber/20')}>
@@ -286,7 +290,7 @@ export function DailyClient({
           return (
             <div key={task.id}
               className={cn('glass-card rounded-xl overflow-hidden transition-all',
-                done ? 'border-primary/20 bg-primary/5' : isOpen || isSummaryOpen ? 'border-l-2 border-l-secondary' : '')}>
+                done ? 'border-primary/20 bg-primary/5' : isOpen || isSummaryOpen || isVideoOpen ? 'border-l-2 border-l-secondary' : '')}>
 
               {/* Task header row */}
               <div className="flex items-center justify-between p-5">
@@ -327,6 +331,30 @@ export function DailyClient({
                   )}
                 </div>
               </div>
+
+              {/* Watch Inline button for Watch tasks that have a videoId */}
+              {hasVideo && (
+                <div className="px-5 pb-4 -mt-1">
+                  <button
+                    onClick={() => setOpenVideos(prev => ({ ...prev, [task.id]: !prev[task.id] }))}
+                    className={cn(
+                      'flex items-center gap-2 px-4 py-2 rounded-lg border font-label-caps text-label-caps text-[10px] transition-all w-full md:w-auto',
+                      isVideoOpen
+                        ? 'bg-primary/10 border-primary/30 text-primary'
+                        : 'bg-primary/5 border-primary/20 text-primary hover:bg-primary/10'
+                    )}>
+                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
+                      {isVideoOpen ? 'close' : 'play_circle'}
+                    </span>
+                    {isVideoOpen ? '✕ Close Video' : '▶ Watch Inline'}
+                    {!isVideoOpen && (
+                      <span className="ml-auto text-[9px] font-label-mono text-primary/60 bg-primary/10 px-2 py-0.5 rounded-full">
+                        {task.duration}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              )}
 
               {/* Summary button for Read tasks */}
               {task.type === 'read' && (
@@ -410,6 +438,37 @@ export function DailyClient({
                       )}
                       {done ? '✓ Completed' : 'Mark as Read'}
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Inline Video Panel */}
+              {isVideoOpen && hasVideo && (
+                <div className="mx-4 mb-4 rounded-xl overflow-hidden" style={{ border: '0.5px solid rgba(88,245,223,0.18)' }}>
+                  {/* Panel header */}
+                  <div
+                    className="px-5 py-3 flex items-center gap-2 border-b"
+                    style={{ backgroundColor: 'rgba(88,245,223,0.06)', borderColor: 'rgba(88,245,223,0.18)' }}
+                  >
+                    <span
+                      className="material-symbols-outlined text-primary text-sm"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >play_circle</span>
+                    <span className="font-label-caps text-[10px] text-primary uppercase tracking-widest">Video</span>
+                    <span className="font-label-mono text-[9px] text-primary/60 bg-primary/10 px-2 py-0.5 rounded-full">
+                      ▶ VIDEO · {task.duration}
+                    </span>
+                    <p className="font-label-mono text-[10px] text-text-tertiary ml-auto truncate hidden sm:block">
+                      {task.detail}
+                    </p>
+                  </div>
+                  {/* Player */}
+                  <div className="p-3" style={{ backgroundColor: '#1a1618' }}>
+                    <VideoPlayer
+                      videoId={task.videoId!}
+                      source={task.videoSource ?? 'youtube'}
+                      title={task.detail}
+                    />
                   </div>
                 </div>
               )}
